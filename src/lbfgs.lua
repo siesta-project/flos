@@ -26,7 +26,7 @@ function LBFGS:initialize(...)
    -- Lower values converges faster at the risk of
    -- instabilities
    -- Larger values are easier to converge
-   self.invH0 = 25.
+   self.H0 = 1. / 25.
 
    -- Number of history points used
    self.history = 100
@@ -158,21 +158,21 @@ function LBFGS:next (P, C)
    local rh = {}
    
    -- Create a copy of the constraint
-   local q = - C:reshape(-1)
+   local q = C:reshape(-1)
    for i = itt, 1, -1 do
-      rh[i] = rho[i] * q:dot(dP[i]:reshape(-1))
-	 -- Note dC is C - C0
+      rh[i] = rho[i] * dP[i]:reshape(-1):dot(q)
       q = q - rh[i] * dC[i]:reshape(-1)
    end
-   local z = q / self.invH0
+
+   -- Solve for the rhs optimization
+   local z = q * self.H0
    -- Clean-up
    q = nil
 
    -- Now create the next step
    for i = 1, itt do
-      -- Note dC is C - C0
-      local tmp = rho[i] * dC[i]:reshape(-1):dot(z)
-      z = z - dP[i]:reshape(-1) * (rh[i] + tmp)
+      local beta = rho[i] * dC[i]:reshape(-1):dot(z)
+      z = z + dP[i]:reshape(-1) * (rh[i] - beta)
    end
    
    -- Ensure shape
@@ -223,7 +223,7 @@ function LBFGS:info ()
    
    print("LBGFS current / history: "..tostring(self:itt()) .. " / "..self.history)
    print("LBGFS.damping "..tostring(self.damp))
-   print("LBGFS.H0 "..tostring(1. / self.invH0))
+   print("LBGFS.H0 "..tostring(self.H0))
    print("LBGFS.Tolerance "..tostring(self.tolerance_C))
    print("LBGFS.Max-dP "..tostring(self.max_dP))
 
