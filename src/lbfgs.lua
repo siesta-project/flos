@@ -14,16 +14,18 @@ end
 LBFGS = {
    
    -- Damping of the BFGS algorithm
-   damp = 1.0,
+   --  > 1: over-relaxed
+   --  < 1: under-relaxed
+   damp = 1.2,
    
    -- Initial inverse Hessian
-   invH = 100.,
-   
-   -- Number of current iterations
-   nitt = 0,
-   
+   -- Lower values converges faster at the risk of
+   -- instabilities
+   -- Larger values are easier to converge
+   invH = 50.,
+
    -- Number of history points used
-   history = 12,
+   history = 100,
 
    -- Converged difference of the constraint
    conv_C = 0.02, 
@@ -44,6 +46,9 @@ LBFGS = {
    dP = {},
    dC = {},
    rho = {},
+
+   -- The current itteration
+   nitt = 0,
 
    -- Function to return the current itteration
    -- count
@@ -86,7 +91,7 @@ LBFGS = {
 	 self.dC[itt] = C - self.C0
 
 	 -- Calculate dot-product and store it
-	 self.rho[itt] = -1. / self.dP[itt]:reshape(n):dot(self.dC[itt]:reshape(n))
+	 self.rho[itt] = 1. / self.dP[itt]:reshape(n):dot(self.dC[itt]:reshape(n))
       end
 
       -- In case we have stored too many points
@@ -130,15 +135,16 @@ LBFGS = {
       for i = itt, 1, -1 do
 	 rh[i] = rho[i] * q:dot(dP[i]:reshape(n))
 	 -- Note dC is C - C0
-	 q = q + rh[i] * dC[i]:reshape(n)
+	 q = q - rh[i] * dC[i]:reshape(n)
       end
       local z = q / self.invH
+      q = nil
 
       -- Now create the next step
       for i = 1, itt do
 	 -- Note dC is C - C0
 	 local tmp = rho[i] * dC[i]:reshape(n):dot(z)
-	 z = z + dP[i]:reshape(n) * (rh[i] + tmp)
+	 z = z - dP[i]:reshape(n) * (rh[i] + tmp)
       end
 
       -- Ensure shape
