@@ -11,16 +11,16 @@ local optim = require "optima_base"
 -- Create the LBFGS class (inheriting the Optimizer construct)
 local LBFGS = mc.class("LBFGS", optim.Optimizer)
 
-function LBFGS:initialize(...)
+function LBFGS:initialize(tbl)
    -- Wrapper which basically does nothing..
    -- All variables are defined subsequently
 
    -- Damping of the BFGS algorithm
-   --  damp > 1
+   --  damping > 1
    --    over-relaxed
-   --  damp < 1
+   --  damping < 1
    --    under-relaxed
-   self.damp = 1.1
+   self.damping = 1.0
    
    -- Initial inverse Hessian
    -- Lower values converges faster at the risk of
@@ -59,11 +59,11 @@ function LBFGS:initialize(...)
 
    -- Ensure we update the elements as passed
    -- by new(...)
-   local arg = {...}
-   for k, v in pairs(arg) do
-      self[k] = v
+   if type(tbl) == "table" then
+      for k, v in pairs(tbl) do
+	 self[k] = v
+      end
    end
-   
 end
 
 -- Function to return the current itteration count
@@ -178,7 +178,7 @@ function LBFGS:next (F, G)
    z = - z:reshape(G.size)
    
    -- Update step
-   local delta = self:correct_dF(z) * self.damp
+   local delta = self:correct_dF(z) * self.damping
    
    -- Determine whether we have optimized the parameter/functional
    self:optimized(G)
@@ -221,7 +221,7 @@ function LBFGS:info ()
    end
    
    print("LBGFS current / history: "..tostring(self:itt()) .. " / "..self.history)
-   print("LBGFS.damping "..tostring(self.damp))
+   print("LBGFS.damping "..tostring(self.damping))
    print("LBGFS.H0 "..tostring(self.H0))
    print("LBGFS.Tolerance "..tostring(self.tolerance))
    print("LBGFS.max-dF "..tostring(self.max_dF))
