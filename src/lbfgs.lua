@@ -181,7 +181,7 @@ function LBFGS:next (P, C)
    -- Update step
    local dp = self:correct_dP(p) * self.damp
    
-   -- Determine whether we have optimized the 
+   -- Determine whether we have optimized the parameter/functional
    self:optimized(C)
    
    -- Calculate next step
@@ -203,12 +203,15 @@ end
 function LBFGS:optimized (C)
    -- Check convergence
    local norm = self.norm1D(C)
+
+   -- Determine whether the algorithm is complete.
    self.is_optimized = true
    for i = 1, #norm do
       if norm[i] > self.tolerance_C then
 	 self.is_optimized = false
       end
    end
+   
 end
 
 -- Print information regarding the LBFGS algorithm
