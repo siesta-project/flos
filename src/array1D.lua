@@ -222,6 +222,23 @@ function Array1D.dot(lhs, rhs)
    return v
 end
 
+-- Implementation of the cross product
+function Array1D.cross(lhs, rhs)
+   if not cls.instanceOf(lhs, Array1D) or
+   not cls.instanceOf(rhs, Array1D) then
+      error("Array1D: cross-product requires two 1D arrays")
+   end
+   if #lhs ~= 3 then
+      error("Array1D: cross-products are only defined in 3D space")
+   end
+
+   local v = Array1D:new(#lhs)
+   v[1] = lhs[2] * rhs[3] - lhs[3] * rhs[2]
+   v[2] = lhs[3] * rhs[1] - lhs[1] * rhs[3]
+   v[3] = lhs[1] * rhs[2] - lhs[2] * rhs[1]
+   return v
+end
+
 --[[
    We need to create all the different methods for 
    numerical stuff

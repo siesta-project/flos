@@ -56,6 +56,8 @@ function LBFGS:initialize(tbl)
    self.dF = {}
    self.dG = {}
    self.rho = {}
+   -- The last G . dF using dF for the optimized step
+   self.rho_optimized = 0.
 
    -- Ensure we update the elements as passed
    -- by new(...)
@@ -139,7 +141,7 @@ end
 
 -- Calculate the optimized variable (F) which
 -- minimizes the gradient (G).
-function LBFGS:next (F, G)
+function LBFGS:optimize (F, G)
    
    -- Add the current iteration to the history
    self:add_history(F, G)
@@ -178,6 +180,7 @@ function LBFGS:next (F, G)
    z = - z:reshape(G.size)
    
    -- Update step
+   self.rho_optimized = m.abs(self.flatdot(G, z))
    local delta = self:correct_dF(z) * self.damping
    
    -- Determine whether we have optimized the parameter/functional

@@ -7,9 +7,16 @@ local array = require "array"
 local optim = require "optima"
 
 -- Retrieve the LBFGS algorithm
-local LBFGS_coord = optim.LBFGS:new()
+-- Note that in some cases it may be advantegeous to
+-- run two simultaneous LBFGS algorithms and taking a weighted
+-- averaged between them.
+local coord = {}
+coord[1] = optim.LBFGS:new({H0 = 1. / 75.})
+coord[2] = optim.LBFGS:new({H0 = 1. / 50.})
+coord[3] = optim.LBFGS:new({H0 = 1. / 35.})
 local LBFGS_cell = optim.LBFGS:new()
 
+-- SIESTA unit conversion table
 local unit = {
    Ang = 1. / 0.529177,
    eV = 1. / 13.60580,
@@ -31,15 +38,16 @@ function siesta_comm()
 		  "MD.MaxStressTol"})
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
-      LBFGS_coord.tolerance = siesta.MD.MaxForceTol * unit.Ang / unit.eV
-      LBFGS_coord.max_dF = siesta.MD.MaxDispl / unit.Ang
+      for i = 1, #coord do
+	 coord[i].tolerance = siesta.MD.MaxForceTol * unit.Ang / unit.eV
+	 coord[i].max_dF = siesta.MD.MaxDispl / unit.Ang
 
-      -- Print out, to stdout, some information regarding
-      -- the LBFGS algorithm.
-      LBFGS_coord:info()
+	 -- Print information
+	 coord[i]:info()
+      end
 
-      -- Store the cell tolerance
-      LBFGS_cell.tolerance = siesta.MD.MaxStressTol
+      -- Store the cell tolerance (in eV/Ang^3)
+      LBFGS_cell.tolerance = siesta.MD.MaxStressTol * unit.Ang ^ 3 / unit.eV
 
    end
 
@@ -58,41 +66,60 @@ end
 
 function siesta_move(siesta)
 
-   local cell = array.Array2D.from(siesta.geom.cell)
-   
-   -- First get the stress
-   local tmp = array.Array2D.from(siesta.geom.stress)
+   -- Grab cell and calculate cell volume
+   local cell = array.Array2D.from(siesta.geom.cell) / unit.Ang
+   local vol = cell[1]:cross(cell[2]):dot(cell[3])
+
+   -- First get the stress (in eV/Ang^3)
+   local tmp = array.Array2D.from(siesta.geom.stress) * unit.Ang ^ 3 / unit.eV
    -- Convert to 2x3
    local stress = array.Array2D:new(2, 3)
    stress[1][1] = tmp[1][1]
    stress[1][2] = tmp[2][2]
    stress[1][3] = tmp[3][3]
-   stress[2][1] = tmp[1][2]
-   stress[2][2] = tmp[2][2]
-   stress[2][3] = tmp[3][3]
+   stress[2][1] = tmp[2][3]
+   stress[2][2] = tmp[1][3]
+   stress[2][3] = tmp[1][2]
 
-   for i = 1, 2 do
-      for j = 1 , 3
    
    -- This is were we do the LBFGS algorithm
    local xa = array.Array2D.from(siesta.geom.xa) / unit.Ang
-   -- Note the LBFGS requires the gradient (the force is the negative
-   -- gradient).
+   -- Note the LBFGS requires the gradient
+   -- The force is the negative gradient.
    local fa = -array.Array2D.from(siesta.geom.fa) * unit.Ang / unit.eV
 
-   --[[
-   print('coordinates')
-   print(xa, #xa)
-   print('forces')
-   print(fa, #fa)
-   --]]
+   -- Perform step (initialize array)
+   local all_xa = {}
+   local weight = {}
+   local sum_w = 0.
+   for i = 1, #coord do
+      all_xa[i] = coord[i]:optimize(xa, fa)
+      weight[i] = coord[i].rho_optimized
+      sum_w = sum_w + weight[i]
+   end
+   -- Calculate the proper weights
+   -- This weighting scheme will favor the largest
+   -- change until the Hessians converge in which case
+   -- both will result in the same displacement and the
+   -- same updated coordinates.
+   local s = ""
+   for i = 1, #coord do
+      weight[i] = weight[i] / sum_w
+      s = s .. ", " .. string.format("%7.4f", tostring(weight[i]))
+   end
+   print("LBFGS weighted average: ", s:sub(3))
 
-   -- Perform step
-   local new_xa = LBFGS:next(xa, fa)
+   -- Calculate the new coordinates
+   local out_xa = xa * 0.
+   local relaxed = true
+   for i = 1, #coord do
+      out_xa = out_xa + all_xa[i] * weight[i]
+      relaxed = relaxed and coord[i].is_optimized
+   end
    
    -- Send back new coordinates
-   siesta.geom.xa = new_xa * unit.Ang
-   siesta.MD.Relaxed = LBFGS.is_optimized
+   siesta.geom.xa = out_xa * unit.Ang
+   siesta.MD.Relaxed = relaxed
    
    return {"geom.xa", "MD.Relaxed"}
 end
