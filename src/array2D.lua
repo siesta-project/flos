@@ -231,56 +231,97 @@ end
 
 -- Implementation of the (flattened) dot product
 function Array2D.dot(lhs, rhs)
-   error("not implemented")
-   local t = opt_get(lhs, rhs)
-   local v
-   
-   -- There are 3 cases
-   --  1. Both are Array2D
-   --     In this case we do the flatened dot-product
-   if cls.instanceOf(t.lhz, Array2D) and
-   cls.instanceOf(t.rhz, Array2D) then
-      
-      v = 0.
-      for i = 1, t.lhz.size[1] do
-	 for j = 1, t.lhz.size[2] do
-	    v = v + t.lhz[i][j] * t.rhz[i][j]
-	 end
-      end
 
-   elseif cls.instanceOf(t.lhz, Array1D) and
-   cls.instanceOf(t.rhz, Array2D) then
-
-      v = Array1D:new(t.rhz.size[2])
-      for j = 1, #v do
-	 v[j] = 0.
-	 for i = 1 , t.rhz.size[1] do
-	    v[j] = v[j] + t.lhz[i] * t.rhz[i][j]
-	 end
-      end
-
-   elseif cls.instanceOf(t.lhz, Array2D) and
-   cls.instanceOf(t.rhz, Array1D) then
-
-      v = Array1D:new(t.lhz.size[1])
-      for i = 1 , t.lhz.size[1] do
-	 v[i] = 0.
-	 for j = 1, t.lhz.size[2] do
-	    v[i] = v[i] + t.lhz[i][j] * t.rhz[j]
-	 end
-      end
-   elseif cls.instanceOf(t.lhz, Array1D) and
-   cls.instanceOf(t.rhz, Array1D) then
-
-      v = 0.
-      for i = 1 , #t do
-	 v = v + t.lhz[i] * t.rhz[i]
-      end
-      
-   else
-      error("not implemented this dot-product")
+   function size_err(str)
+      error("Array2D.dot: wrong dimensions. " .. str)
    end
 
+   -- Returned value
+   local v
+   
+   -- First we figure out if the dot (matrix-product)
+   if cls.instanceOf(lhs, Array1D) then
+      if cls.instanceOf(rhs, Array1D) then
+	 -- An explicit call of the Array2D dot product
+	 -- would probably be the same as doing the
+	 --  x . y^T
+
+	 -- vector . vector -> matrix
+	 if lhs.size ~= rhs.size then
+	    size_err("1D-1D")
+	 end
+	 v = Array2D:new(lhs.size, lhs.size)
+	 for i = 1, #lhs do
+	    for j = 1, #lhs do
+	       v[i][j] = lhs[i] * rhs[j]
+	    end
+	 end
+	 
+      elseif cls.instanceOf(rhs, Array2D) then
+	 -- vector . matrix
+	 if lhs.size ~= rhs.size[1] then
+	    size_err("1D-2D")
+	 end
+	 v = Array1D:new(rhs.size[2])
+	 for j = 1 , #v do
+	    local vv = 0.
+	    for i = 1, #lhs do
+	       vv = vv + lhs[i] * rhs[i][j]
+	    end
+	    v[j] = vv
+	 end
+	 
+      else
+	 -- simple scaling
+	 v = lhs * rhs
+      end
+
+   elseif cls.instanceOf(lhs, Array2D) then
+      if cls.instanceOf(rhs, Array1D) then
+
+	 -- matrix . vector
+	 if lhs.size[2] ~= rhs.size then
+	    size_err("2D-1D")
+	 end
+	 v = Array1D:new(lhs.size[1])
+	 for j = 1 , #v do
+	    local vv = 0.
+	    for i = 1, #rhs do
+	       vv = vv + lhs[j][i] * rhs[i]
+	    end
+	    v[j] = vv
+	 end
+
+      elseif cls.instanceOf(rhs, Array2D) then
+
+	 -- matrix . matrix
+	 if lhs.size[2] ~= rhs.size[1] then
+	    size_err("2D-2D")
+	 end
+	 v = Array2D:new(lhs.size[1], rhs.size[2])
+	 for j = 1 , v.size[1] do
+	    -- Get local references
+	    local lrow = lhs[j]
+	    for i = 1 , v.size[2] do
+
+	       local vv = 0.
+	       for k = 1 , lhs.size[2] do
+		  vv = vv + lrow[k] * rhs[k][i]
+	       end
+	       v[j][i] = vv
+	       
+	    end
+	 end
+
+      else
+	 -- Simple scaling
+	 v = lhs * rhs
+      end
+   else
+      -- Simple scaling
+      v = lhs * rhs
+   end
+   
    return v
 end
 

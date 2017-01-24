@@ -30,5 +30,9 @@ function opt.norm1D(array)
    return norm1D
 end
 
+function opt.flatdot(lhs, rhs)
+   return lhs:reshape(-1):dot(rhs:reshape(-1))
+end
+
 
 return {Optimizer = opt}

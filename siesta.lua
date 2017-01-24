@@ -7,7 +7,8 @@ local array = require "array"
 local optim = require "optima"
 
 -- Retrieve the LBFGS algorithm
-local LBFGS = optim.LBFGS:new()
+local LBFGS_coord = optim.LBFGS:new()
+local LBFGS_cell = optim.LBFGS:new()
 
 local unit = {
    Ang = 1. / 0.529177,
@@ -26,15 +27,19 @@ function siesta_comm()
       -- convergence criteria, MD.MaxDispl and MD.MaxForceTol
       -- Note that the internal siesta units are Ry and Bohr,
       -- so we convert
-      siesta_get({"MD.MaxDispl", "MD.MaxForceTol"})
+      siesta_get({"MD.MaxDispl", "MD.MaxForceTol",
+		  "MD.MaxStressTol"})
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
-      LBFGS.tolerance = siesta.MD.MaxForceTol * unit.Ang / unit.eV
-      LBFGS.max_dF = siesta.MD.MaxDispl / unit.Ang
+      LBFGS_coord.tolerance = siesta.MD.MaxForceTol * unit.Ang / unit.eV
+      LBFGS_coord.max_dF = siesta.MD.MaxDispl / unit.Ang
 
       -- Print out, to stdout, some information regarding
       -- the LBFGS algorithm.
-      LBFGS:info()
+      LBFGS_coord:info()
+
+      -- Store the cell tolerance
+      LBFGS_cell.tolerance = siesta.MD.MaxStressTol
 
    end
 
@@ -42,7 +47,9 @@ function siesta_comm()
       -- Here we are doing the actual LBFGS algorithm.
       -- We retrieve the current coordinates, the forces
       -- and whether the geometry has relaxed
-      siesta_get({"geom.xa", "geom.fa", "MD.Relaxed"})
+      siesta_get({"geom.xa", "geom.fa",
+		  "geom.cell", "geom.stress",
+		  "MD.Relaxed"})
       ret_tbl = siesta_move(siesta)
    end
 
@@ -50,12 +57,28 @@ function siesta_comm()
 end
 
 function siesta_move(siesta)
+
+   local cell = array.Array2D.from(siesta.geom.cell)
+   
+   -- First get the stress
+   local tmp = array.Array2D.from(siesta.geom.stress)
+   -- Convert to 2x3
+   local stress = array.Array2D:new(2, 3)
+   stress[1][1] = tmp[1][1]
+   stress[1][2] = tmp[2][2]
+   stress[1][3] = tmp[3][3]
+   stress[2][1] = tmp[1][2]
+   stress[2][2] = tmp[2][2]
+   stress[2][3] = tmp[3][3]
+
+   for i = 1, 2 do
+      for j = 1 , 3
    
    -- This is were we do the LBFGS algorithm
-   xa = array.Array2D.from(siesta.geom.xa) / unit.Ang
+   local xa = array.Array2D.from(siesta.geom.xa) / unit.Ang
    -- Note the LBFGS requires the gradient (the force is the negative
    -- gradient).
-   fa = -array.Array2D.from(siesta.geom.fa) * unit.Ang / unit.eV
+   local fa = -array.Array2D.from(siesta.geom.fa) * unit.Ang / unit.eV
 
    --[[
    print('coordinates')
@@ -65,7 +88,7 @@ function siesta_move(siesta)
    --]]
 
    -- Perform step
-   new_xa = LBFGS:next(xa, fa)
+   local new_xa = LBFGS:next(xa, fa)
    
    -- Send back new coordinates
    siesta.geom.xa = new_xa * unit.Ang

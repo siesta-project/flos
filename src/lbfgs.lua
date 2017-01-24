@@ -115,7 +115,7 @@ function LBFGS:add_history (F, G)
       self.dG[itt] = G - self.G0
       
       -- Calculate dot-product and store the kernel
-      self.rho[itt] = 1. / self.dF[itt]:reshape(-1):dot(self.dG[itt]:reshape(-1))
+      self.rho[itt] = 1. / self.flatdot(self.dF[itt] ,self.dG[itt])
       
    end
    
