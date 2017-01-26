@@ -8,12 +8,12 @@ local optim = require "optima"
 
 -- Retrieve the LBFGS algorithm
 -- Note that in some cases it may be advantegeous to
--- run two simultaneous LBFGS algorithms and taking a weighted
+-- run several simultaneous LBFGS algorithms and taking a weighted
 -- averaged between them.
 local coord = {}
 coord[1] = optim.LBFGS:new({H0 = 1. / 75.})
-coord[2] = optim.LBFGS:new({H0 = 1. / 50.})
-coord[3] = optim.LBFGS:new({H0 = 1. / 35.})
+--coord[2] = optim.LBFGS:new({H0 = 1. / 50.})
+--coord[3] = optim.LBFGS:new({H0 = 1. / 35.})
 local LBFGS_cell = optim.LBFGS:new()
 
 -- SIESTA unit conversion table
@@ -34,8 +34,10 @@ function siesta_comm()
       -- convergence criteria, MD.MaxDispl and MD.MaxForceTol
       -- Note that the internal siesta units are Ry and Bohr,
       -- so we convert
-      siesta_get({"MD.MaxDispl", "MD.MaxForceTol",
+      siesta_get({"MD.MaxDispl",
+		  "MD.MaxForceTol",
 		  "MD.MaxStressTol"})
+
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
       for i = 1, #coord do
@@ -43,11 +45,18 @@ function siesta_comm()
 	 coord[i].max_dF = siesta.MD.MaxDispl / unit.Ang
 
 	 -- Print information
-	 coord[i]:info()
+	 if siesta.IONode then
+	    coord[i]:info()
+	 end
       end
 
       -- Store the cell tolerance (in eV/Ang^3)
       LBFGS_cell.tolerance = siesta.MD.MaxStressTol * unit.Ang ^ 3 / unit.eV
+
+      -- Print allowed values on can interact with
+      if siesta.IONode then
+	 --siesta.print_allowed()
+      end
 
    end
 
@@ -55,8 +64,10 @@ function siesta_comm()
       -- Here we are doing the actual LBFGS algorithm.
       -- We retrieve the current coordinates, the forces
       -- and whether the geometry has relaxed
-      siesta_get({"geom.xa", "geom.fa",
-		  "geom.cell", "geom.stress",
+      siesta_get({"geom.xa",
+		  "geom.fa",
+		  "geom.cell",
+		  "geom.stress",
 		  "MD.Relaxed"})
       ret_tbl = siesta_move(siesta)
    end
@@ -107,7 +118,9 @@ function siesta_move(siesta)
       weight[i] = weight[i] / sum_w
       s = s .. ", " .. string.format("%7.4f", tostring(weight[i]))
    end
-   print("LBFGS weighted average: ", s:sub(3))
+   if siesta.IONode and #coord > 1 then
+      print("LBFGS weighted average: ", s:sub(3))
+   end
 
    -- Calculate the new coordinates
    local out_xa = xa * 0.
@@ -121,5 +134,6 @@ function siesta_move(siesta)
    siesta.geom.xa = out_xa * unit.Ang
    siesta.MD.Relaxed = relaxed
    
-   return {"geom.xa", "MD.Relaxed"}
+   return {"geom.xa",
+	   "MD.Relaxed"}
 end
