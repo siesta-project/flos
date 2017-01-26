@@ -3,18 +3,17 @@
 -- Example of how to use the LBFGS algorithm
 -- with SIESTA + LUA
 
-local array = require "sfl.array"
-local optim = require "sfl.optima"
+local sfl = require "sfl"
 
 -- Retrieve the LBFGS algorithm
 -- Note that in some cases it may be advantegeous to
 -- run several simultaneous LBFGS algorithms and taking a weighted
 -- averaged between them.
 local coord = {}
-coord[1] = optim.LBFGS:new({H0 = 1. / 75.})
-coord[2] = optim.LBFGS:new({H0 = 1. / 50.})
---coord[3] = optim.LBFGS:new({H0 = 1. / 35.})
-local LBFGS_cell = optim.LBFGS:new()
+coord[1] = sfl.LBFGS:new({H0 = 1. / 75.})
+coord[2] = sfl.LBFGS:new({H0 = 1. / 50.})
+--coord[3] = sfl.LBFGS:new({H0 = 1. / 35.})
+local LBFGS_cell = sfl.LBFGS:new()
 
 -- SIESTA unit conversion table
 local unit = {
@@ -78,13 +77,13 @@ end
 function siesta_move(siesta)
 
    -- Grab cell and calculate cell volume
-   local cell = array.Array2D.from(siesta.geom.cell) / unit.Ang
+   local cell = sfl.Array2D.from(siesta.geom.cell) / unit.Ang
    local vol = cell[1]:cross(cell[2]):dot(cell[3])
 
    -- First get the stress (in eV/Ang^3)
-   local tmp = array.Array2D.from(siesta.geom.stress) * unit.Ang ^ 3 / unit.eV
+   local tmp = sfl.Array2D.from(siesta.geom.stress) * unit.Ang ^ 3 / unit.eV
    -- Convert to 2x3
-   local stress = array.Array2D:new(2, 3)
+   local stress = sfl.Array2D:new(2, 3)
    stress[1][1] = tmp[1][1]
    stress[1][2] = tmp[2][2]
    stress[1][3] = tmp[3][3]
@@ -94,10 +93,10 @@ function siesta_move(siesta)
 
    
    -- This is were we do the LBFGS algorithm
-   local xa = array.Array2D.from(siesta.geom.xa) / unit.Ang
+   local xa = sfl.Array2D.from(siesta.geom.xa) / unit.Ang
    -- Note the LBFGS requires the gradient
    -- The force is the negative gradient.
-   local fa = -array.Array2D.from(siesta.geom.fa) * unit.Ang / unit.eV
+   local fa = -sfl.Array2D.from(siesta.geom.fa) * unit.Ang / unit.eV
 
    -- Perform step (initialize array)
    local all_xa = {}
