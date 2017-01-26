@@ -4,8 +4,8 @@ Create a table with the default classes for optimization.
 --]]
 
 local m = require "math"
-local base = require "base"
-local mc = require "middleclass.middleclass"
+local base = require "sfl.base"
+local mc = require "sfl.middleclass.middleclass"
 
 -- Add the LBFGS optimization to the returned
 -- optimization table.

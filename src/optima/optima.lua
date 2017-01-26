@@ -9,6 +9,6 @@ local ret = {}
 
 -- Add the LBFGS optimization to the returned
 -- optimization table.
-ret.LBFGS = require "lbfgs"
+ret.LBFGS = require "sfl.optima.lbfgs"
 
 return ret

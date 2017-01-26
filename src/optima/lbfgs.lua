@@ -5,8 +5,8 @@ gradient.
 --]]
 
 local m = require "math"
-local mc = require "middleclass.middleclass"
-local optim = require "optima_base"
+local mc = require "sfl.middleclass.middleclass"
+local optim = require "sfl.optima.base"
 
 -- Create the LBFGS class (inheriting the Optimizer construct)
 local LBFGS = mc.class("LBFGS", optim.Optimizer)
