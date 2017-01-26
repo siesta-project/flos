@@ -1,7 +1,7 @@
 -- Array library
 
-local array1D = require "array1D"
-local array2D = require "array2D"
+local array1D = require "sfl.array1D"
+local array2D = require "sfl.array2D"
 
 return {
    ["Array1D"] = array1D,

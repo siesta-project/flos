@@ -3,8 +3,8 @@
 -- Example of how to use the LBFGS algorithm
 -- with SIESTA + LUA
 
-local array = require "array"
-local optim = require "optima"
+local array = require "sfl.array"
+local optim = require "sfl.optima"
 
 -- Retrieve the LBFGS algorithm
 -- Note that in some cases it may be advantegeous to
@@ -12,7 +12,7 @@ local optim = require "optima"
 -- averaged between them.
 local coord = {}
 coord[1] = optim.LBFGS:new({H0 = 1. / 75.})
---coord[2] = optim.LBFGS:new({H0 = 1. / 50.})
+coord[2] = optim.LBFGS:new({H0 = 1. / 50.})
 --coord[3] = optim.LBFGS:new({H0 = 1. / 35.})
 local LBFGS_cell = optim.LBFGS:new()
 

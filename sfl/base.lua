@@ -1,6 +1,6 @@
 
 -- Definitions local classes used in this project
-local mc = require "middleclass.middleclass"
+local mc = require "sfl.middleclass.middleclass"
 
 local Array = mc.class('Array')
 local Array1D = mc.class("Array1D", Array)
