@@ -57,7 +57,9 @@ In order to use any of these schemes you simply need to follow these steps:
         LIBS += $(FLOOK_LIBS)
 	    FPPFLAGS += -DSIESTA__FLOOK
 
-3. Then you have, for good, enabled the Lua hook.  
+3. Then you have, for good (contrary to the `constr` routine in SIESTA), 
+   enabled the Lua hook and you may exchange Lua scripts with other users
+   and use scripts as you please.  
    To enable Lua in SIESTA simply set these fdf-flags:
 
         MD.TypeOfRun lua
