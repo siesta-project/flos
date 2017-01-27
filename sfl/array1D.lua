@@ -42,6 +42,9 @@ function Array1D:initialize(ubound)
    --self.size = self.ubound - self.lbound + 1
 end
 
+-- Read a 1D array from a table.
+-- In case the table has two dimensions
+-- a 2D array will automatically be returned
 function Array1D.from(tbl)
    local new
    if istable(tbl[1]) then
@@ -62,6 +65,34 @@ function Array1D.from(tbl)
    return new
 end
 
+
+-- Create a 1D array with a range
+--   for i = i1, i2, step
+function Array1D.range(i1, i2, step)
+   local is = step or 1
+   if is == 0 then
+      error("Array1D.range with zero step-length creates an infinite table.")
+   elseif is > 0 and i1 > i2 then
+      error("Array1D.range with positive step-length and i1 > i2 is not allowed.")
+   elseif is < 0 and i1 < i2 then
+      error("Array1D.range with negative step-length and i1 < i2 is not allowed.")
+   end
+
+   local new = Array1D:new(1)
+   local j = 0
+   for i = i1, i2, is do
+      j = j + 1
+      if i ~= i1 then
+	 -- because we cannot initialize an array to size 0
+	 new:extend(1)
+      end
+      new[j] = i
+   end
+
+   return new
+end
+
+-- Extend the size of the Array
 function Array1D:extend(n)
    local ln = n or 1
    local ns = self.size + ln
@@ -69,6 +100,7 @@ function Array1D:extend(n)
    rawset(self, "size", ns)
 end
 
+-- Copy (data copy)
 function Array1D:copy()
    local new = Array1D:new(#self)
    for i = 1, #self do

@@ -15,6 +15,9 @@ local function add_ret( tbl )
 end
 
 add_ret(require "sfl.base")
+-- LBFGS algorithm and other optimizers
 add_ret(require "sfl.optima")
+-- ForceHessian MD method and other methods
+add_ret(require "sfl.special")
 
 return ret

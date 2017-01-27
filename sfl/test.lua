@@ -32,3 +32,6 @@ print(v2 ^ "T")
 
 print('Array2D: reshaping')
 print(v2:reshape(-1))
+
+print('Array1D: range')
+print(array.Array1D.range(1, -34, -3))
