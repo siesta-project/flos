@@ -48,9 +48,9 @@ function ForceHessian:initialize(xa, indices, displacement, amass)
    end
 
    -- Calculate the maximum mass
-   self.mass_min = 0.
+   self.mass_max = 0.
    for i = 1, #self.mass do
-      self.mass_min = m.min(self.mass_min, self.mass[i])
+      self.mass_max = m.max(self.mass_max, self.mass[i])
    end
 
    -- Local variables for tracking the FC run
@@ -76,10 +76,10 @@ end
 
 -- Calculate the displacement of atom ia
 -- Note that the displacement will be largest
--- on the lightest atom, and smallest on the
--- densest atom.
+-- on the heaviest atom, and smallest on the
+-- lightest atom.
 function ForceHessian:displacement( ia )
-   return m.sqrt(self.mass_min / self.mass[ia]) * self.displ
+   return m.sqrt(self.mass[ia] / self.mass_max) * self.displ
 end
 
 -- Retrieve the next coordinates for the FC run
@@ -122,8 +122,7 @@ function ForceHessian:next(fa)
       return xa
    end
 
-   -- Calculate the displacement according to
-   -- the atomic mass and the max-displacement
+   -- Calculate the displacement of atom ia
    ia = self.indices[ self.itt ]
    dx = self:displacement( ia )
    
