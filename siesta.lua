@@ -16,10 +16,7 @@ coord[2] = sfl.LBFGS:new({H0 = 1. / 50.})
 local LBFGS_cell = sfl.LBFGS:new()
 
 -- SIESTA unit conversion table
-local unit = {
-   Ang = 1. / 0.529177,
-   eV = 1. / 13.60580,
-}
+local Unit = siesta.Units
 
 
 function siesta_comm()
@@ -40,8 +37,8 @@ function siesta_comm()
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
       for i = 1, #coord do
-	 coord[i].tolerance = siesta.MD.MaxForceTol * unit.Ang / unit.eV
-	 coord[i].max_dF = siesta.MD.MaxDispl / unit.Ang
+	 coord[i].tolerance = siesta.MD.MaxForceTol * Unit.Ang / Unit.eV
+	 coord[i].max_dF = siesta.MD.MaxDispl / Unit.Ang
 
 	 -- Print information
 	 if siesta.IONode then
@@ -50,7 +47,7 @@ function siesta_comm()
       end
 
       -- Store the cell tolerance (in eV/Ang^3)
-      LBFGS_cell.tolerance = siesta.MD.MaxStressTol * unit.Ang ^ 3 / unit.eV
+      LBFGS_cell.tolerance = siesta.MD.MaxStressTol * Unit.Ang ^ 3 / Unit.eV
 
       -- Print allowed values on can interact with
       if siesta.IONode then
@@ -77,11 +74,11 @@ end
 function siesta_move(siesta)
 
    -- Grab cell and calculate cell volume
-   local cell = sfl.Array2D.from(siesta.geom.cell) / unit.Ang
+   local cell = sfl.Array2D.from(siesta.geom.cell) / Unit.Ang
    local vol = cell[1]:cross(cell[2]):dot(cell[3])
 
    -- First get the stress (in eV/Ang^3)
-   local tmp = sfl.Array2D.from(siesta.geom.stress) * unit.Ang ^ 3 / unit.eV
+   local tmp = sfl.Array2D.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
    -- Convert to 2x3
    local stress = sfl.Array2D:new(2, 3)
    stress[1][1] = tmp[1][1]
@@ -93,10 +90,10 @@ function siesta_move(siesta)
 
    
    -- This is were we do the LBFGS algorithm
-   local xa = sfl.Array2D.from(siesta.geom.xa) / unit.Ang
+   local xa = sfl.Array2D.from(siesta.geom.xa) / Unit.Ang
    -- Note the LBFGS requires the gradient
    -- The force is the negative gradient.
-   local fa = -sfl.Array2D.from(siesta.geom.fa) * unit.Ang / unit.eV
+   local fa = -sfl.Array2D.from(siesta.geom.fa) * Unit.Ang / Unit.eV
 
    -- Perform step (initialize array)
    local all_xa = {}
@@ -130,7 +127,7 @@ function siesta_move(siesta)
    end
    
    -- Send back new coordinates
-   siesta.geom.xa = out_xa * unit.Ang
+   siesta.geom.xa = out_xa * Unit.Ang
    siesta.MD.Relaxed = relaxed
    
    return {"geom.xa",
