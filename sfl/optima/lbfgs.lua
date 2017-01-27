@@ -68,6 +68,19 @@ function LBFGS:initialize(tbl)
    end
 end
 
+-- Reset the algorithm
+-- Basically all variables that
+-- are set should be reset
+function LBFGS:reset()
+   self.nitt = 0
+   self.F0 = {}
+   self.G0 = {}
+   self.dF = {}
+   self.dG = {}
+   self.rho = {}
+   self.rho_optimized = 0.
+end
+
 -- Function to return the current itteration count
 function LBFGS:itt ()
    return m.min(self.nitt, self.history)

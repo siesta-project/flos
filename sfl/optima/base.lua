@@ -22,10 +22,7 @@ function opt.norm1D(array)
       -- Each field is a vector
       norm1D = array:norm()
    else
-      norm1D = base.Array1D:new(array.size)
-      for i = 1, #array do
-	 norm[i] = m.abs(array[i])
-      end
+      norm1D = array:abs()
    end
    return norm1D
 end

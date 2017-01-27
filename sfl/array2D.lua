@@ -53,6 +53,37 @@ function Array2D:initialize(ubound1, ubound2)
    end
 end
 
+function Array2D.zeros(ubound1, ubound2)
+   local new = Array2D:new(ubound1, ubound2)
+   for i = 1, #new do
+      for j = 1, #new[i] do
+	 new[i][j] = 0.
+      end
+   end
+   return new
+end
+
+function Array2D.ones(ubound1, ubound2)
+   local new = Array2D:new(ubound1, ubound2)
+   for i = 1, #new do
+      for j = 1, #new[i] do
+	 new[i][j] = 1.
+      end
+   end
+   return new
+end
+
+-- Return the absolute value of all elements
+function Array2D:abs()
+   local new = Array2D:new(self.size)
+   for i = 1, #new do
+      for j = 1, #new[i] do
+	 new[i][j] = _m.abs(self[i][j])
+      end
+   end
+   return new
+end
+
 function Array2D.from(tbl)
    local new
    if istable(tbl[1]) then

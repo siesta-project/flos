@@ -42,6 +42,22 @@ function Array1D:initialize(ubound)
    --self.size = self.ubound - self.lbound + 1
 end
 
+function Array1D.zeros(ubound)
+   local new = Array1D:new(ubound)
+   for i = 1, #new do
+      new[i] = 0.
+   end
+   return new
+end
+
+function Array1D.ones(ubound)
+   local new = Array1D:new(ubound)
+   for i = 1, #new do
+      new[i] = 1.
+   end
+   return new
+end
+
 -- Read a 1D array from a table.
 -- In case the table has two dimensions
 -- a 2D array will automatically be returned
@@ -115,6 +131,16 @@ function Array1D:diff()
    local new = Array1D:new(#self-1)
    for i = 1, #new do
       new[i] = self[i+1] - self[i]
+   end
+   return new
+end
+
+
+-- Return the absolute value of all elements
+function Array1D:abs()
+   local new = Array1D:new(#self)
+   for i = 1, #new do
+      new[i] = _m.abs(self[i])
    end
    return new
 end
