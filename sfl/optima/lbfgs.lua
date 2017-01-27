@@ -218,17 +218,18 @@ end
 
 -- Print information regarding the LBFGS algorithm
 function LBFGS:info ()
-   
-   if self.nitt == 0 then
-      print("Welcome to LBFGS algorithm...")
-   end
-   
-   print("LBGFS current / history: "..tostring(self:itt()) .. " / "..self.history)
-   print("LBGFS.damping "..tostring(self.damping))
-   print("LBGFS.H0 "..tostring(self.H0))
-   print("LBGFS.Tolerance "..tostring(self.tolerance))
-   print("LBGFS.max-dF "..tostring(self.max_dF))
 
+   print("")
+   if self:itt() == 0 then
+      print("LBGFS: history: " .. self.history)
+   else
+      print("LBGFS: current / history: "..tostring(self:itt()) .. " / "..self.history)
+   end
+   print("LBGFS: damping "..tostring(self.damping))
+   print("LBGFS: H0 "..tostring(self.H0))
+   print("LBGFS: Tolerance "..tostring(self.tolerance))
+   print("LBGFS: Maximum change "..tostring(self.max_dF))
+   print("")
 
 end
 

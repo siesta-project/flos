@@ -109,6 +109,16 @@ function Array1D:copy()
    return new
 end
 
+-- Create a new array which holds the differences
+-- for each consecutive element, has size #self-1
+function Array1D:diff()
+   local new = Array1D:new(#self-1)
+   for i = 1, #new do
+      new[i] = self[i+1] - self[i]
+   end
+   return new
+end
+
 function Array1D:reshape(...)
    -- Grab variable arguments
    local arg = {...}
