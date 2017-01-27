@@ -16,6 +16,8 @@ As an example the following bash commands enables the library:
 
     cd $HOME
     git clone git@github.com:siesta-project/siesta-sfl.git
+	git submodule init
+	git submodule update
 	export LUA_PATH="$HOME/siesta-sfl/?.lua;$HOME/siesta-sfl/?/init.lua;$LUA_PATH"
 
 and that is it. Now you can use the `sfl` library.
