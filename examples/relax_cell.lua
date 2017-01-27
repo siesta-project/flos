@@ -72,9 +72,11 @@ function siesta_comm()
 
       -- Check that we are allowed to change the cell parameters
       if not siesta.MD.Relax.Cell then
-	 for i = 1 , 10 do
-	    print("LUA CANNOT CHANGE THE CELL, please set fdf option accordingly!!!")
-	 end
+
+	 -- We force SIESTA to relax the cell vectors
+	 siesta.MD.Relax.Cell = true
+	 ret_tbl = {"MD.Relax.Cell"}
+
       end
 
       -- Print information
