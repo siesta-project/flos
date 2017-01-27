@@ -48,18 +48,18 @@ In order to use any of these schemes you simply need to follow these steps:
 2. Compile [SIESTA][siesta] with `flook` support. If you have followed the
    procedure outlined [here][flook] you should add this to the SIESTA `arch.make`:
 
-    FLOOK_PATH  = /path/to/flook/parent
-    FLOOK_LIBS  = -L$(FLOOK_PATH)/src -lflookall -ldl
-    FLOOK_INC   = -I$(FLOOK_PATH)/src
-	INCFLAGS += $(FLOOK_INC)
-    LIBS += $(FLOOK_LIBS)
-	FPPFLAGS += -DSIESTA__FLOOK
+        FLOOK_PATH  = /path/to/flook/parent
+        FLOOK_LIBS  = -L$(FLOOK_PATH)/src -lflookall -ldl
+        FLOOK_INC   = -I$(FLOOK_PATH)/src
+        INCFLAGS += $(FLOOK_INC)
+        LIBS += $(FLOOK_LIBS)
+	    FPPFLAGS += -DSIESTA__FLOOK
 
 3. Then you have, for good, enabled the Lua hook.  
    To enable Lua in SIESTA simply set these fdf-flags:
 
-    MD.TypeOfRun lua
-    LUA.Script <script-name>
+        MD.TypeOfRun lua
+        LUA.Script <script-name>
 
 For instance to use the `sfl` relaxation method:
 
