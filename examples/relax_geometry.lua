@@ -6,7 +6,7 @@ This example can take any geometry and will relax it
 according to the siesta input options:
 
  - MD.MaxForceTol
- - MD.MaxDispl
+ - MD.MaxCGDispl
 
 One should note that the LBFGS algorithm first converges
 when the total force (norm) on the atoms are below the 
