@@ -66,8 +66,16 @@ function siesta_comm()
       --  MD.MaxDispl
       --  MD.MaxStressTol
       siesta_get({"geom.cell",
+		  "MD.Relax.Cell",
 		  "MD.MaxDispl",
 		  "MD.MaxStressTol"})
+
+      -- Check that we are allowed to change the cell parameters
+      if not siesta.MD.Relax.Cell then
+	 for i = 1 , 10 do
+	    print("LUA CANNOT CHANGE THE CELL, please set fdf option accordingly!!!")
+	 end
+      end
 
       -- Print information
       if siesta.IONode then
