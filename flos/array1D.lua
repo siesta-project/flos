@@ -4,6 +4,7 @@
 local _m  = require "math"
 
 local cls = require "flos.base"
+local error = cls.floserr
 local Array1D = cls.Array1D
 local Array2D = cls.Array2D
 
@@ -16,14 +17,14 @@ function Array1D.__newindex(self, k, v)
    if string.lower(tostring(k)) == "all" then
       if istable(v) then
 	 error("ERROR  Assigning all elements in a vector to a table"
-		  .." is not allowed. They are assigned by reference.", 2)
+		  .." is not allowed. They are assigned by reference.")
       end
       for i = 1 , #self do
 	 self[i] = v
       end
    else
       if k < 1 or self.shape[1] < k then
-	 error("ERROR  index is out of bounds", 2)
+	 error("ERROR  index is out of bounds")
       end
       rawset(self, k, v)
    end
@@ -41,11 +42,11 @@ function Array1D:initialize(...)
    end
 
    if #shape ~= 1 then
-      error("ERROR  shape initialization for Array1D is incompatible", 2)
+      error("ERROR  shape initialization for Array1D is incompatible")
    end
    -- Check sizes
    if shape[1] < 1 then
-      error("ERROR  You are initializing a vector with size <= 0.", 2)
+      error("ERROR  You are initializing a vector with size <= 0.")
    end
    -- Rawset is needed to not call the bounds-check
    rawset(self, "shape", shape)
@@ -189,7 +190,7 @@ function Array1D:reshape(...)
       end
       
    else
-      error("Array1D: reshaping not implemented", 2)
+      error("Array1D: reshaping not implemented")
       
    end
 
@@ -199,7 +200,7 @@ end
 -- This "fake" table ensures that single values are indexable
 -- I.e. we create an index function which returns the same value for any given
 -- value.
-local function ensuretable(val)
+local function ensurearray(val)
    if istable(val) then
       return val
    else
@@ -208,7 +209,9 @@ local function ensuretable(val)
       -- for all indices
       -- Easy way to not duplicate code for handling
       -- values.
-      return setmetatable({size = 1, class = false},
+      return setmetatable({size = 1,
+			   shape = {1},
+			   class = false},
 			  { __index = 
 			       function(t,k)
 				  return val
@@ -217,30 +220,33 @@ local function ensuretable(val)
    end
 end
 
-local function opt_get(lhs, rhs)
+local function op_elem(lhs, rhs)
    -- an option parser for the functions that need the 
    -- correct information
    local t = {}
    local s = 0
-   local ls , rs = 0 , 0
+   local ls , rs = nil, nil
+   -- Check LHS
    if cls.instanceOf(lhs, Array1D) then
-      ls = lhs.size or 0
+      ls = lhs.shape
    else
-      ls = 1
+      ls = {1}
    end
-   t.lhz = ensuretable(lhs)
+   t.lhz = ensurearray(lhs)
+   -- Check RHS
    if cls.instanceOf(rhs, Array1D) then
-      rs = rhs.size or 0
+      rs = rhs.shape
    else
-      rs = 1
+      rs = {1}
    end
-   t.rhz = ensuretable(rhs)
-   if ls ~= rs then
-      if ls ~= 1 and rs ~= 1 then
+   t.rhz = ensurearray(rhs)
+   -- Check input
+   if ls[1] ~= rs[1] then
+      if ls[1] ~= 1 and rs[1] ~= 1 then
 	 error("ERROR  Array1D dimensions incompatible")
       end
    end
-   t.size = _m.max(ls, rs)
+   t.shape = {_m.max(ls[1], rs[1])}
    return t
 end
 
@@ -284,7 +290,7 @@ function Array1D.dot(lhs, rhs)
    if cls.instanceOf(rhs, Array2D) then
       return rhs.dot(lhs, rhs)
    end
-   local t = opt_get(lhs, rhs)
+   local t = op_elem(lhs, rhs)
    local v = 0.
    -- We have now created the corrrect new vector for containing the
    -- data
@@ -317,9 +323,9 @@ end
    numerical stuff
 --]]
 function Array1D.__add(lhs, rhs)
-   local t = opt_get(lhs, rhs)
+   local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array1D.empty(t.size)
+   local v = Array1D.empty(t.shape)
    
    -- We have now created the corrrect new vector for containing the
    -- data
@@ -331,9 +337,9 @@ function Array1D.__add(lhs, rhs)
 end
 
 function Array1D.__sub(lhs, rhs)
-   local t = opt_get(lhs, rhs)
+   local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array1D.empty(t.size)
+   local v = Array1D.empty(t.shape)
    for i = 1 , #v do
       v[i] = t.lhz[i] - t.rhz[i]
    end
@@ -341,9 +347,9 @@ function Array1D.__sub(lhs, rhs)
 end
 
 function Array1D.__mul(lhs, rhs)
-   local t = opt_get(lhs, rhs)
+   local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array1D.empty(t.size)
+   local v = Array1D.empty(t.shape)
    for i = 1 , #v do
       v[i] = t.lhz[i] * t.rhz[i]
    end
@@ -351,9 +357,9 @@ function Array1D.__mul(lhs, rhs)
 end
 
 function Array1D.__div(lhs, rhs)
-   local t = opt_get(lhs, rhs)
+   local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array1D.empty(t.size)
+   local v = Array1D.empty(t.shape)
    for i = 1 , #v do
       v[i] = t.lhz[i] / t.rhz[i]
    end
@@ -361,9 +367,9 @@ function Array1D.__div(lhs, rhs)
 end
 
 function Array1D.__pow(lhs, rhs)
-   local t = opt_get(lhs, rhs)
+   local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array1D.empty(t.size)
+   local v = Array1D.empty(t.shape)
    for i = 1 , #v do
       v[i] = t.lhz[i] ^ t.rhz[i]
    end

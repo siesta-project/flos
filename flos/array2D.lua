@@ -4,6 +4,7 @@
 local _m  = require "math"
 
 local cls = require "flos.base"
+local error = cls.floserr
 local Array = cls.Array
 local Array1D = cls.Array1D
 local Array2D = cls.Array2D
@@ -17,14 +18,14 @@ function Array2D.__newindex(self, k, v)
    if string.lower(tostring(k)) == "all" then
       if istable(v) then
 	 error("ERROR  Assigning all elements in a vector to a table"
-		  .." is not allowed. They are assigned by reference.", 2)
+			.." is not allowed. They are assigned by reference.")
       end
       for i = 1 , #self do
 	 self[i] = v
       end
    else
       if k < 1 or self.shape[1] < k then
-	 error("ERROR  index is out of bounds", 2)
+	 error("ERROR  index is out of bounds")
       end
       rawset(self, k, v)
    end
@@ -48,13 +49,13 @@ function Array2D:initialize(...)
       shape[2] = 1
       
    elseif #shape ~= 2 then
-      error("ERROR  shape initialization for Array2D is incompatible", 2)
+      error("ERROR  shape initialization for Array2D is incompatible")
       
    end
    -- Check sizes
    for i = 1, 2 do
       if shape[i] < 1 then
-	 error("ERROR  You are initializing a vector with size <= 0.", 2)
+	 error("ERROR  You are initializing a vector with size <= 0.")
       end
    end
    
@@ -146,7 +147,7 @@ function Array2D:reshape(...)
    if nsize == 0 then
 
       -- Simply return a copy, size is the same.
-      new = self:copy()
+      error("ERROR  reshaping with 0 arguments")
 
    elseif nsize == 1 then
       
@@ -177,7 +178,7 @@ function Array2D:reshape(...)
       end
 
    else
-      error("Array2D: reshaping not implemented", 2)
+      error("Array2D: reshaping not implemented")
       
    end
 
@@ -187,19 +188,23 @@ end
 -- This "fake" table ensures that single values are indexable
 -- I.e. we create an index function which returns the same value for any given
 -- value.
-local function ensuretable(val)
+local function ensurearray(val)
    if istable(val) then
       return val
    else
       -- We must have a number, fake the table (fake double entries
       -- by having a double metatable
-      local mt = setmetatable({size = 1, class = false},
+      local mt = setmetatable({size = 1,
+			       shape = {1},
+			       class = false},
 			       { __index = 
 				    function(t, k)
 				       return val
 				    end
 			       })
-      return setmetatable({size = {1, 1}, class = false},
+      return setmetatable({size = 1,
+			   shape = {1, 1},
+			   class = false},
 			  { __index = 
 			       function(t, k)
 				  return mt
@@ -215,39 +220,48 @@ local function op_elem(lhs, rhs)
    local t = {}
    local s = 0
    local ls , rs = nil , nil
+
+   -- Check LHS
    if cls.instanceOf(lhs, Array2D) then
       ls = lhs.shape
+   elseif cls.instanceOf(lhs, Array1D) then
+      error("ERROR  can not perform element operations on 2D and 1D arrays.")
    else
-      ls = 1
+      ls = {1, 1}
    end
-   t.lhz = ensuretable(lhs)
+   t.lhz = ensurearray(lhs)
+   -- Check RHS
    if cls.instanceOf(rhs, Array2D) then
       rs = rhs.shape
+   elseif cls.instanceOf(rhs, Array1D) then
+      error("ERROR  can not perform element operations on 1D and 2D arrays.")
    else
-      rs = 1
+      rs = {1, 1}
    end
-   t.rhz = ensuretable(rhs)
+   t.rhz = ensurearray(rhs)
+   
    if istable(ls) and istable(rs) then
       if ls[1] ~= rs[1] or ls[2] ~= rs[2] then
-	 if ls ~= 1 and rs ~= 1 then
-	    error("ERROR  Array2D dimensions incompatible", 2)
+	 if #ls ~= 2 and #rs ~= 2 then
+	    error("ERROR  Array2D dimensions incompatible")
 	 end
       end
-      t.size = ls
+      t.shape = ls
       
    elseif istable(ls) then
-      if rs ~= 1 then
-	 error("ERROR  Array2D dimensions incompatible", 2)
+      if #rs ~= 2 then
+	 error("ERROR  Array2D dimensions incompatible")
       end
-      t.size = ls
+      t.shape = ls
       
    elseif istable(rs) then
-      if ls ~= 1 then
-	 error("ERROR  Array2D dimensions incompatible", 2)
+      if #ls ~= 2 then
+	 error("ERROR  Array2D dimensions incompatible")
       end
-      t.size = rs
+      t.shape = rs
       
    end
+
    return t
 end
 
@@ -275,7 +289,7 @@ end
 function Array2D.dot(lhs, rhs)
 
    function size_err(str)
-      error("Array2D.dot: wrong dimensions. " .. str, 2)
+      error("Array2D.dot: wrong dimensions. " .. str)
    end
 
    -- Returned value
@@ -374,7 +388,7 @@ end
 function Array2D.__add(lhs, rhs)
    local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array2D.empty(t.size)
+   local v = Array2D.empty(t.shape)
    
    -- We have now created the corrrect new vector for containing the
    -- data
@@ -390,7 +404,7 @@ end
 function Array2D.__sub(lhs, rhs)
    local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array2D.empty(t.size)
+   local v = Array2D.empty(t.shape)
    for i = 1 , #v do
       v[i] = t.lhz[i] - t.rhz[i]
    end
@@ -400,7 +414,7 @@ end
 function Array2D.__mul(lhs, rhs)
    local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array2D.empty(t.size)
+   local v = Array2D.empty(t.shape)
    for i = 1 , #v do
       v[i] = t.lhz[i] * t.rhz[i]
    end
@@ -410,7 +424,7 @@ end
 function Array2D.__div(lhs, rhs)
    local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array2D.empty(t.size)
+   local v = Array2D.empty(t.shape)
    for i = 1 , #v do
       v[i] = t.lhz[i] / t.rhz[i]
    end
@@ -435,7 +449,7 @@ function Array2D.__pow(lhs, rhs)
 	 
    local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array2D.empty(t.size)
+   local v = Array2D.empty(t.shape)
    for i = 1 , #v do
       v[i] = t.lhz[i] ^ t.rhz[i]
    end
@@ -444,7 +458,7 @@ end
 
 -- Unary minus operation
 function Array2D:__unm()
-   local v = Array2D.empty(self.size)
+   local v = Array2D.empty(self.shape)
    for i = 1 , #self do
       for j = 1, #self[i] do
 	 v[i][j] = -self[i][j]

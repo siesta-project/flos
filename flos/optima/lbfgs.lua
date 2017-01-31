@@ -190,7 +190,7 @@ function LBFGS:optimize (F, G)
    end
    
    -- Ensure shape
-   z = - z:reshape(G.size)
+   z = - z:reshape(G.shape)
    
    -- Update step
    self.rho_optimized = m.abs(self.flatdot(G, z))
@@ -198,7 +198,7 @@ function LBFGS:optimize (F, G)
    
    -- Determine whether we have optimized the parameter/functional
    self:optimized(G)
-   
+
    -- Calculate next step
    local newF
    if not self.is_optimized then

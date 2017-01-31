@@ -52,8 +52,11 @@ local arrayBounds = function (size, bound)
       elseif bound ~= size then
 	 -- Print out an error message with stack-trace to see the resulting code
 	 -- which subjected the error
-	 error('Total size of the array specification is not maintained.', 2)
+	 floserr('Total size of the array specification is not maintained.')
       end
+   elseif istable(bound[1]) then
+      -- immediately convert to simple table (instead of nested)
+      bound = bound[1]
    end
 
    -- Now we can do the analysis based on the table size
@@ -80,12 +83,12 @@ local arrayBounds = function (size, bound)
    end
    if nm > 1 then
       -- Quick escape if wrong options
-      error('Only 1 index may be automatically identified.', 2)
+      floserr('Only 1 index may be automatically identified.')
    elseif nm == 1 then
       -- The user has requested one adaptable index
       nm = m.floor(size / bs)
       if bs * nm ~= size then
-	 error('Total size of new array must be unchanged.', 2)
+	 floserr('Total size of new array must be unchanged.')
       end
 
       -- Now create the correct size
@@ -95,19 +98,28 @@ local arrayBounds = function (size, bound)
 	 end
       end
    elseif bs ~= size then
-      error('Total size of new array must be unchanged.', 2)
+      floserr('Total size of new array must be unchanged.')
    end
 
    -- Return new size of the array
    return ret
 end
 
+-- Function to return if an object is a table
+local floserr = function(msg)
+   -- Print out a stack-trace without this function call
+   print(debug.traceback(nil, 2))
+   error(msg)
+end
+
 return {
+   -- Generic utility functions
+   ['floserr'] = floserr,
+   ['arrayBounds'] = arrayBounds,
    -- Class-determination methods
    ['istable'] = istable,
    ['instanceOf'] = instanceOf,
    ['subclassOf'] = subclassOf,
-   ['arrayBounds'] = arrayBounds,
    -- Classes
    ['Array'] = Array,
    ['Array1D'] = Array1D,
