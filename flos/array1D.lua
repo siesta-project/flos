@@ -3,7 +3,7 @@
 
 local _m  = require "math"
 
-local cls = require "sfl.base"
+local cls = require "flos.base"
 local Array1D = cls.Array1D
 local Array2D = cls.Array2D
 

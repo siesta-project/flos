@@ -24,18 +24,18 @@ which seems adequate in most situations.
 
 --]]
 
--- Load the SFL module
-local sfl = require "sfl"
+-- Load the FLOS module
+local flos = require "flos"
 
 -- Create the two LBFGS algorithms with
 -- initial Hessians 1/75 and 1/50
 local geom = {}
-geom[1] = sfl.LBFGS:new({H0 = 1. / 75.})
-geom[2] = sfl.LBFGS:new({H0 = 1. / 50.})
+geom[1] = flos.LBFGS:new({H0 = 1. / 75.})
+geom[2] = flos.LBFGS:new({H0 = 1. / 50.})
 
 local lattice = {}
-lattice[1] = sfl.LBFGS:new({H0 = 1. / 75.})
-lattice[2] = sfl.LBFGS:new({H0 = 1. / 50.})
+lattice[1] = flos.LBFGS:new({H0 = 1. / 75.})
+lattice[2] = flos.LBFGS:new({H0 = 1. / 50.})
 
 -- Grab the unit table of siesta (it is already created
 -- by SIESTA)
@@ -43,12 +43,12 @@ local Unit = siesta.Units
 
 -- Initial strain that we want to optimize to minimize
 -- the stress.
-local strain = sfl.Array2D.zeros(2, 3)
+local strain = flos.Array2D.zeros(2, 3)
 -- Mask which directions we should relax
 --   [[xx, yy, zz],
 --    [yz, xz, xy]]
 -- Default to all.
-local stress_mask = sfl.Array2D.ones(2, 3)
+local stress_mask = flos.Array2D.ones(2, 3)
 
 -- To only relax the diagonal elements you may do this:
 --stress_mask[2] = stress_mask[2] * 0.
@@ -97,7 +97,7 @@ function siesta_comm()
       end
 
       -- Store the initial cell (global variable)
-      cell_first = sfl.Array2D.from(siesta.geom.cell) / Unit.Ang
+      cell_first = flos.Array2D.from(siesta.geom.cell) / Unit.Ang
 
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
@@ -159,10 +159,10 @@ function siesta_move(siesta)
 
    -- Internally convert the siesta quantities
    -- to their correct physical values
-   siesta.geom.cell = sfl.Array2D.from(siesta.geom.cell) / Unit.Ang
-   siesta.geom.xa = sfl.Array2D.from(siesta.geom.xa) / Unit.Ang
-   siesta.geom.fa = sfl.Array2D.from(siesta.geom.fa) * Unit.Ang / Unit.eV
-   siesta.geom.stress = sfl.Array2D.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
+   siesta.geom.cell = flos.Array2D.from(siesta.geom.cell) / Unit.Ang
+   siesta.geom.xa = flos.Array2D.from(siesta.geom.xa) / Unit.Ang
+   siesta.geom.fa = flos.Array2D.from(siesta.geom.fa) * Unit.Ang / Unit.eV
+   siesta.geom.stress = flos.Array2D.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
 
 
    -- Grab whether both methods have converged
@@ -198,7 +198,7 @@ function siesta_move(siesta)
       -- in correct units).
       cell_first = siesta.geom.cell:copy()
       -- Also initialize the initial strain
-      strain = sfl.Array2D.zeros(2, 3)
+      strain = flos.Array2D.zeros(2, 3)
 
       if siesta.IONode then
 	 print("\nLUA: switching to cell relaxation!\n")
@@ -231,7 +231,7 @@ end
 
 function stress_to_voigt(stress)
    -- Retrieve the stress
-   local voigt = sfl.Array2D:new(2, 3)
+   local voigt = flos.Array2D:new(2, 3)
 
    -- Copy over the stress to the Voigt representation
    voigt[1][1] = stress[1][1]
@@ -246,7 +246,7 @@ function stress_to_voigt(stress)
 end
 
 function stress_from_voigt(voigt)
-   local stress = sfl.Array2D:new(3, 3)
+   local stress = flos.Array2D:new(3, 3)
 
    -- Copy over the stress from Voigt representation
    stress[1][1] = voigt[1][1]
@@ -413,7 +413,7 @@ function siesta_cell(siesta)
    -- Calculate the new scaled coordinates
    -- First get the fractional coordinates in the
    -- previous cell.
-   local lat = sfl.Lattice:new(cell)
+   local lat = flos.Lattice:new(cell)
    local fxa = lat:fractional(xa)
    -- Then convert the coordinates to the
    -- new cell coordinates by simple scaling.

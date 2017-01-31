@@ -5,9 +5,9 @@ coordinates and the cell-vectors.
 --]]
 
 local m = require "math"
-local mc = require "sfl.middleclass.middleclass"
-local base = require "sfl.base"
-local optim = require "sfl.optima.base"
+local mc = require "flos.middleclass.middleclass"
+local base = require "flos.base"
+local optim = require "flos.optima.base"
 
 -- Create the LBFGS class (inheriting the Optimizer construct)
 local Lattice = mc.class("Lattice", optim.Optimizer)

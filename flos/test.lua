@@ -1,5 +1,5 @@
 
-local array = require "sfl.array"
+local array = require "flos.array"
 
 v1 = array.Array1D:new(5)
 for i = 1, #v1 do

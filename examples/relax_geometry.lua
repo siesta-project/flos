@@ -29,14 +29,14 @@ which seems adequate in most situations.
 
 --]]
 
--- Load the SFL module
-local sfl = require "sfl"
+-- Load the FLOS module
+local flos = require "flos"
 
 -- Create the two LBFGS algorithms with
 -- initial Hessians 1/75 and 1/50
 local LBFGS = {}
-LBFGS[1] = sfl.LBFGS:new({H0 = 1. / 75.})
-LBFGS[2] = sfl.LBFGS:new({H0 = 1. / 50.})
+LBFGS[1] = flos.LBFGS:new({H0 = 1. / 75.})
+LBFGS[2] = flos.LBFGS:new({H0 = 1. / 50.})
 -- To use more simultaneously simply add a
 -- new line... with a separate LBFGS algorithm.
 
@@ -100,10 +100,10 @@ end
 function siesta_move(siesta)
 
    -- Retrieve the atomic coordinates and the forces
-   local xa = sfl.Array2D.from(siesta.geom.xa) / Unit.Ang
+   local xa = flos.Array2D.from(siesta.geom.xa) / Unit.Ang
    -- Note the LBFGS requires the gradient, and
    -- the force is the negative gradient.
-   local fa = -sfl.Array2D.from(siesta.geom.fa) * Unit.Ang / Unit.eV
+   local fa = -flos.Array2D.from(siesta.geom.fa) * Unit.Ang / Unit.eV
 
    -- Perform step (initialize arrays to do averaging if more
    -- LBFGS algorithms are in use).

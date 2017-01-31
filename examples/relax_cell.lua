@@ -23,14 +23,14 @@ which seems adequate in most situations.
 
 --]]
 
--- Load the SFL module
-local sfl = require "sfl"
+-- Load the FLOS module
+local flos = require "flos"
 
 -- Create the two LBFGS algorithms with
 -- initial Hessians 1/75 and 1/50
 local LBFGS = {}
-LBFGS[1] = sfl.LBFGS:new({H0 = 1. / 75.})
-LBFGS[2] = sfl.LBFGS:new({H0 = 1. / 50.})
+LBFGS[1] = flos.LBFGS:new({H0 = 1. / 75.})
+LBFGS[2] = flos.LBFGS:new({H0 = 1. / 50.})
 -- To use more simultaneously simply add a
 -- new line... with a separate LBFGS algorithm.
 
@@ -40,12 +40,12 @@ local Unit = siesta.Units
 
 -- Initial strain that we want to optimize to minimize
 -- the stress.
-local strain = sfl.Array2D.zeros(2, 3)
+local strain = flos.Array2D.zeros(2, 3)
 -- Mask which directions we should relax
 --   [[xx, yy, zz],
 --    [yz, xz, xy]]
 -- Default to all.
-local stress_mask = sfl.Array2D.ones(2, 3)
+local stress_mask = flos.Array2D.ones(2, 3)
 -- In this example we only converge the
 -- diagonal stress
 stress_mask[2] = stress_mask[2] * 0.
@@ -86,7 +86,7 @@ function siesta_comm()
       end
 
       -- Store the initial cell (global variable)
-      cell_first = sfl.Array2D.from(siesta.geom.cell) / Unit.Ang
+      cell_first = flos.Array2D.from(siesta.geom.cell) / Unit.Ang
 
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
@@ -120,12 +120,12 @@ end
 function siesta_move(siesta)
 
    -- Get the current cell
-   local cell = sfl.Array2D.from(siesta.geom.cell) / Unit.Ang
+   local cell = flos.Array2D.from(siesta.geom.cell) / Unit.Ang
    -- Retrieve the atomic coordinates
-   local xa = sfl.Array2D.from(siesta.geom.xa) / Unit.Ang
+   local xa = flos.Array2D.from(siesta.geom.xa) / Unit.Ang
    -- Retrieve the stress
-   local tmp = sfl.Array2D.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
-   local stress = sfl.Array2D:new(2, 3)
+   local tmp = flos.Array2D.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
+   local stress = flos.Array2D:new(2, 3)
 
    -- Copy over the stress to the Voigt representation
    stress[1][1] = tmp[1][1]
@@ -224,7 +224,7 @@ function siesta_move(siesta)
    -- Calculate the new scaled coordinates
    -- First get the fractional coordinates in the
    -- previous cell.
-   local lat = sfl.Lattice:new(cell)
+   local lat = flos.Lattice:new(cell)
    local fxa = lat:fractional(xa)
    -- Then convert the coordinates to the
    -- new cell coordinates by simple scaling.

@@ -8,6 +8,6 @@ local ret = {}
 
 -- Add the LBFGS optimization to the returned
 -- optimization table.
-ret.ForceHessian = require "sfl.special.forcehessian"
+ret.ForceHessian = require "flos.special.forcehessian"
 
 return ret

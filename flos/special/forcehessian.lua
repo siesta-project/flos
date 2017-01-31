@@ -5,8 +5,8 @@ according to the maximum displacement.
 --]]
 
 local m = require "math"
-local mc = require "sfl.middleclass.middleclass"
-local optim = require "sfl.optima.base"
+local mc = require "flos.middleclass.middleclass"
+local optim = require "flos.optima.base"
 
 -- Class for performing force-constant runs
 local ForceHessian = mc.class('ForceHessian')
