@@ -17,44 +17,64 @@ function Array2D.__newindex(self, k, v)
    if string.lower(tostring(k)) == "all" then
       if istable(v) then
 	 error("ERROR  Assigning all elements in a vector to a table"
-		  .." is not allowed. They are assigned by reference.")
+		  .." is not allowed. They are assigned by reference.", 2)
       end
       for i = 1 , #self do
 	 self[i] = v
       end
    else
-      if k < self.lbound[1] or self.ubound[1] < k then
-	 error("ERROR  Your index is out of bounds")
+      if k < 1 or self.shape[1] < k then
+	 error("ERROR  index is out of bounds", 2)
       end
       rawset(self, k, v)
    end
 end
 
-function Array2D:initialize(ubound1, ubound2)
-   local ub1, ub2
-   if istable(ubound1) then
-      ub1 = ubound1[1] or 1
-      ub2 = ubound1[2] or 1
-      ub2 = ubound2 or ub2
-   else
-      ub1 = ubound1 or 1
-      ub2 = ubound2 or 1
+function Array2D:initialize(...)
+   -- Convert input option to a correct shape
+   local shape = {...}
+   
+   -- Check wheter the table is a table of shape
+   if #shape == 1 then
+      if cls.istable(shape[1]) then
+	 shape = shape[1]
+      end
    end
-   if ub1 < 1 or ub2 < 1 then
-      error("ERROR  You are initializing a vector with size <= 0.\nOnly array require positive upper bounds.")
+
+   -- Check shape-arguments
+   if #shape == 1 then
+      -- this is actually erroneous, does the
+      -- user really want a 2D array?
+      shape[2] = 1
+      
+   elseif #shape ~= 2 then
+      error("ERROR  shape initialization for Array2D is incompatible", 2)
+      
    end
+   -- Check sizes
+   for i = 1, 2 do
+      if shape[i] < 1 then
+	 error("ERROR  You are initializing a vector with size <= 0.", 2)
+      end
+   end
+   
    -- Rawset is needed to not call the bounds-check
-   rawset(self, "lbound", {1, 1})
-   rawset(self, "ubound", {ub1, ub2})
-   rawset(self, "size", {self.ubound[1] - self.lbound[1] + 1,
-			 self.ubound[2] - self.lbound[2] + 1})
-   for i = 1, ub1 do
-      self[i] = Array1D:new(ub2)
+   rawset(self, "shape", shape)
+   rawset(self, "size", self.shape[1] * self.shape[2])
+   for i = 1, self.shape[1] do
+      self[i] = Array1D.empty(self.shape[2])
    end
 end
 
-function Array2D.zeros(ubound1, ubound2)
-   local new = Array2D:new(ubound1, ubound2)
+-- Create an empty 2D array
+function Array2D.empty(...)
+   return Array2D:new(...)
+end
+
+
+-- Return a 2D array with initialized 0's
+function Array2D.zeros(...)
+   local new = Array2D.empty(...)
    for i = 1, #new do
       for j = 1, #new[i] do
 	 new[i][j] = 0.
@@ -63,8 +83,9 @@ function Array2D.zeros(ubound1, ubound2)
    return new
 end
 
-function Array2D.ones(ubound1, ubound2)
-   local new = Array2D:new(ubound1, ubound2)
+-- Return a 2D array with only 1.'s
+function Array2D.ones(...)
+   local new = Array2D.empty(...)
    for i = 1, #new do
       for j = 1, #new[i] do
 	 new[i][j] = 1.
@@ -75,7 +96,7 @@ end
 
 -- Return the absolute value of all elements
 function Array2D:abs()
-   local new = Array2D:new(self.size)
+   local new = Array2D.empty(self.shape)
    for i = 1, #new do
       for j = 1, #new[i] do
 	 new[i][j] = _m.abs(self[i][j])
@@ -87,7 +108,7 @@ end
 function Array2D.from(tbl)
    local new
    if istable(tbl[1]) then
-      new = Array2D:new(#tbl, #tbl[1])
+      new = Array2D.empty(#tbl, #tbl[1])
       for i = 1, #tbl do
 	 for j = 1, #tbl[i] do
 	    new[i][j] = tbl[i][j]
@@ -95,7 +116,7 @@ function Array2D.from(tbl)
       end
    else
       local n = #tbl
-      new = Array1D:new(n)
+      new = Array1D.empty(n)
       for i = 1, #tbl do
 	 new[i] = tbl[i]
       end
@@ -106,58 +127,48 @@ end
 
 
 function Array2D:copy()
-   local new = Array2D:new(self.size)
-   for i = 1, self.size[1] do
-      for j = 1, self.size[2] do
+   local new = Array2D.empty(self.shape)
+   for i = 1, self.shape[1] do
+      for j = 1, self.shape[2] do
 	 new[i][j] = self[i][j]
       end
    end
    return new
 end
 
-function Array2D:reshape (...)
+-- Create a copy of the data in a new shape of the
+-- variables
+function Array2D:reshape(...)
    -- Grab variable arguments
-   local arg = {...}
-   -- Number of arguments passed
-   local narg = #arg
+   local new_size = cls.arrayBounds(self.size, {...})
+   local nsize = #new_size
+   
+   if nsize == 0 then
 
-   -- total size of this array
-   local ntot = self.size[1] * self.size[2]
-   -- Returned array
-   local new
-
-   if narg == 0 then
+      -- Simply return a copy, size is the same.
       new = self:copy()
 
-   elseif narg == 1 then
-      -- Downscaling
-      if arg[1] == -1 then
-	 arg[1] = ntot
-      end
-      if arg[1] ~= ntot then
-	 error("Array2D: reshape, elements from to does not coincide")
-      end
+   elseif nsize == 1 then
       
-      new = Array1D:new(arg[1])
+      new = Array1D.empty(new_size[1])
       local k = 0
-      for i = 1, self.size[1] do
-	 for j = 1, self.size[2] do
+      for i = 1, self.shape[1] do
+	 for j = 1, self.shape[2] do
 	    k = k + 1
 	    new[k] = self[i][j]
 	 end
       end
 
-   elseif narg == 2 then
-      if arg[1] * arg[2] ~= ntot then
-	 error("Array2D: reshape, elements from to does not coincide")
-      end
+   elseif nsize == 2 then
+
+      new = Array2D.empty(new_size)
       
-      new = Array2D:new(arg)
+      -- initialize loop conters
       local k, l = 1, 0
-      for i = 1, arg[1] do
-	 for j = 1, arg[2] do
+      for i = 1, new_size[1] do
+	 for j = 1, new_size[2] do
 	    l = l + 1
-	    if l > self.size[2] then
+	    if l > self.shape[2] then
 	       l = 1
 	       k = k + 1
 	    end
@@ -166,7 +177,7 @@ function Array2D:reshape (...)
       end
 
    else
-      error("Array2D: reshaping not implemneted")
+      error("Array2D: reshaping not implemented", 2)
       
    end
 
@@ -205,13 +216,13 @@ local function op_elem(lhs, rhs)
    local s = 0
    local ls , rs = nil , nil
    if cls.instanceOf(lhs, Array2D) then
-      ls = lhs.size
+      ls = lhs.shape
    else
       ls = 1
    end
    t.lhz = ensuretable(lhs)
    if cls.instanceOf(rhs, Array2D) then
-      rs = rhs.size
+      rs = rhs.shape
    else
       rs = 1
    end
@@ -219,20 +230,20 @@ local function op_elem(lhs, rhs)
    if istable(ls) and istable(rs) then
       if ls[1] ~= rs[1] or ls[2] ~= rs[2] then
 	 if ls ~= 1 and rs ~= 1 then
-	    error("ERROR  Array2D dimensions incompatible")
+	    error("ERROR  Array2D dimensions incompatible", 2)
 	 end
       end
       t.size = ls
       
    elseif istable(ls) then
       if rs ~= 1 then
-	 error("ERROR  Array2D dimensions incompatible")
+	 error("ERROR  Array2D dimensions incompatible", 2)
       end
       t.size = ls
       
    elseif istable(rs) then
       if ls ~= 1 then
-	 error("ERROR  Array2D dimensions incompatible")
+	 error("ERROR  Array2D dimensions incompatible", 2)
       end
       t.size = rs
       
@@ -243,16 +254,16 @@ end
 -- Length lookup
 -- /for i = 1 , #Array2D do\
 function Array2D.__len(self)
-   return self.size[1]
+   return self.shape[1]
 end
 
 
 -- Implementation of norm function
 function Array2D:norm()
-   local n = Array1D:new(self.size[1])
+   local n = Array1D.empty(self.shape[1])
    for i = 1 , #self do
       local nn = 0.
-      for j = 1, self.size[2] do
+      for j = 1, self.shape[2] do
 	 nn = nn + self[i][j] * self[i][j]
       end
       n[i] = _m.sqrt(nn)
@@ -264,7 +275,7 @@ end
 function Array2D.dot(lhs, rhs)
 
    function size_err(str)
-      error("Array2D.dot: wrong dimensions. " .. str)
+      error("Array2D.dot: wrong dimensions. " .. str, 2)
    end
 
    -- Returned value
@@ -281,7 +292,7 @@ function Array2D.dot(lhs, rhs)
 	 if lhs.size ~= rhs.size then
 	    size_err("1D-1D")
 	 end
-	 v = Array2D:new(lhs.size, lhs.size)
+	 v = Array2D.empty(lhs.size, lhs.size)
 	 for i = 1, #lhs do
 	    for j = 1, #lhs do
 	       v[i][j] = lhs[i] * rhs[j]
@@ -290,10 +301,10 @@ function Array2D.dot(lhs, rhs)
 	 
       elseif cls.instanceOf(rhs, Array2D) then
 	 -- vector . matrix
-	 if lhs.size ~= rhs.size[1] then
+	 if lhs.size ~= rhs.shape[1] then
 	    size_err("1D-2D")
 	 end
-	 v = Array1D:new(rhs.size[2])
+	 v = Array1D.empty(rhs.shape[2])
 	 for j = 1 , #v do
 	    local vv = 0.
 	    for i = 1, #lhs do
@@ -311,10 +322,10 @@ function Array2D.dot(lhs, rhs)
       if cls.instanceOf(rhs, Array1D) then
 
 	 -- matrix . vector
-	 if lhs.size[2] ~= rhs.size then
+	 if lhs.shape[2] ~= rhs.size then
 	    size_err("2D-1D")
 	 end
-	 v = Array1D:new(lhs.size[1])
+	 v = Array1D.empty(lhs.shape[1])
 	 for j = 1 , #v do
 	    local vv = 0.
 	    for i = 1, #rhs do
@@ -326,17 +337,17 @@ function Array2D.dot(lhs, rhs)
       elseif cls.instanceOf(rhs, Array2D) then
 
 	 -- matrix . matrix
-	 if lhs.size[2] ~= rhs.size[1] then
+	 if lhs.shape[2] ~= rhs.shape[1] then
 	    size_err("2D-2D")
 	 end
-	 v = Array2D:new(lhs.size[1], rhs.size[2])
-	 for j = 1 , v.size[1] do
+	 v = Array2D.empty(lhs.shape[1], rhs.shape[2])
+	 for j = 1 , v.shape[1] do
 	    -- Get local references
 	    local lrow = lhs[j]
-	    for i = 1 , v.size[2] do
+	    for i = 1 , v.shape[2] do
 
 	       local vv = 0.
-	       for k = 1 , lhs.size[2] do
+	       for k = 1 , lhs.shape[2] do
 		  vv = vv + lrow[k] * rhs[k][i]
 	       end
 	       v[j][i] = vv
@@ -363,7 +374,7 @@ end
 function Array2D.__add(lhs, rhs)
    local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array2D:new(t.size)
+   local v = Array2D.empty(t.size)
    
    -- We have now created the corrrect new vector for containing the
    -- data
@@ -379,7 +390,7 @@ end
 function Array2D.__sub(lhs, rhs)
    local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array2D:new(t.size)
+   local v = Array2D.empty(t.size)
    for i = 1 , #v do
       v[i] = t.lhz[i] - t.rhz[i]
    end
@@ -389,7 +400,7 @@ end
 function Array2D.__mul(lhs, rhs)
    local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array2D:new(t.size)
+   local v = Array2D.empty(t.size)
    for i = 1 , #v do
       v[i] = t.lhz[i] * t.rhz[i]
    end
@@ -399,25 +410,41 @@ end
 function Array2D.__div(lhs, rhs)
    local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array2D:new(t.size)
+   local v = Array2D.empty(t.size)
    for i = 1 , #v do
       v[i] = t.lhz[i] / t.rhz[i]
    end
    return v
 end
 
-function Array2D.__pov(lhs, rhs)
+function Array2D.__pow(lhs, rhs)
+   if type(rhs) == "string" then
+      -- it may be transpose we are after
+      if rhs == "T" then
+	 -- Create the transposed array
+	 local v = Array2D.empty(lhs.shape[2], lhs.shape[1])
+	 for i = 1 , #v do
+	    for j = 1 , #v[i] do
+	       v[i][j] = lhs[j][i]
+	    end
+	 end
+	 return v
+      end
+      error("Unknown string power")
+   end
+	 
    local t = op_elem(lhs, rhs)
    -- Create the new vector
-   local v = Array2D:new(t.size)
+   local v = Array2D.empty(t.size)
    for i = 1 , #v do
       v[i] = t.lhz[i] ^ t.rhz[i]
    end
    return v
 end
 
+-- Unary minus operation
 function Array2D:__unm()
-   local v = Array2D:new(self.size)
+   local v = Array2D.empty(self.size)
    for i = 1 , #self do
       for j = 1, #self[i] do
 	 v[i][j] = -self[i][j]
@@ -438,31 +465,6 @@ function Array2D.__tostring(self)
       end
    end
    return s .. ']]'
-end
-
-function Array2D.__pow(lhs, rhs)
-   if type(rhs) == "string" then
-      -- it may be transpose we are after
-      if rhs == "T" then
-	 -- Create the transposed array
-	 local v = Array2D:new(lhs.size[2], lhs.size[1])
-	 for i = 1 , #v do
-	    for j = 1 , #v[i] do
-	       v[i][j] = lhs[j][i]
-	    end
-	 end
-	 return v
-      end
-      error("Unknown string power")
-   end
-	 
-   local t = op_elem(lhs, rhs)
-   -- Create the new vector
-   local v = Array2D:new(t.size)
-   for i = 1 , #v do
-      v[i] = t.lhz[i] ^ t.rhz[i]
-   end
-   return v
 end
 
 return Array2D

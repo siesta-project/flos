@@ -9,7 +9,6 @@ local Array2D = cls.Array2D
 
 local istable = cls.istable
 
-
 -- Create the stride selection 
 -- Array1D[i..":"..j..":"..step]
 
@@ -17,41 +16,59 @@ function Array1D.__newindex(self, k, v)
    if string.lower(tostring(k)) == "all" then
       if istable(v) then
 	 error("ERROR  Assigning all elements in a vector to a table"
-		  .." is not allowed. They are assigned by reference.")
+		  .." is not allowed. They are assigned by reference.", 2)
       end
       for i = 1 , #self do
 	 self[i] = v
       end
    else
-      if k < self.lbound or self.ubound < k then
-	 error("ERROR  Your index is out of bounds")
+      if k < 1 or self.shape[1] < k then
+	 error("ERROR  index is out of bounds", 2)
       end
       rawset(self, k, v)
    end
 end
 
-function Array1D:initialize(ubound)
-   local ub = ubound or 1
-   if ub < 1 then
-      error("ERROR  You are initializing a vector with size <= 0.\nOnly array require positive upper bounds.")
+function Array1D:initialize(...)
+   -- Convert input option to a correct shape
+   local shape = {...}
+   
+   -- Check wheter the table is a table of shape
+   if #shape == 1 then
+      if cls.istable(shape[1]) then
+	 shape = shape[1]
+      end
+   end
+
+   if #shape ~= 1 then
+      error("ERROR  shape initialization for Array1D is incompatible", 2)
+   end
+   -- Check sizes
+   if shape[1] < 1 then
+      error("ERROR  You are initializing a vector with size <= 0.", 2)
    end
    -- Rawset is needed to not call the bounds-check
-   rawset(self, "lbound", 1)
-   rawset(self, "ubound", ub)
-   rawset(self, "size", self.ubound - self.lbound + 1)
-   --self.size = self.ubound - self.lbound + 1
+   rawset(self, "shape", shape)
+   rawset(self, "size", self.shape[1])
 end
 
-function Array1D.zeros(ubound)
-   local new = Array1D:new(ubound)
+-- Create an empty 1D array
+function Array1D.empty(shape)
+   return Array1D:new(shape)
+end
+
+-- Return a 1D array with initialized 0's
+function Array1D.zeros(shape)
+   local new = Array1D.empty(shape)
    for i = 1, #new do
       new[i] = 0.
    end
    return new
 end
 
-function Array1D.ones(ubound)
-   local new = Array1D:new(ubound)
+-- Return a 1D array with only 1.'s
+function Array1D.ones(shape)
+   local new = Array1D.empty(shape)
    for i = 1, #new do
       new[i] = 1.
    end
@@ -64,7 +81,7 @@ end
 function Array1D.from(tbl)
    local new
    if istable(tbl[1]) then
-      new = Array2D:new(#tbl, #tbl[1])
+      new = Array2D.empty(#tbl, #tbl[1])
       for i = 1, #tbl do
 	 for j = 1, #tbl[i] do
 	    new[i][j] = tbl[i][j]
@@ -73,7 +90,7 @@ function Array1D.from(tbl)
       new = new:reshape(-1)
    else
       local n = #tbl
-      new = Array1D:new(n)
+      new = Array1D.empty(n)
       for i = 1, #tbl do
 	 new[i] = tbl[i]
       end
@@ -94,7 +111,7 @@ function Array1D.range(i1, i2, step)
       error("Array1D.range with negative step-length and i1 < i2 is not allowed.")
    end
 
-   local new = Array1D:new(1)
+   local new = Array1D.empty(1)
    local j = 0
    for i = i1, i2, is do
       j = j + 1
@@ -112,13 +129,13 @@ end
 function Array1D:extend(n)
    local ln = n or 1
    local ns = self.size + ln
-   rawset(self, "ubound", self.ubound + ln)
+   rawset(self, "shape", {ns})
    rawset(self, "size", ns)
 end
 
 -- Copy (data copy)
 function Array1D:copy()
-   local new = Array1D:new(#self)
+   local new = Array1D.empty(#self)
    for i = 1, #self do
       new[i] = self[i]
    end
@@ -128,7 +145,7 @@ end
 -- Create a new array which holds the differences
 -- for each consecutive element, has size #self-1
 function Array1D:diff()
-   local new = Array1D:new(#self-1)
+   local new = Array1D.empty(#self-1)
    for i = 1, #new do
       new[i] = self[i+1] - self[i]
    end
@@ -138,53 +155,41 @@ end
 
 -- Return the absolute value of all elements
 function Array1D:abs()
-   local new = Array1D:new(#self)
+   local new = Array1D.empty(#self)
    for i = 1, #new do
       new[i] = _m.abs(self[i])
    end
    return new
 end
 
+
 function Array1D:reshape(...)
    -- Grab variable arguments
-   local arg = {...}
-   -- Number of arguments passed
-   local narg = #arg
-   if narg == 1 and istable(arg[1]) then
-      arg = arg[1]
-      narg = #arg
-   end
+   local new_size = cls.arrayBounds(self.size, {...})
+   local nsize = #new_size
 
-   -- total size of this array
-   local ntot = self.size
-   -- Returned array
-   local new
+   if nsize == 0 or nsize == 1 then
 
-   if narg == 0 then
+      -- Simply return a copy, size is the same.
       new = self:copy()
 
-   elseif narg == 1 then
-      if arg[1] ~= ntot then
-	 error("Array1D: reshape, elements from to does not coincide")
-      end
-      new = self:copy()
-
-   elseif narg == 2 then
-      if arg[1] * arg[2] ~= ntot then
-	 error("Array1D: reshape, elements from to does not coincide")
-      end
-
-      new = Array2D:new(arg)
-      local k = 0
-      for i = 1, arg[1] do
-	 for j = 1, arg[2] do
+   elseif nsize == 2 then
+      
+      new = Array2D.empty(new_size)
+      
+      -- initialize loop conters
+      local k, l = 1, 0
+      for i = 1, #self do
+	 l = l + 1
+	 if l > new.shape[2] then
+	    l = 1
 	    k = k + 1
-	    new[i][j] = self[k]
 	 end
+	 new[k][l] = self[i]
       end
-
+      
    else
-      error("Array1D: reshape, elements from to does not coincide")
+      error("Array1D: reshaping not implemented", 2)
       
    end
 
@@ -300,7 +305,7 @@ function Array1D.cross(lhs, rhs)
       error("Array1D: cross-products are only defined in 3D space")
    end
 
-   local v = Array1D:new(#lhs)
+   local v = Array1D.empty(#lhs)
    v[1] = lhs[2] * rhs[3] - lhs[3] * rhs[2]
    v[2] = lhs[3] * rhs[1] - lhs[1] * rhs[3]
    v[3] = lhs[1] * rhs[2] - lhs[2] * rhs[1]
@@ -314,7 +319,7 @@ end
 function Array1D.__add(lhs, rhs)
    local t = opt_get(lhs, rhs)
    -- Create the new vector
-   local v = Array1D:new(t.size)
+   local v = Array1D.empty(t.size)
    
    -- We have now created the corrrect new vector for containing the
    -- data
@@ -328,7 +333,7 @@ end
 function Array1D.__sub(lhs, rhs)
    local t = opt_get(lhs, rhs)
    -- Create the new vector
-   local v = Array1D:new(t.size)
+   local v = Array1D.empty(t.size)
    for i = 1 , #v do
       v[i] = t.lhz[i] - t.rhz[i]
    end
@@ -338,7 +343,7 @@ end
 function Array1D.__mul(lhs, rhs)
    local t = opt_get(lhs, rhs)
    -- Create the new vector
-   local v = Array1D:new(t.size)
+   local v = Array1D.empty(t.size)
    for i = 1 , #v do
       v[i] = t.lhz[i] * t.rhz[i]
    end
@@ -348,7 +353,7 @@ end
 function Array1D.__div(lhs, rhs)
    local t = opt_get(lhs, rhs)
    -- Create the new vector
-   local v = Array1D:new(t.size)
+   local v = Array1D.empty(t.size)
    for i = 1 , #v do
       v[i] = t.lhz[i] / t.rhz[i]
    end
@@ -358,22 +363,23 @@ end
 function Array1D.__pow(lhs, rhs)
    local t = opt_get(lhs, rhs)
    -- Create the new vector
-   local v = Array1D:new(t.size)
+   local v = Array1D.empty(t.size)
    for i = 1 , #v do
       v[i] = t.lhz[i] ^ t.rhz[i]
    end
    return v
 end
 
+-- Unary minus operation
 function Array1D:__unm()
-   local v = Array1D:new(self.size)
+   local v = Array1D.empty(self.size)
    for i = 1 , #v do
       v[i] = -self[i]
    end
    return v
 end
 
-
+-- Convert the content of the array to a string
 function Array1D.__tostring(self)
    local s = "[" .. tostring(self[1])
    for i = 2 , #self do
