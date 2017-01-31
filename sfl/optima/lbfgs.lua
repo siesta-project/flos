@@ -31,8 +31,8 @@ function LBFGS:initialize(tbl)
    -- Number of history points used
    self.history = 100
 
-   -- Currently reached itteration
-   self.nitt = 0
+   -- Currently reached iteration
+   self.niter = 0
 
    -- this is the convergence tolerance of the gradient
    self.tolerance = 0.02
@@ -72,7 +72,7 @@ end
 -- Basically all variables that
 -- are set should be reset
 function LBFGS:reset()
-   self.nitt = 0
+   self.niter = 0
    self.F0 = {}
    self.G0 = {}
    self.dF = {}
@@ -81,9 +81,9 @@ function LBFGS:reset()
    self.rho_optimized = 0.
 end
 
--- Function to return the current itteration count
-function LBFGS:itt ()
-   return m.min(self.nitt, self.history)
+-- Function to return the current iteration count
+function LBFGS:iteration ()
+   return m.min(self.niter, self.history)
 end
 
 -- Correct the step-size (change of optimization variable)
@@ -116,27 +116,27 @@ end
 -- and updates the kernel of the residual dot-product.
 function LBFGS:add_history (F, G)
 
-   -- Retrieve the current itteration step.
+   -- Retrieve the current iteration step.
    -- With respect to the history and total
-   -- itteration count.
-   local itt = self:itt()
+   -- iteration count.
+   local iter = self:iteration()
 
-   -- If the current itteration count is
+   -- If the current iteration count is
    -- more than or equal to one, it means that
    -- we already have F0 and G0
-   if itt > 0 then
+   if iter > 0 then
 
-      self.dF[itt] = F - self.F0
-      self.dG[itt] = G - self.G0
+      self.dF[iter] = F - self.F0
+      self.dG[iter] = G - self.G0
       
       -- Calculate dot-product and store the kernel
-      self.rho[itt] = 1. / self.flatdot(self.dF[itt] ,self.dG[itt])
+      self.rho[iter] = 1. / self.flatdot(self.dF[iter] ,self.dG[iter])
       
    end
    
    -- In case we have stored too many points
    -- we should clean-up the history
-   if itt > self.history then
+   if iter > self.history then
 
       -- Forcing garbage collection
       table.remove(self.dF, 1)
@@ -145,7 +145,7 @@ function LBFGS:add_history (F, G)
 	 
    end
 
-   -- Ensure that the next itteration has
+   -- Ensure that the next iteration has
    -- the input sequence
    self.F0 = F:copy()
    self.G0 = G:copy()
@@ -159,8 +159,8 @@ function LBFGS:optimize (F, G)
    -- Add the current iteration to the history
    self:add_history(F, G)
 
-   -- Retrieve current itteration count
-   local itt = self:itt()
+   -- Retrieve current iteration count
+   local iter = self:iteration()
 
    -- Create local pointers to tables
    -- (they are tables, hence by-reference)
@@ -173,7 +173,7 @@ function LBFGS:optimize (F, G)
    
    -- Update the uphill gradient
    local q = G:reshape(-1)
-   for i = itt, 1, -1 do
+   for i = iter, 1, -1 do
       rh[i] = rho[i] * dF[i]:reshape(-1):dot(q)
       q = q - rh[i] * dG[i]:reshape(-1)
    end
@@ -184,7 +184,7 @@ function LBFGS:optimize (F, G)
    q = nil
 
    -- Now create the next step
-   for i = 1, itt do
+   for i = 1, iter do
       local beta = rho[i] * dG[i]:reshape(-1):dot(z)
       z = z + dF[i]:reshape(-1) * (rh[i] - beta)
    end
@@ -207,7 +207,7 @@ function LBFGS:optimize (F, G)
       newF = F:copy()
    end
 
-   self.nitt = self.nitt + 1
+   self.niter = self.niter + 1
    
    return newF
       
@@ -233,10 +233,10 @@ end
 function LBFGS:info ()
 
    print("")
-   if self:itt() == 0 then
+   if self:iteration() == 0 then
       print("LBGFS: history: " .. self.history)
    else
-      print("LBGFS: current / history: "..tostring(self:itt()) .. " / "..self.history)
+      print("LBGFS: current / history: "..tostring(self:iteration()) .. " / "..self.history)
    end
    print("LBGFS: damping "..tostring(self.damping))
    print("LBGFS: H0 "..tostring(self.H0))
