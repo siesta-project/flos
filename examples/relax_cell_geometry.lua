@@ -298,7 +298,7 @@ function siesta_geometry(siesta)
    for i = 1, #geom do
       
       weight[i] = weight[i] / sum_w
-      s = s .. ", " .. string.format("%7.4f", tostring(weight[i]))
+      s = s .. ", " .. string.format("%7.4f", weight[i])
       
    end
    if siesta.IONode and #geom > 1 then
@@ -369,7 +369,7 @@ function siesta_cell(siesta)
    local s = ""
    for i = 1, #lattice do
       weight[i] = weight[i] / sum_w
-      s = s .. ", " .. string.format("%7.4f", tostring(weight[i]))
+      s = s .. ", " .. string.format("%7.4f", weight[i])
    end
    if siesta.IONode and #lattice > 1 then
       print("\nLattice weighted average: ", s:sub(3))

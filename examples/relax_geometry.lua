@@ -131,7 +131,7 @@ function siesta_move(siesta)
    for i = 1, #LBFGS do
       
       weight[i] = weight[i] / sum_w
-      s = s .. ", " .. string.format("%7.4f", tostring(weight[i]))
+      s = s .. ", " .. string.format("%7.4f", weight[i])
       
    end
    if siesta.IONode and #LBFGS > 1 then
