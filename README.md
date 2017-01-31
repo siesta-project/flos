@@ -1,7 +1,8 @@
-# sfl
+# flos
 
 This library enables optimization schemes created in Lua to be
-used together with [SIESTA][siesta].
+used together with [SIESTA][siesta] via the [flook][flook] library, hence
+the same `flo + SIESTA = flos`.
 
 This enables scripting level languages to inter-act and develop
 new MD schemes, such as new geometry constraints, geometry relaxations, etc.
@@ -15,26 +16,26 @@ Importantly this library requires an explicit `<path>/?/init.lua` definition.
 As an example the following bash commands enables the library:
 
     cd $HOME
-    git clone git@github.com:siesta-project/siesta-sfl.git
+    git clone git@github.com:siesta-project/flos.git
 	git submodule init
 	git submodule update
-	export LUA_PATH="$HOME/siesta-sfl/?.lua;$HOME/siesta-sfl/?/init.lua;$LUA_PATH"
+	export LUA_PATH="$HOME/flos/?.lua;$HOME/flos/?/init.lua;$LUA_PATH"
 
-and that is it. Now you can use the `sfl` library.
+and that is it. Now you can use the `flos` library.
     
 
 ## Basic usage
 
 To enable this library you should add this to your Lua script:
 
-    local sfl = require "sfl"
+    local flos = require "flos"
 
-which enables you to interact with all implemented `sfl` implemented algorithms.
+which enables you to interact with all implemented `flos` implemented algorithms.
 
 
 ## Usage in SIESTA
 
-In principle `sfl` is not relying on the [SIESTA][siesta] routines and may
+In principle `flos` is not relying on the [SIESTA][siesta] routines and may
 be used as a regular Lua library, although it has been developed
 with [SIESTA][siesta] in mind.
 
@@ -65,9 +66,9 @@ In order to use any of these schemes you simply need to follow these steps:
         MD.TypeOfRun lua
         LUA.Script <script-name>
 
-For instance to use the `sfl` relaxation method:
+For instance to use the `flos` relaxation method:
 
-    cp siesta-sfl/examples/relax_geometry.lua <path-to-siesta-run>/relax.lua
+    cp flos/examples/relax_geometry.lua <path-to-siesta-run>/relax.lua
 
 and the fdf-flag should be:
 
