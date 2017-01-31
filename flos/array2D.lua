@@ -106,6 +106,24 @@ function Array2D:abs()
    return new
 end
 
+-- Return the minimum value
+function Array2D:min()
+   local min = Array1D.empty(self.shape[1])
+   for i = 1, #self do
+      min[i] = self[i]:min()
+   end
+   return min
+end
+
+-- Return the maximum value
+function Array2D:max()
+   local max = Array1D.empty(self.shape[1])
+   for i = 1, #self do
+      max[i] = self[i]:max()
+   end
+   return max
+end
+
 function Array2D.from(tbl)
    local new
    if istable(tbl[1]) then

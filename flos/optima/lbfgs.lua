@@ -82,26 +82,20 @@ function LBFGS:reset()
 end
 
 -- Function to return the current iteration count
-function LBFGS:iteration ()
+function LBFGS:iteration()
    return m.min(self.niter, self.history)
 end
 
 -- Correct the step-size (change of optimization variable)
 -- by asserting that the norm of each vector is below
 -- a given threshold.
-function LBFGS:correct_dF (dF)
+function LBFGS:correct_dF(dF)
 
-   -- Calculate the norm for each field
-   local norm = self.norm1D(dF)
+   -- Calculate the maximum norm
+   local max_norm = self.norm1D(dF):max()
 
-   -- Calculate each elements maximum norm
-   local max_norm = 0.
-   for i = 1, #norm do
-      max_norm = m.max(max_norm, norm[i])
-   end
-   
    -- Now normalize the displacement
-   norm = self.max_dF / max_norm
+   local norm = self.max_dF / max_norm
    if norm < 1. then
       return dF * norm
    else
@@ -114,7 +108,7 @@ end
 -- gradient variable to the history.
 -- This function calculates the residuals
 -- and updates the kernel of the residual dot-product.
-function LBFGS:add_history (F, G)
+function LBFGS:add_history(F, G)
 
    -- Retrieve the current iteration step.
    -- With respect to the history and total
@@ -154,7 +148,7 @@ end
 
 -- Calculate the optimized variable (F) which
 -- minimizes the gradient (G).
-function LBFGS:optimize (F, G)
+function LBFGS:optimize(F, G)
    
    -- Add the current iteration to the history
    self:add_history(F, G)
@@ -215,22 +209,17 @@ end
 
 -- Function to determine whether the
 -- LBFGS algorithm has converged
-function LBFGS:optimized (G)
+function LBFGS:optimized(G)
    -- Check convergence
-   local norm = self.norm1D(G)
+   local norm = self.norm1D(G):max()
 
    -- Determine whether the algorithm is complete.
-   self.is_optimized = true
-   for i = 1, #norm do
-      if norm[i] > self.tolerance then
-	 self.is_optimized = false
-      end
-   end
+   self.is_optimized = norm < self.tolerance
    
 end
 
 -- Print information regarding the LBFGS algorithm
-function LBFGS:info ()
+function LBFGS:info()
 
    print("")
    if self:iteration() == 0 then

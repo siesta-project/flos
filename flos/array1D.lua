@@ -163,6 +163,23 @@ function Array1D:abs()
    return new
 end
 
+-- Return the minimum value
+function Array1D:min()
+   local min = self[1]
+   for i = 2, #self do
+      min = _m.min(min, self[i])
+   end
+   return min
+end
+
+-- Return the maximum value
+function Array1D:max()
+   local max = self[1]
+   for i = 2, #self do
+      max = _m.max(max, self[i])
+   end
+   return max
+end
 
 function Array1D:reshape(...)
    -- Grab variable arguments
