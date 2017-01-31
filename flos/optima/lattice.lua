@@ -45,7 +45,7 @@ function Lattice:initialize(cell, delta, N)
 
    -- Placeholder for the displacement values and
    -- energies you want to minimize
-   self.E = base.Array1D:new(1)
+   self.E = base.Array1D.empty(1)
    
 end
 
@@ -53,7 +53,7 @@ end
 -- Update the internal reciprocal lattice (without 2Pi)
 function Lattice:update_reciprocal()
 
-   self.rcell = base.Array2D:new(3, 3)
+   self.rcell = base.Array2D.empty(3, 3)
    local c = self.cell
    self.rcell[1][1] = c[2][2]*c[3][3] - c[2][3]*c[3][2]
    self.rcell[1][2] = c[2][3]*c[3][1] - c[2][1]*c[3][3]

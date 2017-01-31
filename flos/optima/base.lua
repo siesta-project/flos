@@ -16,15 +16,12 @@ local opt = mc.class('Optimizer')
 -- This function enables the calculation
 -- of vector norms along axis
 function opt.norm1D(array)
-   local norm1D
-   
    if base.instanceOf(array, base.Array2D) then
       -- Each field is a vector
-      norm1D = array:norm()
+      return array:norm()
    else
-      norm1D = array:abs()
+      return array:abs()
    end
-   return norm1D
 end
 
 function opt.flatdot(lhs, rhs)

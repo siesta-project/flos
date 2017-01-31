@@ -40,15 +40,16 @@ local Unit = siesta.Units
 
 -- Initial strain that we want to optimize to minimize
 -- the stress.
-local strain = flos.Array2D.zeros(2, 3)
+local strain = flos.Array1D.zeros(6)
 -- Mask which directions we should relax
---   [[xx, yy, zz],
---    [yz, xz, xy]]
+--   [xx, yy, zz, yz, xz, xy]
 -- Default to all.
-local stress_mask = flos.Array2D.ones(2, 3)
+local stress_mask = flos.Array1D.ones(6)
 -- In this example we only converge the
 -- diagonal stress
-stress_mask[2] = stress_mask[2] * 0.
+stress_mask[4] = 0.
+stress_mask[5] = 0.
+stress_mask[6] = 0.
 
 -- The initial cell
 local cell_first
@@ -125,16 +126,16 @@ function siesta_move(siesta)
    local xa = flos.Array2D.from(siesta.geom.xa) / Unit.Ang
    -- Retrieve the stress
    local tmp = flos.Array2D.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
-   local stress = flos.Array2D:new(2, 3)
+   local stress = flos.Array1D.empty(6)
 
    -- Copy over the stress to the Voigt representation
-   stress[1][1] = tmp[1][1]
-   stress[1][2] = tmp[2][2]
-   stress[1][3] = tmp[3][3]
+   stress[1] = tmp[1][1]
+   stress[2] = tmp[2][2]
+   stress[3] = tmp[3][3]
    -- ... symmetrize stress tensor
-   stress[2][1] = (tmp[2][3] + tmp[3][2]) * 0.5
-   stress[2][2] = (tmp[1][3] + tmp[3][1]) * 0.5
-   stress[2][3] = (tmp[1][2] + tmp[2][1]) * 0.5
+   stress[4] = (tmp[2][3] + tmp[3][2]) * 0.5
+   stress[5] = (tmp[1][3] + tmp[3][1]) * 0.5
+   stress[6] = (tmp[1][2] + tmp[2][1]) * 0.5
    tmp = nil
 
    -- Apply stress-mask to the current stress
@@ -161,7 +162,7 @@ function siesta_move(siesta)
       -- correct units.
       -- Secondly, the stress optimization is per element
       -- so we need to flatten the stress
-      LBFGS[i]:optimized(stress:reshape(-1))
+      LBFGS[i]:optimized(stress)
       
       -- Get the optimization length for calculating
       -- the best average.
@@ -204,15 +205,15 @@ function siesta_move(siesta)
    -- Note that we add one in the diagonal
    -- to create the summed cell
    local dcell = cell * 0.
-   dcell[1][1] = 1.0 + strain[1][1]
-   dcell[1][2] = 0.5 * strain[2][3]
-   dcell[1][3] = 0.5 * strain[2][2]
-   dcell[2][1] = 0.5 * strain[2][3]
-   dcell[2][2] = 1.0 + strain[1][2]
-   dcell[2][3] = 0.5 * strain[2][1]
-   dcell[3][1] = 0.5 * strain[2][2]
-   dcell[3][2] = 0.5 * strain[2][1]
-   dcell[3][3] = 1.0 + strain[1][3]
+   dcell[1][1] = 1.0 + strain[1]
+   dcell[1][2] = 0.5 * strain[6]
+   dcell[1][3] = 0.5 * strain[5]
+   dcell[2][1] = 0.5 * strain[6]
+   dcell[2][2] = 1.0 + strain[2]
+   dcell[2][3] = 0.5 * strain[4]
+   dcell[3][1] = 0.5 * strain[5]
+   dcell[3][2] = 0.5 * strain[4]
+   dcell[3][3] = 1.0 + strain[3]
 
    -- Create the new cell...
    -- As the strain is a continuously updated value

@@ -43,15 +43,16 @@ local Unit = siesta.Units
 
 -- Initial strain that we want to optimize to minimize
 -- the stress.
-local strain = flos.Array2D.zeros(2, 3)
+local strain = flos.Array1D.empty(6)
 -- Mask which directions we should relax
---   [[xx, yy, zz],
---    [yz, xz, xy]]
+--   [xx, yy, zz, yz, xz, xy]
 -- Default to all.
-local stress_mask = flos.Array2D.ones(2, 3)
+local stress_mask = flos.Array1D.ones(6)
 
 -- To only relax the diagonal elements you may do this:
---stress_mask[2] = stress_mask[2] * 0.
+--stress_mask[4] = 0.
+--stress_mask[5] = 0.
+--stress_mask[6] = 0.
 
 -- The initial cell
 local cell_first
@@ -168,7 +169,7 @@ function siesta_move(siesta)
    -- Grab whether both methods have converged
    local voigt = stress_to_voigt(siesta.geom.stress)
    voigt = voigt * stress_mask
-   lattice[1]:optimized(voigt:reshape(-1))
+   lattice[1]:optimized(voigt)
    local conv_lattice = lattice[1].is_optimized
    voigt = nil
    
@@ -198,7 +199,7 @@ function siesta_move(siesta)
       -- in correct units).
       cell_first = siesta.geom.cell:copy()
       -- Also initialize the initial strain
-      strain = flos.Array2D.zeros(2, 3)
+      strain = flos.Array1D.zeros(6)
 
       if siesta.IONode then
 	 print("\nLUA: switching to cell relaxation!\n")
@@ -231,33 +232,33 @@ end
 
 function stress_to_voigt(stress)
    -- Retrieve the stress
-   local voigt = flos.Array2D:new(2, 3)
+   local voigt = flos.Array1D.empty(6)
 
    -- Copy over the stress to the Voigt representation
-   voigt[1][1] = stress[1][1]
-   voigt[1][2] = stress[2][2]
-   voigt[1][3] = stress[3][3]
+   voigt[1] = stress[1][1]
+   voigt[2] = stress[2][2]
+   voigt[3] = stress[3][3]
    -- ... symmetrize stress tensor
-   voigt[2][1] = (stress[2][3] + stress[3][2]) * 0.5
-   voigt[2][2] = (stress[1][3] + stress[3][1]) * 0.5
-   voigt[2][3] = (stress[1][2] + stress[2][1]) * 0.5
+   voigt[4] = (stress[2][3] + stress[3][2]) * 0.5
+   voigt[5] = (stress[1][3] + stress[3][1]) * 0.5
+   voigt[6] = (stress[1][2] + stress[2][1]) * 0.5
 
    return voigt
 end
 
 function stress_from_voigt(voigt)
-   local stress = flos.Array2D:new(3, 3)
+   local stress = flos.Array2D.empty(3, 3)
 
    -- Copy over the stress from Voigt representation
-   stress[1][1] = voigt[1][1]
-   stress[1][2] = voigt[2][3]
-   stress[1][3] = voigt[2][2]
-   stress[2][1] = voigt[2][3]
-   stress[2][2] = voigt[1][2]
-   stress[2][3] = voigt[2][1]
-   stress[3][1] = voigt[2][2]
-   stress[3][2] = voigt[2][1]
-   stress[3][3] = voigt[1][3]
+   stress[1][1] = voigt[1]
+   stress[1][2] = voigt[6]
+   stress[1][3] = voigt[5]
+   stress[2][1] = voigt[6]
+   stress[2][2] = voigt[2]
+   stress[2][3] = voigt[4]
+   stress[3][1] = voigt[5]
+   stress[3][2] = voigt[4]
+   stress[3][3] = voigt[3]
 
    return stress
 end
@@ -352,7 +353,7 @@ function siesta_cell(siesta)
       -- correct units.
       -- Secondly, the stress optimization is per element
       -- so we need to flatten the stress
-      lattice[i]:optimized(stress:reshape(-1))
+      lattice[i]:optimized(stress)
       
       -- Get the optimization length for calculating
       -- the best average.
@@ -393,15 +394,15 @@ function siesta_cell(siesta)
    -- Note that we add one in the diagonal
    -- to create the summed cell
    local dcell = cell * 0.
-   dcell[1][1] = 1.0 + strain[1][1]
-   dcell[1][2] = 0.5 * strain[2][3]
-   dcell[1][3] = 0.5 * strain[2][2]
-   dcell[2][1] = 0.5 * strain[2][3]
-   dcell[2][2] = 1.0 + strain[1][2]
-   dcell[2][3] = 0.5 * strain[2][1]
-   dcell[3][1] = 0.5 * strain[2][2]
-   dcell[3][2] = 0.5 * strain[2][1]
-   dcell[3][3] = 1.0 + strain[1][3]
+   dcell[1][1] = 1.0 + strain[1]
+   dcell[1][2] = 0.5 * strain[6]
+   dcell[1][3] = 0.5 * strain[5]
+   dcell[2][1] = 0.5 * strain[6]
+   dcell[2][2] = 1.0 + strain[2]
+   dcell[2][3] = 0.5 * strain[4]
+   dcell[3][1] = 0.5 * strain[5]
+   dcell[3][2] = 0.5 * strain[4]
+   dcell[3][3] = 1.0 + strain[3]
 
    -- Create the new cell...
    -- As the strain is a continuously updated value
