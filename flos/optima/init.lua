@@ -10,6 +10,7 @@ local ret = {}
 -- Add the LBFGS optimization to the returned
 -- optimization table.
 ret.LBFGS = require "flos.optima.lbfgs"
+ret.FIRE = require "flos.optima.fire"
 ret.Lattice = require "flos.optima.lattice"
 
 return ret
