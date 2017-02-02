@@ -245,7 +245,7 @@ local function op_elem(lhs, rhs)
    elseif cls.instanceOf(lhs, Array1D) then
       error("ERROR  can not perform element operations on 2D and 1D arrays.")
    else
-      ls = {1, 1}
+      ls = 1
    end
    t.lhz = ensurearray(lhs)
    -- Check RHS
@@ -254,7 +254,7 @@ local function op_elem(lhs, rhs)
    elseif cls.instanceOf(rhs, Array1D) then
       error("ERROR  can not perform element operations on 1D and 2D arrays.")
    else
-      rs = {1, 1}
+      rs = 1
    end
    t.rhz = ensurearray(rhs)
    
@@ -267,13 +267,13 @@ local function op_elem(lhs, rhs)
       t.shape = ls
       
    elseif istable(ls) then
-      if #rs ~= 2 then
+      if rs ~= 1 then
 	 error("ERROR  Array2D dimensions incompatible")
       end
       t.shape = ls
       
    elseif istable(rs) then
-      if #ls ~= 2 then
+      if ls ~= 1 then
 	 error("ERROR  Array2D dimensions incompatible")
       end
       t.shape = rs
@@ -299,6 +299,15 @@ function Array2D:norm()
 	 nn = nn + self[i][j] * self[i][j]
       end
       n[i] = _m.sqrt(nn)
+   end
+   return n
+end
+
+-- Implementation of sum function
+function Array2D:sum()
+   local n = Array1D.empty(self.shape[1])
+   for i = 1 , #self do
+      n[i] = self[i]:sum()
    end
    return n
 end

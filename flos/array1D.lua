@@ -302,6 +302,15 @@ function Array1D:norm()
    return _m.sqrt(n)
 end
 
+-- Implementation of sum function
+function Array1D:sum()
+   local n = 0.
+   for i = 1 , #self do
+      n = n + self[i]
+   end
+   return n
+end
+
 -- Implementation of the dot product
 function Array1D.dot(lhs, rhs)
    if cls.instanceOf(rhs, Array2D) then
