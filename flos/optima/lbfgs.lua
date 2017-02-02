@@ -57,7 +57,7 @@ function LBFGS:initialize(tbl)
    self.dG = {}
    self.rho = {}
    -- The last G . dF using dF for the optimized step
-   self.rho_optimized = 0.
+   self.weight = 0.
 
    -- Ensure we update the elements as passed
    -- by new(...)
@@ -78,7 +78,7 @@ function LBFGS:reset()
    self.dF = {}
    self.dG = {}
    self.rho = {}
-   self.rho_optimized = 0.
+   self.weight = 1.
 end
 
 -- Function to return the current iteration count
@@ -187,7 +187,7 @@ function LBFGS:optimize(F, G)
    z = - z:reshape(G.shape)
    
    -- Update step
-   self.rho_optimized = m.abs(self.flatdot(G, z))
+   self.weight = m.abs(self.flatdot(G, z))
    local delta = self:correct_dF(z) * self.damping
    
    -- Determine whether we have optimized the parameter/functional

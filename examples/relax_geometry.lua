@@ -118,7 +118,7 @@ function siesta_move(siesta)
       
       -- Get the optimization length for calculating
       -- the best average.
-      weight[i] = LBFGS[i].rho_optimized
+      weight[i] = LBFGS[i].weight
       sum_w = sum_w + weight[i]
       
    end
