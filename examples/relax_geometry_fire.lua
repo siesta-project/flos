@@ -29,8 +29,11 @@ which seems adequate in most situations.
 local flos = require "flos"
 
 local FIRE = {}
-FIRE[1] = flos.FIRE:new({dt_init = 0.1})
---FIRE[2] = flos.FIRE:new({dt_init = 0.75})
+-- In this example we take a mean of 4 different methods
+FIRE[1] = flos.FIRE:new({dt_init = 1., direction="global", correct="local"})
+FIRE[2] = flos.FIRE:new({dt_init = 1., direction="global", correct="global"})
+FIRE[3] = flos.FIRE:new({dt_init = 1., direction="local", correct="local"})
+FIRE[4] = flos.FIRE:new({dt_init = 1., direction="local", correct="global"})
 -- To use more simultaneously simply add a
 -- new line... with a separate FIRE algorithm.
 
