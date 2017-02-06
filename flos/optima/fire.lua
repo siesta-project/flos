@@ -195,6 +195,8 @@ function FIRE:optimize(F, G)
 	    break
 	 end
       end
+      -- currently we force the first atom to be fixed
+      j = 1
       print("FIRE:")
       print(("FIRE:  ENFORCING CONSTRAINT ON ATOM: %d"):format(j))
       print("FIRE: The FIRE algorithm is MD based and requires at least a fixed atom!")
@@ -316,6 +318,8 @@ function FIRE:optimized(G)
 
    -- Determine whether the algorithm is complete.
    self.is_optimized = norm < self.tolerance
+
+   return self.is_optimized
    
 end
 

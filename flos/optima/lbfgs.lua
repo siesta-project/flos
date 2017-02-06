@@ -215,6 +215,8 @@ function LBFGS:optimized(G)
 
    -- Determine whether the algorithm is complete.
    self.is_optimized = norm < self.tolerance
+
+   return self.is_optimized
    
 end
 
