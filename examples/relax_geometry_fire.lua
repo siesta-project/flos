@@ -41,7 +41,6 @@ FIRE[4] = flos.FIRE:new({dt_init = 1., direction="local", correct="global"})
 -- by SIESTA)
 local Unit = siesta.Units
 
-
 function siesta_comm()
    
    -- This routine does exchange of data with SIESTA
