@@ -12,5 +12,6 @@ local ret = {}
 ret.LBFGS = require "flos.optima.lbfgs"
 ret.FIRE = require "flos.optima.fire"
 ret.Lattice = require "flos.optima.lattice"
+ret.NEB = require "flos.optima.neb"
 
 return ret

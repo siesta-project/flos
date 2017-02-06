@@ -16,6 +16,8 @@ end
 
 add_ret(require "flos.base")
 add_ret(require "flos.array")
+-- MD-stuff
+add_ret(require "flos.md")
 -- LBFGS algorithm and other optimizers
 add_ret(require "flos.optima")
 -- ForceHessian MD method and other methods
