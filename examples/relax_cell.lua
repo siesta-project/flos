@@ -124,8 +124,8 @@ function siesta_move(siesta)
    local cell = flos.Array2D.from(siesta.geom.cell) / Unit.Ang
    -- Retrieve the atomic coordinates
    local xa = flos.Array2D.from(siesta.geom.xa) / Unit.Ang
-   -- Retrieve the stress
-   local tmp = flos.Array2D.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
+   -- Retrieve the stress, it is negative the gradient
+   local tmp = -flos.Array2D.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
    local stress = flos.Array1D.empty(6)
 
    -- Copy over the stress to the Voigt representation
@@ -166,7 +166,7 @@ function siesta_move(siesta)
       
       -- Get the optimization length for calculating
       -- the best average.
-      weight[i] = LBFGS[i].rho_optimized
+      weight[i] = LBFGS[i].weight
       sum_w = sum_w + weight[i]
       
    end

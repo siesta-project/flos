@@ -163,7 +163,8 @@ function siesta_move(siesta)
    siesta.geom.cell = flos.Array2D.from(siesta.geom.cell) / Unit.Ang
    siesta.geom.xa = flos.Array2D.from(siesta.geom.xa) / Unit.Ang
    siesta.geom.fa = flos.Array2D.from(siesta.geom.fa) * Unit.Ang / Unit.eV
-   siesta.geom.stress = flos.Array2D.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
+   -- The stress is the negative gradient
+   siesta.geom.stress = -flos.Array2D.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
 
 
    -- Grab whether both methods have converged
@@ -270,7 +271,7 @@ function siesta_geometry(siesta)
    local xa = siesta.geom.xa
    -- Note the LBFGS requires the gradient, and
    -- the force is the negative gradient.
-   local fa = -siesta.geom.fa
+   local fa = siesta.geom.fa
 
    -- Perform step (initialize arrays to do averaging if more
    -- LBFGS algorithms are in use).
@@ -285,7 +286,7 @@ function siesta_geometry(siesta)
       
       -- Get the optimization length for calculating
       -- the best average.
-      weight[i] = geom[i].rho_optimized
+      weight[i] = geom[i].weight
       sum_w = sum_w + weight[i]
       
    end
@@ -357,7 +358,7 @@ function siesta_cell(siesta)
       
       -- Get the optimization length for calculating
       -- the best average.
-      weight[i] = lattice[i].rho_optimized
+      weight[i] = lattice[i].weight
       sum_w = sum_w + weight[i]
       
    end

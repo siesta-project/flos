@@ -124,7 +124,7 @@ function LBFGS:add_history(F, G)
       self.dG[iter] = G - self.G0
       
       -- Calculate dot-product and store the kernel
-      self.rho[iter] = 1. / self.flatdot(self.dF[iter] ,self.dG[iter])
+      self.rho[iter] = -1. / self.flatdot(self.dF[iter] ,self.dG[iter])
       
    end
    
@@ -165,11 +165,11 @@ function LBFGS:optimize(F, G)
    -- Create table for accumulating dot products
    local rh = {}
    
-   -- Update the uphill gradient
-   local q = G:reshape(-1)
+   -- Update the downhill gradient
+   local q = -G:reshape(-1)
    for i = iter, 1, -1 do
       rh[i] = rho[i] * dF[i]:reshape(-1):dot(q)
-      q = q - rh[i] * dG[i]:reshape(-1)
+      q = q + rh[i] * dG[i]:reshape(-1)
    end
 
    -- Solve for the rhs optimization
@@ -180,7 +180,7 @@ function LBFGS:optimize(F, G)
    -- Now create the next step
    for i = 1, iter do
       local beta = rho[i] * dG[i]:reshape(-1):dot(z)
-      z = z + dF[i]:reshape(-1) * (rh[i] - beta)
+      z = z + dF[i]:reshape(-1) * (rh[i] + beta)
    end
    
    -- Ensure shape
