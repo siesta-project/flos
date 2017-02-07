@@ -50,9 +50,9 @@ local strain = flos.Array.zeros(6)
 local stress_mask = flos.Array.ones(6)
 
 -- To only relax the diagonal elements you may do this:
---stress_mask[4] = 0.
---stress_mask[5] = 0.
---stress_mask[6] = 0.
+stress_mask[4] = 0.
+stress_mask[5] = 0.
+stress_mask[6] = 0.
 
 -- The initial cell
 local cell_first
@@ -306,8 +306,8 @@ function siesta_geometry(siesta)
 
    -- Calculate the new coordinates and figure out
    -- if the algorithms has been optimized.
-   local out_xa = xa * 0.
-   for i = 1, #geom do
+   local out_xa = all_xa[1] * weight[1]
+   for i = 2, #geom do
       out_xa = out_xa + all_xa[i] * weight[i]
    end
    -- Immediately clean-up to reduce memory overhead (force GC)
@@ -377,8 +377,8 @@ function siesta_cell(siesta)
    -- Calculate the new optimized strain that should
    -- be applied to the cell vectors to minimize the stress.
    -- Also track if we have converged (stress < min-stress)
-   local out_strain = flos.Array( strain.shape )
-   for i = 1, #lattice do
+   local out_strain = all_strain[1] * weight[1]
+   for i = 2, #lattice do
       out_strain = out_strain + all_strain[i] * weight[i]
    end
    -- Immediately clean-up to reduce memory overhead (force GC)

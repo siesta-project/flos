@@ -187,9 +187,9 @@ function siesta_move(siesta)
    -- Calculate the new optimized strain that should
    -- be applied to the cell vectors to minimize the stress.
    -- Also track if we have converged (stress < min-stress)
-   local out_strain = flos.Array.zeros( strain.shape )
-   local relaxed = true
-   for i = 1, #LBFGS do
+   local out_strain = all_strain[1] * weight[1]
+   local relaxed = LBFGS[1].is_optimized
+   for i = 2, #LBFGS do
       out_strain = out_strain + all_strain[i] * weight[i]
       relaxed = relaxed and LBFGS[i].is_optimized
    end
@@ -204,7 +204,7 @@ function siesta_move(siesta)
    -- Calculate the new cell
    -- Note that we add one in the diagonal
    -- to create the summed cell
-   local dcell = flos.Array.zeros( cell.shape )
+   local dcell = flos.Array( cell.shape )
    dcell[1][1] = 1.0 + strain[1]
    dcell[1][2] = 0.5 * strain[6]
    dcell[1][3] = 0.5 * strain[5]

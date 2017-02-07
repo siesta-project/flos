@@ -138,9 +138,9 @@ function siesta_move(siesta)
 
    -- Calculate the new coordinates and figure out
    -- if the algorithms has been optimized.
-   local out_xa = xa * 0.
-   local relaxed = true
-   for i = 1, #LBFGS do
+   local out_xa = all_xa[1] * weight[1]
+   local relaxed = LBFGS[1].is_optimized
+   for i = 2, #LBFGS do
       
       out_xa = out_xa + all_xa[i] * weight[i]
       relaxed = relaxed and LBFGS[i].is_optimized
