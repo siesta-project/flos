@@ -40,11 +40,11 @@ local Unit = siesta.Units
 
 -- Initial strain that we want to optimize to minimize
 -- the stress.
-local strain = flos.Array1D.zeros(6)
+local strain = flos.Array.zeros(6)
 -- Mask which directions we should relax
 --   [xx, yy, zz, yz, xz, xy]
 -- Default to all.
-local stress_mask = flos.Array1D.ones(6)
+local stress_mask = flos.Array.ones(6)
 -- In this example we only converge the
 -- diagonal stress
 stress_mask[4] = 0.
@@ -87,7 +87,7 @@ function siesta_comm()
       end
 
       -- Store the initial cell (global variable)
-      cell_first = flos.Array2D.from(siesta.geom.cell) / Unit.Ang
+      cell_first = flos.Array.from(siesta.geom.cell) / Unit.Ang
 
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
@@ -121,12 +121,12 @@ end
 function siesta_move(siesta)
 
    -- Get the current cell
-   local cell = flos.Array2D.from(siesta.geom.cell) / Unit.Ang
+   local cell = flos.Array.from(siesta.geom.cell) / Unit.Ang
    -- Retrieve the atomic coordinates
-   local xa = flos.Array2D.from(siesta.geom.xa) / Unit.Ang
+   local xa = flos.Array.from(siesta.geom.xa) / Unit.Ang
    -- Retrieve the stress, it is negative the gradient
-   local tmp = -flos.Array2D.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
-   local stress = flos.Array1D.empty(6)
+   local tmp = -flos.Array.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
+   local stress = flos.Array.empty(6)
 
    -- Copy over the stress to the Voigt representation
    stress[1] = tmp[1][1]
@@ -187,7 +187,7 @@ function siesta_move(siesta)
    -- Calculate the new optimized strain that should
    -- be applied to the cell vectors to minimize the stress.
    -- Also track if we have converged (stress < min-stress)
-   local out_strain = strain * 0.
+   local out_strain = flos.Array.zeros( strain.shape )
    local relaxed = true
    for i = 1, #LBFGS do
       out_strain = out_strain + all_strain[i] * weight[i]
@@ -204,7 +204,7 @@ function siesta_move(siesta)
    -- Calculate the new cell
    -- Note that we add one in the diagonal
    -- to create the summed cell
-   local dcell = cell * 0.
+   local dcell = flos.Array.zeros( cell.shape )
    dcell[1][1] = 1.0 + strain[1]
    dcell[1][2] = 0.5 * strain[6]
    dcell[1][3] = 0.5 * strain[5]

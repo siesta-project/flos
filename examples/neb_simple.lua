@@ -16,7 +16,7 @@ local n_images = 3
 local read_geom = function(filename)
    local file = io.open(filename, "r")
    local na = tonumber(file:read())
-   local R = flos.Array2D.zeros(na, 3)
+   local R = flos.Array.zeros(na, 3)
    file:read()
    local i = 0
    local function tovector(s)
@@ -141,7 +141,7 @@ end
 function siesta_move(siesta)
 
    -- Retrieve the atomic coordinates, forces and the energy
-   local fa = flos.Array2D.from(siesta.geom.fa) * Unit.Ang / Unit.eV
+   local fa = flos.Array.from(siesta.geom.fa) * Unit.Ang / Unit.eV
    local E = siesta.E.total / Unit.eV
 
    -- First update the coordinates, forces and energy for the current iteration

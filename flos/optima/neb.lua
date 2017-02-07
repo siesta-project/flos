@@ -3,9 +3,10 @@ This module implements the NEB algorithm.
 --]]
 
 local m = require "math"
-local base = require "flos.base"
-local error = base.floserr
 local mc = require "flos.middleclass.middleclass"
+
+local ferror = require "flos.error"
+local error = ferror.floserr
 local optim = require "flos.optima.base"
 
 -- Create the NEB class (inheriting the Optimizer construct)

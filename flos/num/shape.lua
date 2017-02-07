@@ -14,6 +14,9 @@ Their main purpose is to assert that
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
 
+local ferr = require "flos.error"
+local error = ferr.floserr
+
 -- Create the shape class (globally so it returns)
 local Shape = mc.class("Shape")
 
@@ -81,7 +84,7 @@ function Shape:size(axis)
    local ax = ax_(axis)
    local size = 1
    if ax == 0 then
-     -- We return the full size
+      -- We return the full size
       for _, v in ipairs(self) do
 	 if v ~= 0 then
 	    size = size * v
@@ -156,7 +159,7 @@ function Shape:align(other)
       new[zero_o] = m.tointeger(n)
       return new
 
-   elseif self ~= other then
+   elseif self:size() ~= other:size() then
 
       -- The shapes are not the same...
       return nil
@@ -164,7 +167,7 @@ function Shape:align(other)
    else
 
       -- The shape is copied because they are the same
-      return self:copy()
+      return other:copy()
 
    end
 end

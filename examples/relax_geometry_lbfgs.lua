@@ -100,8 +100,8 @@ end
 function siesta_move(siesta)
 
    -- Retrieve the atomic coordinates and the forces
-   local xa = flos.Array2D.from(siesta.geom.xa) / Unit.Ang
-   local fa = flos.Array2D.from(siesta.geom.fa) * Unit.Ang / Unit.eV
+   local xa = flos.Array.from(siesta.geom.xa) / Unit.Ang
+   local fa = flos.Array.from(siesta.geom.fa) * Unit.Ang / Unit.eV
 
    -- Perform step (initialize arrays to do averaging if more
    -- LBFGS algorithms are in use).

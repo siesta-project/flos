@@ -43,11 +43,11 @@ local Unit = siesta.Units
 
 -- Initial strain that we want to optimize to minimize
 -- the stress.
-local strain = flos.Array1D.empty(6)
+local strain = flos.Array.zeros(6)
 -- Mask which directions we should relax
 --   [xx, yy, zz, yz, xz, xy]
 -- Default to all.
-local stress_mask = flos.Array1D.ones(6)
+local stress_mask = flos.Array.ones(6)
 
 -- To only relax the diagonal elements you may do this:
 --stress_mask[4] = 0.
@@ -98,7 +98,7 @@ function siesta_comm()
       end
 
       -- Store the initial cell (global variable)
-      cell_first = flos.Array2D.from(siesta.geom.cell) / Unit.Ang
+      cell_first = flos.Array.from(siesta.geom.cell) / Unit.Ang
 
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
@@ -160,22 +160,20 @@ function siesta_move(siesta)
 
    -- Internally convert the siesta quantities
    -- to their correct physical values
-   siesta.geom.cell = flos.Array2D.from(siesta.geom.cell) / Unit.Ang
-   siesta.geom.xa = flos.Array2D.from(siesta.geom.xa) / Unit.Ang
-   siesta.geom.fa = flos.Array2D.from(siesta.geom.fa) * Unit.Ang / Unit.eV
+   siesta.geom.cell = flos.Array.from(siesta.geom.cell) / Unit.Ang
+   siesta.geom.xa = flos.Array.from(siesta.geom.xa) / Unit.Ang
+   siesta.geom.fa = flos.Array.from(siesta.geom.fa) * Unit.Ang / Unit.eV
    -- The stress is the negative gradient
-   siesta.geom.stress = -flos.Array2D.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
+   siesta.geom.stress = -flos.Array.from(siesta.geom.stress) * Unit.Ang ^ 3 / Unit.eV
 
 
    -- Grab whether both methods have converged
    local voigt = stress_to_voigt(siesta.geom.stress)
    voigt = voigt * stress_mask
-   lattice[1]:optimized(voigt)
-   local conv_lattice = lattice[1].is_optimized
+   local conv_lattice = lattice[1]:optimized(voigt)
    voigt = nil
    
-   geom[1]:optimized(siesta.geom.fa)
-   local conv_geom = geom[1].is_optimized
+   local conv_geom = geom[1]:optimized(siesta.geom.fa)
 
    -- Immediately return if both have converged
    if conv_lattice and conv_geom then
@@ -200,7 +198,7 @@ function siesta_move(siesta)
       -- in correct units).
       cell_first = siesta.geom.cell:copy()
       -- Also initialize the initial strain
-      strain = flos.Array1D.zeros(6)
+      strain = flos.Array.zeros(6)
 
       if siesta.IONode then
 	 print("\nLUA: switching to cell relaxation!\n")
@@ -233,7 +231,7 @@ end
 
 function stress_to_voigt(stress)
    -- Retrieve the stress
-   local voigt = flos.Array1D.empty(6)
+   local voigt = flos.Array.empty(6)
 
    -- Copy over the stress to the Voigt representation
    voigt[1] = stress[1][1]
@@ -248,7 +246,7 @@ function stress_to_voigt(stress)
 end
 
 function stress_from_voigt(voigt)
-   local stress = flos.Array2D.empty(3, 3)
+   local stress = flos.Array.empty(3, 3)
 
    -- Copy over the stress from Voigt representation
    stress[1][1] = voigt[1]
@@ -379,7 +377,7 @@ function siesta_cell(siesta)
    -- Calculate the new optimized strain that should
    -- be applied to the cell vectors to minimize the stress.
    -- Also track if we have converged (stress < min-stress)
-   local out_strain = strain * 0.
+   local out_strain = flos.Array( strain.shape )
    for i = 1, #lattice do
       out_strain = out_strain + all_strain[i] * weight[i]
    end
@@ -394,7 +392,7 @@ function siesta_cell(siesta)
    -- Calculate the new cell
    -- Note that we add one in the diagonal
    -- to create the summed cell
-   local dcell = cell * 0.
+   local dcell = flos.Array( cell.shape )
    dcell[1][1] = 1.0 + strain[1]
    dcell[1][2] = 0.5 * strain[6]
    dcell[1][3] = 0.5 * strain[5]

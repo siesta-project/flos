@@ -15,6 +15,8 @@ a table of Array with dimension 2, and each of these are Arrays of dimension
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
 
+local ferr = require "flos.error"
+local error = ferr.floserr
 local shape = require "flos.num.shape"
 
 local Array = mc.class("Array")
@@ -60,7 +62,7 @@ function Array:initialize(...)
    -- For each size along the first dimension
    -- we create a new one for each of them
    if #self.shape > 1 then
-      for i = 1, self.shape[1] do
+      for i = 1, #self do
 	 rawset(self, i, Array( table.unpack(self.shape, 2) ))
       end
    end
@@ -73,7 +75,7 @@ function Array:__newindex(i, v)
    if #self.shape ~= 1 then
       error("ERROR in implementation")
    end
-   if i < 1 or self.shape[1] < i then
+   if i < 1 or #self < i then
       error("ERROR setting element out of bounds")
    end
    rawset(self, i, v)
@@ -118,10 +120,13 @@ function Array.range(i1, i2, step)
       error("flos.Array range with negative step-length and i1 < i2 is not allowed.")
    end
    
-   local new = Array.empty( m.ceil((i2-i1)/is) )
+   local new = Array.empty( 1 )
    local j = 0
    for i = i1, i2, is do
       j = j + 1
+      if i ~= i1 then
+	 new.shape[1] = new.shape[1] + 1
+      end
       new[j] = i
    end
 
@@ -134,11 +139,11 @@ function Array:fill(val)
    if #self.shape == 1 then
       -- We are at the last dimension so we set
       -- the value accordingly
-      for i = 1, self.shape[1] do
+      for i = 1, #self do
 	 self[i] = val
       end
    else
-      for i = 1, self.shape[1] do
+      for i = 1, #self do
 	 self[i]:fill(val)
       end
    end
@@ -150,11 +155,11 @@ function Array:copy()
    if #self.shape == 1 then
       -- We need to extract the values, rather than
       -- copying
-      for i = 1, self.shape[1] do
+      for i = 1, #self do
 	 new[i] = self[i]
       end
    else
-      for i = 1, self.shape[1] do
+      for i = 1, #self do
 	 new[i] = self[i]:copy()
       end
    end
@@ -213,12 +218,18 @@ function Array:reshape(...)
    if #arg == 0 then
       arg[1] = 0
    end
-
-   -- Create a new shape
-   local sh = self.shape:align( shape.Shape(table.unpack(arg)) )
+   
+   -- In case a shape is passed
+   local sh
+   if shape.isShape(arg[1]) then
+      sh = self.shape:align( arg[1] )
+   else
+      sh = self.shape:align( shape.Shape(table.unpack(arg)) )
+   end
    if sh == nil then
       error("flos.Array cannot align shapes, incompatible dimensions")
    end
+   
    -- Create the new array
    local new = Array( sh )
 
@@ -230,6 +241,11 @@ function Array:reshape(...)
    return new
 end
 
+-- Reshaping an array to one dimension
+function Array:flatten()
+   return self:reshape( 0 )
+end
+
 
 -- Create a copy of the array with the absolute values
 function Array:abs()
@@ -237,15 +253,53 @@ function Array:abs()
 
    -- Loop all values and create the absolute values
    if #self.shape == 1 then
-      for i = 1, self.shape[1] do
+      for i = 1, #self do
 	 a[i] = m.abs(self[i])
       end
    else
-      for i = 1, self.shape[1] do
+      for i = 1, #self do
 	 a[i] = self[i]:abs()
       end
    end
    return a
+end
+
+
+-- Create a norm of the array
+function Array:norm(axis)
+   local ax = ax_(axis or #self.shape)
+   
+   -- Return norm
+   local norm
+
+   if ax == 0 then
+      -- we do a 1D norm
+      norm = 0.
+      for i = 1, self:size() do
+	 norm = norm + self:_get_index_lin(i) ^ 2
+      end
+      norm = m.sqrt(norm)
+   
+   elseif #self.shape == 1 then
+      
+      norm = 0.
+      for i = 1, #self do
+	 norm = norm + self[i] * self[i]
+      end
+      norm = m.sqrt(norm)
+
+   else
+
+      -- We remove the last dimension and take the norm for
+      -- each direction
+      norm = Array( self.shape:remove(#self.shape) )
+      for i = 1, #norm do
+	 norm[i] = self[i]:norm()
+      end
+      
+   end
+   
+   return norm
 end
 
 -- Extract the minimum of an array along a given dimension
@@ -261,13 +315,13 @@ function Array:min(axis)
       -- We simply need to extract the total minimum
       if #self.shape == 1 then
 	 min = self[1]
-	 for i = 2, self.shape[1] do
+	 for i = 2, #self do
 	    min = m.min(min, self[i])
 	 end
       else
-	 min = self[1]:min()
-	 for i = 2, self.shape[1] do
-	    min = m.min(min, self[i]:min())
+	 min = self[1]:min(0)
+	 for i = 2, #self do
+	    min = m.min(min, self[i]:min(0))
 	 end
       end
 
@@ -294,23 +348,23 @@ function Array:max(axis)
       -- We simply need to extract the total minimum
       if #self.shape == 1 then
 	 max = self[1]
-	 for i = 2, self.shape[1] do
+	 for i = 2, #self do
 	    max = m.max(max, self[i])
 	 end
       else
-	 max = self[1]:max()
-	 for i = 2, self.shape[1] do
-	    min = m.max(max, self[i]:min())
+	 max = self[1]:max(0)
+	 for i = 2, #self do
+	    max = m.max(max, self[i]:max(0))
 	 end
       end
 
    else
-      min = Array( self.shape:remove(ax) )
+      max = Array( self.shape:remove(ax) )
 
       error("NotimplementedYet")
    end
    
-   return min
+   return max
 end
 
 -- Sum along a given dimension (default total sum)
@@ -320,8 +374,8 @@ function Array:sum(axis)
 
    local sum
    if ax == 0 then
-      sum = 0.
-      for i = 1, self.shape[1] do
+      sum = self[1]:sum(0)
+      for i = 2, #self do
 	 sum = sum + self[i]:sum(0)
       end
    elseif ax > #self.shape then
@@ -351,6 +405,7 @@ function Array:cross(other)
    local cross = Array( sh )
 
    if #cross.shape == 1 then
+      
       cross[1] = self[2] * other[3] - self[3] * other[2]
       cross[2] = self[3] * other[1] - self[1] * other[3]
       cross[3] = self[1] * other[2] - self[2] * other[1]
@@ -368,6 +423,23 @@ function Array:cross(other)
    end
 
    return cross
+end
+
+
+-- Create flatdot-product function.
+-- It checks whether the size is the same and then performs dot-product
+function Array.flatdot(lhs, rhs)
+
+   local size = lhs:size()
+   if size ~= rhs:size() then
+      error("flos.Array flatdot requires same length of the arrays")
+   end
+
+   local dot = 0.
+   for i = 1, size do
+      dot = dot + lhs:_get_index_lin(i) * rhs:_get_index_lin(i)
+   end
+   return dot
 end
 
 
@@ -391,7 +463,7 @@ function Array.dot(lhs, rhs)
       
       -- This is a element wise product and sum
       dot = 0.
-      for i = 1, lhs.shape[1] do
+      for i = 1, #lhs do
 	 dot = dot + lhs[i] * rhs[i]
       end
 
@@ -399,15 +471,15 @@ function Array.dot(lhs, rhs)
 
       -- lhs ^ T . rhs => vec
 
-      if lhs.shape[1] ~= rhs.shape[1] then
+      if #lhs ~= #rhs then
 	 error("flos.Array dot dimensions for 1D-2D dot product are not the same")
       end
 
       -- This is a element wise product and sum
       dot = Array( rhs.shape[2] )
-      for j = 1, dot.shape[1] do
+      for j = 1, #dot do
 	 local v = 0.
-	 for i = 1, lhs.shape[1] do
+	 for i = 1, #lhs do
 	    v = v + lhs[i] * rhs[i][j]
 	 end
 	 dot[j] = v
@@ -422,12 +494,12 @@ function Array.dot(lhs, rhs)
       end
 
       -- This is a element wise product and sum
-      dot = Array( lhs.shape[1] )
-      for i = 1, dot.shape[1] do
+      dot = Array( #lhs )
+      for i = 1, #dot do
 	 dot[i] = lhs[i]:dot(rhs)
       end
 
-   elseif #lhs.shape == 2 and rhs.shape == 2 then
+   elseif #lhs.shape == 2 and #rhs.shape == 2 then
 
       -- Check that the shapes coincide
       if lhs.shape[2] ~= rhs.shape[1] then
@@ -435,11 +507,11 @@ function Array.dot(lhs, rhs)
       end
 
       -- The easy case, align the shapes
-      local sh = shape.Shape( lhs.shape[1], rhs.shape[2])
+      local sh = shape.Shape( lhs.shape[1], rhs.shape[2] )
       dot = Array( sh )
 
       -- loop inner
-      for j = 1 , lhs.shape[1] do
+      for j = 1 , #lhs do
 	 
 	 -- Get local reference
 	 local drow = dot[j]
@@ -479,14 +551,14 @@ function Array:transpose()
    local sh = self.shape:reverse()
 
    -- Create return array
-   local ret = Array( sh )
+   local new = Array( sh )
 
    -- Perform transpose
    local size = self:size()
    for i = 1, size do
-      ret:_set_index_lin(size-i+1, self:_get_index_lin(i))
+      new:_set_index_lin(size-i+1, self:_get_index_lin(i))
    end
-   return ret
+   return new
 end
 
 
@@ -496,7 +568,7 @@ end
 function Array.__add(lhs, rhs)
 
    -- Create the return value
-   local add
+   local ret
 
    -- Determine whether they are both the Arrays
    if isArray(lhs) and isArray(rhs) then
@@ -508,55 +580,55 @@ function Array.__add(lhs, rhs)
       end
       
       -- Create the return array
-      add = Array( lhs.shape )
-      for i = 1, lhs.shape[1] do
-	 add[i] = lhs[i] + rhs[i]
+      ret = Array( lhs.shape )
+      for i = 1, #lhs do
+	 ret[i] = lhs[i] + rhs[i]
       end
       
    elseif isArray(lhs) then
 
       -- Element-wise additions
-      add = Array( lhs.shape )
+      ret = Array( lhs.shape )
 
-      for i = 1, lhs.shape[1] do
-	 add[i] = lhs[i] + rhs
+      for i = 1, #lhs do
+	 ret[i] = lhs[i] + rhs
       end
 
    elseif isArray(rhs) then
       
       -- Element-wise additions
-      add = Array( rhs.shape )
+      ret = Array( rhs.shape )
 
-      for i = 1, rhs.shape[1] do
-	 add[i] = lhs + rhs[i]
+      for i = 1, #rhs do
+	 ret[i] = lhs + rhs[i]
       end
 
    else
       error("flos.Array + could not figure out the types")
    end
 
-   return add
+   return ret
 
 end
 function Array.__sub(lhs, rhs)
    local ret
    if isArray(lhs) and isArray(rhs) then
       local sh = lhs.shape:align(rhs.shape)
-      if sh then
+      if sh == nil then
 	 error("flos.Array - requires the same shape for two different Arrays")
       end
       ret = Array( lhs.shape )
-      for i = 1, lhs.shape[1] do
+      for i = 1, #lhs do
 	 ret[i] = lhs[i] - rhs[i]
       end
    elseif isArray(lhs) then
       ret = Array( lhs.shape )
-      for i = 1, lhs.shape[1] do
+      for i = 1, #lhs do
 	 ret[i] = lhs[i] - rhs
       end
    elseif isArray(rhs) then
       ret = Array( rhs.shape )
-      for i = 1, rhs.shape[1] do
+      for i = 1, #rhs do
 	 ret[i] = lhs - rhs[i]
       end
    else
@@ -569,21 +641,21 @@ function Array.__mul(lhs, rhs)
    local ret
    if isArray(lhs) and isArray(rhs) then
       local sh = lhs.shape:align(rhs.shape)
-      if sh then
+      if sh == nil then
 	 error("flos.Array * requires the same shape for two different Arrays")
       end
       ret = Array( lhs.shape )
-      for i = 1, lhs.shape[1] do
+      for i = 1, #lhs do
 	 ret[i] = lhs[i] * rhs[i]
       end
    elseif isArray(lhs) then
       ret = Array( lhs.shape )
-      for i = 1, lhs.shape[1] do
+      for i = 1, #lhs do
 	 ret[i] = lhs[i] * rhs
       end
    elseif isArray(rhs) then
       ret = Array( rhs.shape )
-      for i = 1, rhs.shape[1] do
+      for i = 1, #rhs do
 	 ret[i] = lhs * rhs[i]
       end
    else
@@ -596,21 +668,21 @@ function Array.__div(lhs, rhs)
    local ret
    if isArray(lhs) and isArray(rhs) then
       local sh = lhs.shape:align(rhs.shape)
-      if sh then
+      if sh == nil then
 	 error("flos.Array / requires the same shape for two different Arrays")
       end
       ret = Array( lhs.shape )
-      for i = 1, lhs.shape[1] do
+      for i = 1, #lhs do
 	 ret[i] = lhs[i] / rhs[i]
       end
    elseif isArray(lhs) then
       ret = Array( lhs.shape )
-      for i = 1, lhs.shape[1] do
+      for i = 1, #lhs do
 	 ret[i] = lhs[i] / rhs
       end
    elseif isArray(rhs) then
       ret = Array( rhs.shape )
-      for i = 1, rhs.shape[1] do
+      for i = 1, #rhs do
 	 ret[i] = lhs / rhs[i]
       end
    else
@@ -621,7 +693,7 @@ end
 
 function Array:__unm()
    local ret = Array( self.shape:copy() )
-   for i = 1, self.shape[1] do
+   for i = 1, #self do
       ret[i] = -self[i]
    end
    return ret
@@ -631,12 +703,12 @@ function Array.__pow(lhs, rhs)
    local ret
    if isArray(lhs) and isArray(rhs) then
       local sh = lhs.shape:align(rhs.shape)
-      if sh then
+      if sh == nil then
 	 error("flos.Array ^ requires the same shape for two different Arrays")
       end
       
       ret = Array( lhs.shape )
-      for i = 1, lhs.shape[1] do
+      for i = 1, #lhs do
 	 ret[i] = lhs[i] ^ rhs[i]
       end
    elseif isArray(lhs) then
@@ -646,7 +718,7 @@ function Array.__pow(lhs, rhs)
       end
       
       ret = Array( lhs.shape )
-      for i = 1, lhs.shape[1] do
+      for i = 1, #lhs do
 	 ret[i] = lhs[i] ^ rhs
       end
    elseif isArray(rhs) then
@@ -656,7 +728,7 @@ function Array.__pow(lhs, rhs)
       end
       
       ret = Array( rhs.shape )
-      for i = 1, rhs.shape[1] do
+      for i = 1, #rhs do
 	 ret[i] = lhs ^ rhs[i]
       end
    else
@@ -665,6 +737,36 @@ function Array.__pow(lhs, rhs)
    return ret
 end
 
+
+-- Simple recursive function to return a comma separated list
+-- of dimension sizes.
+local function table_size_(tbl)
+   if type(tbl) == "table" then
+      return #tbl, table_size_(tbl[1])
+   else
+      return
+   end
+end
+
+
+-- Return an array by reading a table
+-- This function will automatically determine the size of the table.
+function Array.from(tbl)
+
+   local sh = shape.Shape( table_size_(tbl) )
+   -- Create array and prepare to loop
+   local arr = Array( sh )
+   if #arr.shape == 1 then
+      for i = 1, #arr do
+	 arr[i] = tbl[i]
+      end
+   else
+      for i = 1, #arr do
+	 arr[i] = Array.from(tbl[i])
+      end
+   end
+   return arr
+end
 
 -- Return table
 return {

@@ -39,9 +39,9 @@ In principle `flos` is not relying on the [SIESTA][siesta] routines and may
 be used as a regular Lua library, although it has been developed
 with [SIESTA][siesta] in mind.
 
-In the `examples/` folder there are 3 examples which:
+In the `examples/` folder there are several examples, here 3 basic examples are noted:
 
-1. Relax the atomic coordinates using the L-BFGS algorithm (`relax_geometry.lua`)
+1. Relax the atomic coordinates using the L-BFGS algorithm (`relax_geometry_lbfgs.lua`)
 2. Relax the cell vectors using the L-BFGS algorithm (`relax_cell.lua`)
 3. Relax the cell vectors and the atomic coordinates using the L-BFGS algorithm (`relax_cell_geometry.lua`)
 

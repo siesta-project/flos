@@ -14,8 +14,8 @@ local function add_ret( tbl )
    end
 end
 
-add_ret(require "flos.base")
-add_ret(require "flos.array")
+add_ret(require "flos.error")
+add_ret(require "flos.num")
 -- MD-stuff
 add_ret(require "flos.md")
 -- LBFGS algorithm and other optimizers

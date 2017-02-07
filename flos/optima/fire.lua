@@ -135,7 +135,7 @@ function FIRE:correct_dF(dF)
    if self.correct == "global" then
       
       -- Calculate the maximum norm
-      local max_norm = self.norm1D(dF):max()
+      local max_norm = dF:norm():max()
       
       -- Now normalize the displacement
       local norm = self.max_dF / max_norm
@@ -207,7 +207,7 @@ function FIRE:optimize(F, G)
    end
 
    -- Calculate power
-   local P = self.flatdot(G, self.V)
+   local P = G:flatdot(self.V)
 
    local V
    if P > 0. then
@@ -225,8 +225,8 @@ function FIRE:optimize(F, G)
       if self.direction == "global" then
 	 
 	 -- This is the globally adjusted version:
-	 V = V + self.alpha * G / m.sqrt(self.flatdot(G, G)) *
-	    m.sqrt(self.flatdot(self.V, self.V))
+	 V = V + self.alpha * G / m.sqrt(G:flatdot(G)) *
+	    m.sqrt(self.V:flatdot(self.V))
 
       elseif self.direction == "local" then
 	 
@@ -270,7 +270,7 @@ function FIRE:optimize(F, G)
    local dF = self:MD(V, G)
 
    -- Update the weight of the algorithm
-   self.weight = m.abs(self.flatdot(G, dF))
+   self.weight = m.abs(G:flatdot(dF))
    
    -- Correct to the max displacement
    dF = self:correct_dF(dF)
@@ -314,7 +314,7 @@ end
 -- FIRE algorithm has converged
 function FIRE:optimized(G)
    -- Check convergence
-   local norm = self.norm1D(G):max()
+   local norm = G:norm():max()
 
    -- Determine whether the algorithm is complete.
    self.is_optimized = norm < self.tolerance

@@ -30,8 +30,8 @@ local cutoff_step = 50.
 local flos = require "flos"
 
 -- Create array of cut-offs
-local cutoff = flos.Array1D.range(cutoff_step, cutoff_end, cutoff_step)
-local Etot = flos.Array1D.zeros(cutoff.size)
+local cutoff = flos.Array.range(cutoff_step, cutoff_end, cutoff_step)
+local Etot = flos.Array.zeros(cutoff.shape)
 local icutoff = 1
 
 -- Grab the unit table of siesta (it is already created by SIESTA)

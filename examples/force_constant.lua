@@ -87,9 +87,9 @@ function siesta_comm()
       end
 
       -- Get coordinates in Ang
-      local xa = flos.Array2D.from(siesta.geom.xa) / Unit.Ang
+      local xa = flos.Array.from(siesta.geom.xa) / Unit.Ang
 
-      indices = flos.Array1D.range(siesta.MD.FC.First, siesta.MD.FC.Last)
+      indices = flos.Array.range(siesta.MD.FC.First, siesta.MD.FC.Last)
       if same_displ then
 	 -- No masses, all equal (implicitly)
 	 FC = flos.ForceHessian:new(xa, indices, displ[idispl])
@@ -156,7 +156,7 @@ end
 
 function siesta_move(siesta)
 
-   local fa = flos.Array2D.from(siesta.geom.fa) * Unit.Ang / Unit.eV
+   local fa = flos.Array.from(siesta.geom.fa) * Unit.Ang / Unit.eV
 
    -- Send back new coordinates (convert to Bohr)
    siesta.geom.xa = FC:next(fa) * Unit.Ang

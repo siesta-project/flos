@@ -6,7 +6,8 @@ coordinates and the cell-vectors.
 
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
-local base = require "flos.base"
+
+local num = require "flos.num"
 local optim = require "flos.optima.base"
 
 -- Create the LBFGS class (inheriting the Optimizer construct)
@@ -45,7 +46,7 @@ function Lattice:initialize(cell, delta, N)
 
    -- Placeholder for the displacement values and
    -- energies you want to minimize
-   self.E = base.Array1D.empty(1)
+   self.E = num.Array.empty(1)
    
 end
 
@@ -53,7 +54,7 @@ end
 -- Update the internal reciprocal lattice (without 2Pi)
 function Lattice:update_reciprocal()
 
-   self.rcell = base.Array2D.empty(3, 3)
+   self.rcell = num.Array.empty(3, 3)
    local c = self.cell
    self.rcell[1][1] = c[2][2]*c[3][3] - c[2][3]*c[3][2]
    self.rcell[1][2] = c[2][3]*c[3][1] - c[2][1]*c[3][3]
@@ -70,9 +71,7 @@ function Lattice:update_reciprocal()
 	 c[i][2]*self.rcell[i][2] +
 	 c[i][3]*self.rcell[i][3]
 
-      for j = 1, 3 do
-	 self.rcell[i][j] = self.rcell[i][j] / n
-      end
+      self.rcell[i] = self.rcell[i] / n
    end
 
 end
@@ -82,7 +81,7 @@ end
 -- to collect a table.
 function Lattice:add_energy(E)
    if #self.E < self.itt then
-      self.E:extend(1)
+      self.E.shape[1] = self.E.shape[1] + 1
    end
    self.E[self.itt] = E
 end
@@ -97,23 +96,7 @@ function Lattice:next()
    -- Calculate the following lattice
    local cell = self.cell:copy()
 
-   if base.instanceOf(self.delta, base.Array1D) then
-      -- Length addition individual
-      local ncell = cell:norm()
-
-      for i = 1 , 3 do
-	 for j = 1, 3 do
-	    cell[i][j] = cell[i][j] + cell[i][j] / ncell[i] * self.delta[i]
-	 end
-      end
-
-   elseif base.instanceOf(self.delta, base.Array2D) then
-
-      -- simple addition
-      cell = cell + self.delta
-
-   else
-
+   if not num.isArray(self.delta) then
       -- Length addition same
       local ncell = cell:norm()
       for i = 1 , 3 do
@@ -121,6 +104,19 @@ function Lattice:next()
 	    cell[i][j] = cell[i][j] + cell[i][j] / ncell[i] * self.delta
 	 end
       end
+
+   elseif #self.delta.shape == 1 then
+      -- Length addition individual
+      local ncell = cell:norm()
+      for i = 1 , 3 do
+	 for j = 1, 3 do
+	    cell[i][j] = cell[i][j] + cell[i][j] / ncell[i] * self.delta[i]
+	 end
+      end
+
+   elseif #self.delta.shape == 2 then
+      -- simple addition
+      cell = cell + self.delta
       
    end
 

@@ -6,6 +6,7 @@ gradient.
 
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
+
 local optim = require "flos.optima.base"
 
 -- Create the LBFGS class (inheriting the Optimizer construct)
@@ -92,7 +93,12 @@ end
 function LBFGS:correct_dF(dF)
 
    -- Calculate the maximum norm
-   local max_norm = self.norm1D(dF):max()
+   local max_norm
+   if #dF.shape == 1 then
+      max_norm = dF:abs():max()
+   else
+      max_norm = dF:norm():max()
+   end
 
    -- Now normalize the displacement
    local norm = self.max_dF / max_norm
@@ -124,7 +130,7 @@ function LBFGS:add_history(F, G)
       self.dG[iter] = G - self.G0
       
       -- Calculate dot-product and store the kernel
-      self.rho[iter] = -1. / self.flatdot(self.dF[iter] ,self.dG[iter])
+      self.rho[iter] = -1. / self.dF[iter]:flatdot(self.dG[iter])
       
    end
    
@@ -166,10 +172,10 @@ function LBFGS:optimize(F, G)
    local rh = {}
    
    -- Update the downhill gradient
-   local q = -G:reshape(-1)
+   local q = - G:flatten()
    for i = iter, 1, -1 do
-      rh[i] = rho[i] * dF[i]:reshape(-1):dot(q)
-      q = q + rh[i] * dG[i]:reshape(-1)
+      rh[i] = rho[i] * dF[i]:flatdot(q)
+      q = q + rh[i] * dG[i]:flatten()
    end
 
    -- Solve for the rhs optimization
@@ -179,15 +185,15 @@ function LBFGS:optimize(F, G)
 
    -- Now create the next step
    for i = 1, iter do
-      local beta = rho[i] * dG[i]:reshape(-1):dot(z)
-      z = z + dF[i]:reshape(-1) * (rh[i] + beta)
+      local beta = rho[i] * dG[i]:flatdot(z)
+      z = z + dF[i]:flatten() * (rh[i] + beta)
    end
    
    -- Ensure shape
    z = - z:reshape(G.shape)
    
    -- Update step
-   self.weight = m.abs(self.flatdot(G, z))
+   self.weight = m.abs(G:flatdot(z))
    local delta = self:correct_dF(z) * self.damping
    
    -- Determine whether we have optimized the parameter/functional
@@ -211,7 +217,13 @@ end
 -- LBFGS algorithm has converged
 function LBFGS:optimized(G)
    -- Check convergence
-   local norm = self.norm1D(G):max()
+   local norm
+   if #G.shape == 1 then
+      -- the absolute value is the requested quantity
+      norm = G:abs():max()
+   else
+      norm = G:norm():max()
+   end
 
    -- Determine whether the algorithm is complete.
    self.is_optimized = norm < self.tolerance

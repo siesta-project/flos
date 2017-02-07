@@ -99,10 +99,10 @@ end
 function siesta_move(siesta)
 
    -- Retrieve the atomic coordinates and the forces
-   local xa = flos.Array2D.from(siesta.geom.xa) / Unit.Ang
+   local xa = flos.Array.from(siesta.geom.xa) / Unit.Ang
    -- Note the FIRE requires the gradient, and
    -- the force is the negative gradient.
-   local fa = flos.Array2D.from(siesta.geom.fa) * Unit.Ang / Unit.eV
+   local fa = flos.Array.from(siesta.geom.fa) * Unit.Ang / Unit.eV
 
    -- Perform step (initialize arrays to do averaging if more
    -- FIRE algorithms are in use).
