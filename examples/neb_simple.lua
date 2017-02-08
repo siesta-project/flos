@@ -290,4 +290,5 @@ function siesta_update_DM(old, current)
       IOprint("Restoring " .. current_DM .. " to " .. DM)
       os.execute("cp " .. current_DM .. " " .. DM)
    end
+
 end
