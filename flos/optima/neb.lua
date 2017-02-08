@@ -41,7 +41,7 @@ function NEB:initialize(images, climbing, k)
 
    -- One should also attach the spring-constant
    -- It currently defaults to 5
-   if base.istable(k) then
+   if type(k) == "table" then
       self.k = k
    else
       local nk = 5.
