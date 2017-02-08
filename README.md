@@ -16,7 +16,7 @@ Importantly this library requires an explicit `<path>/?/init.lua` definition.
 As an example the following bash commands enables the library:
 
     cd $HOME
-    git clone git@github.com:siesta-project/flos.git
+    git clone https://github.com/siesta-project/flos.git
 	git submodule init
 	git submodule update
 	export LUA_PATH="$HOME/flos/?.lua;$HOME/flos/?/init.lua;$LUA_PATH"
