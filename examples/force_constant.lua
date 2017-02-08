@@ -83,7 +83,7 @@ function siesta_comm()
       if displ == nil then
 	 -- Specify the displacement if the user requests
 	 -- the information from SIESTA
-	 displ = { sesta.MD.FC.Displ / Unit.Ang }
+	 displ = { siesta.MD.FC.Displ / Unit.Ang }
       end
 
       -- Get coordinates in Ang
