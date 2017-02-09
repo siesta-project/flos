@@ -237,14 +237,14 @@ function LBFGS:info()
 
    print("")
    if self:iteration() == 0 then
-      print("LBGFS: history: " .. self.history)
+      print("LBFGS: history: " .. self.history)
    else
-      print("LBGFS: current / history: "..tostring(self:iteration()) .. " / "..self.history)
+      print("LBFGS: current / history: "..tostring(self:iteration()) .. " / "..self.history)
    end
-   print("LBGFS: damping "..tostring(self.damping))
-   print("LBGFS: H0 "..tostring(self.H0))
-   print("LBGFS: Tolerance "..tostring(self.tolerance))
-   print("LBGFS: Maximum change "..tostring(self.max_dF))
+   print("LBFGS: damping "..tostring(self.damping))
+   print("LBFGS: H0 "..tostring(self.H0))
+   print("LBFGS: Tolerance "..tostring(self.tolerance))
+   print("LBFGS: Maximum change "..tostring(self.max_dF))
    print("")
 
 end
