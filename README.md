@@ -39,11 +39,8 @@ In principle `flos` is not relying on the [SIESTA][siesta] routines and may
 be used as a regular Lua library, although it has been developed
 with [SIESTA][siesta] in mind.
 
-In the `examples/` folder there are several examples, here 3 basic examples are noted:
-
-1. Relax the atomic coordinates using the L-BFGS algorithm (`relax_geometry_lbfgs.lua`)
-2. Relax the cell vectors using the L-BFGS algorithm (`relax_cell.lua`)
-3. Relax the cell vectors and the atomic coordinates using the L-BFGS algorithm (`relax_cell_geometry.lua`)
+In the `examples/` folder there are several examples which may be directly used in _any_
+[SIESTA][siesta] run for relaxation (they are generalized for any structure).
 
 In order to use any of these schemes you simply need to follow these steps:
 
@@ -66,11 +63,11 @@ In order to use any of these schemes you simply need to follow these steps:
         MD.TypeOfRun lua
         LUA.Script <script-name>
 
-For instance to use the `flos` relaxation method:
+For instance to use the `flos` L-BFGS relaxation method:
 
-    cp flos/examples/relax_geometry.lua <path-to-siesta-run>/relax.lua
+    cp flos/examples/relax_geometry_lbfgs.lua <path-to-siesta-run>/relax.lua
 
-and the fdf-flag should be:
+and set the following fdf-flag:
 
     LUA.Script relax.lua
 

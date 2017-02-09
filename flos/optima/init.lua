@@ -11,6 +11,8 @@ local ret = {}
 -- optimization table.
 ret.LBFGS = require "flos.optima.lbfgs"
 ret.FIRE = require "flos.optima.fire"
+ret.CG = require "flos.optima.cg"
+ret.Line = require "flos.optima.line"
 ret.Lattice = require "flos.optima.lattice"
 ret.NEB = require "flos.optima.neb"
 

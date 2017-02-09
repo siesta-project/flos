@@ -10,7 +10,7 @@ local mc = require "flos.middleclass.middleclass"
 local opt = mc.class('Optimizer')
 
 -- Function to determine whether the an algorithm has converged
-function opt:optimized(G)
+function opt.optimized(self, G)
    
    -- Check convergence
    local norm
