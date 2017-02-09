@@ -739,6 +739,27 @@ function Array.__pow(lhs, rhs)
    return ret
 end
 
+-- Create tostring method (always prints everything ;))
+function Array:__tostring()
+   local ns = #self.shape
+   local s = "["
+   if ns == 1 then
+      for i = 1, #self do
+	 s = s .. ("%12.5e"):format(self[i])
+	 if i < #self then
+	    s = s .. ", "
+	 end
+      end
+   else
+      for i = 1, #self do
+	 s = s .. tostring(self[i])
+	 if i < #self then
+	    s = s .. ",\n "
+	 end
+      end
+   end
+   return s .. "]"
+end
 
 -- Simple recursive function to return a comma separated list
 -- of dimension sizes.
