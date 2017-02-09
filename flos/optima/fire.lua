@@ -310,19 +310,6 @@ function FIRE:MD(V, G)
 end
 
 
--- Function to determine whether the
--- FIRE algorithm has converged
-function FIRE:optimized(G)
-   -- Check convergence
-   local norm = G:norm():max()
-
-   -- Determine whether the algorithm is complete.
-   self.is_optimized = norm < self.tolerance
-
-   return self.is_optimized
-   
-end
-
 -- Print information regarding the FIRE algorithm
 function FIRE:info()
 

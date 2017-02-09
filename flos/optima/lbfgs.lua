@@ -27,7 +27,7 @@ function LBFGS:initialize(tbl)
    -- Lower values converges faster at the risk of
    -- instabilities
    -- Larger values are easier to converge
-   self.H0 = 1. / 25.
+   self.H0 = 1. / 75.
 
    -- Number of history points used
    self.history = 100
@@ -58,7 +58,7 @@ function LBFGS:initialize(tbl)
    self.dG = {}
    self.rho = {}
    -- The last G . dF using dF for the optimized step
-   self.weight = 0.
+   self.weight = 1.
 
    -- Ensure we update the elements as passed
    -- by new(...)
@@ -211,25 +211,6 @@ function LBFGS:optimize(F, G)
    
    return newF
       
-end
-
--- Function to determine whether the
--- LBFGS algorithm has converged
-function LBFGS:optimized(G)
-   -- Check convergence
-   local norm
-   if #G.shape == 1 then
-      -- the absolute value is the requested quantity
-      norm = G:abs():max()
-   else
-      norm = G:norm():max()
-   end
-
-   -- Determine whether the algorithm is complete.
-   self.is_optimized = norm < self.tolerance
-
-   return self.is_optimized
-   
 end
 
 -- Print information regarding the LBFGS algorithm

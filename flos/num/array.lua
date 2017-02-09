@@ -558,7 +558,9 @@ function Array:transpose()
    for i = 1, size do
       new:_set_index_lin(size-i+1, self:_get_index_lin(i))
    end
+
    return new
+
 end
 
 
