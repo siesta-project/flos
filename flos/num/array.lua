@@ -1,17 +1,25 @@
---[[
-An Array library which implements basic Lua arrays with arbitrary
-dimensions.
+---
+-- Implementation of ND Arrays in Lua.
+-- @classmod Array
+-- A generic implementation of ND arrays in pure Lua.
+-- This module tries to be as similar to the Python numpy package
+-- as possible.
+--
+-- Due to everything being in Lua there are not _views_ of arrays which
+-- means that many functions creates unnecessary data-duplications.
+-- However, this may be leveraged later.
+--
+-- The underlying Array class is implemented as follows:
+--
+--  1. Every Array gets associated a `Shape` which determines the size
+--  of the current Array.
+--  2. If the Array is > 1D all elements `Array[i]` is an array
+--  with sub-Arrays of one less dimension.
+--  3. This enables one to call any Array function on sub-partitions
+--  of the Array without having to think about the details.
+--  4. The special case is the last dimension which contains the actual
+--  data.
 
-Because it is in native Lua many of the functions are creating
-unneccessary duplications before doing operations. This is by
-design to ease the implementation and as such it is not meant for
-large scale numerical work.
-
-The implementation is based on a nested table container of the 
-underlying Array class. In effect an Array of dimension 3, is in reality
-a table of Array with dimension 2, and each of these are Arrays of dimension
-1.
---]]
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
 
@@ -21,10 +29,13 @@ local shape = require "flos.num.shape"
 
 local Array = mc.class("Array")
 
+--- Check if a variable is a an Array type object.
+-- @param obj the object/variable to check
+-- @return true if the object is an instance, or sub-class, of the Array.
 local function isArray(obj)
    if type(obj) == "table" then
       if obj.class then
-	 return obj:isInstanceOf(Array)
+	 return obj:isInstanceOf(Array) or obj:isSubclassOf(Array)
       end
    end
    return false
@@ -39,8 +50,13 @@ local function ax_(axis)
    end
 end
 
--- The initialization method accepts any number of arguments
--- which defines a new shape.
+--- Initialization routine for the Array object.
+-- Examples:
+--     Array(2, 3) -- an array with the last element being `[2][3]`
+--     Array(2, 3, 4) -- an array with the last element being `[2][3][4]`
+--     Array( Shape(3, 2) ) -- an array with the last element being `[3][2]`
+-- @param ... a comma-separated list of integers, or a `Shape`
+-- @return a new Array object with the given shape
 function Array:initialize(...)
    
    local sh = nil
@@ -69,24 +85,32 @@ function Array:initialize(...)
 
 end
 
+--- Internal function which inserts numerical values if they are not existing.
+-- Checks whether the index is within the shape of the Array.
+-- @param i the index of the value
+-- @param v the value of the index
 function Array:__newindex(i, v)
    -- A new index *must* by definition be the last array
    -- in the shape
    if #self.shape ~= 1 then
-      error("ERROR in implementation")
+      error("flos.Array error in implementation")
    end
    if i < 1 or #self < i then
-      error("ERROR setting element out of bounds")
+      error("flos.Array setting element out of bounds")
    end
    rawset(self, i, v)
 end
 
--- Wrapper for creating an array
+--- Initialize an Array, equivalent to `Array(...)`.
+-- @param ... the shape of the Array
+-- @return an Array with no values set
 function Array.empty(...)
    return Array(...)
 end
 
--- Create a zero creation routine
+--- Initialize an Array filled with 0's, equivalent to `a = Array(...); a:fill(0.)`
+-- @param ... the shape of the Array
+-- @return an Array with all values set to 0.
 function Array.zeros(...)
    -- Initialize the object
    local arr = Array(...)
@@ -96,7 +120,9 @@ function Array.zeros(...)
    return arr
 end
 
--- Create a one creation routine
+--- Initialize an Array filled with 1's, equivalent to `a = Array(...); a:fill(1.)`
+-- @param ... the shape of the Array
+-- @return an Array with all values set to 1.
 function Array.ones(...)
    -- Initialize the object
    local arr = Array(...)
@@ -107,8 +133,11 @@ function Array.ones(...)
 end
 
 
--- Create a 1D array with a range
---   for i = i1, i2, step
+--- Initialize a 1D Array with a linear spacing of values starting from `i1`, ending with `i2` and with step size `step` which defaults to 1.
+-- @param i1 the initial value of the range
+-- @param i2 the last value of the range (will only be present if `(i2-i1+1)/step` is an integer)
+-- @param[opt] step the stepsize between consecutive values.
+-- @return an Array with equally separated values.
 function Array.range(i1, i2, step)
    -- Get the actual step (default 1)
    local is = step or 1
@@ -133,8 +162,9 @@ function Array.range(i1, i2, step)
    return new
 end
 
--- Easy function for initialization and setting all
--- values in an Array to a single value. 
+
+--- Fill all values in the Array with a given value.
+-- @param val the value of all elements of this Array
 function Array:fill(val)
    if #self.shape == 1 then
       -- We are at the last dimension so we set
@@ -149,7 +179,8 @@ function Array:fill(val)
    end
 end
 
--- Create a copy of the Array
+--- Create a deep copy of the array by copying all elements.
+-- @return a copy of the Array
 function Array:copy()
    local new = Array( self.shape:copy() )
    if #self.shape == 1 then
@@ -166,13 +197,16 @@ function Array:copy()
    return new
 end
 
--- Length lookup
--- /for i = 1 , #Array do\
+--- Query the length of the first dimension of the Array
+-- @return the length of the first dimension, `self.shape[1]`
 function Array:__len()
    return self.shape[1]
 end
 
--- Size query
+--- Query the size of the Array, @see Shape:size.
+-- @int[opt=0] axis optional argument to query specific axes, if not supplied
+--   the total size of the array will be returned.
+-- @return the length of the specified axis (or total size).
 function Array:size(axis)
    return self.shape:size(axis)
 end
@@ -212,7 +246,11 @@ function Array:_set_index_lin(i, v)
 end
 
 
--- Reshaping an array
+--- Return a deep copy of the Array with a different shape
+-- @param ... the new shape of the array, any of the provided dimension
+--   sizes may be a 0 (or `nil`) which indicates that the length of said
+--   dimension will be inferred from the total size of the Array
+-- @return an Array with the same total size and values, but with different shape
 function Array:reshape(...)
    local arg = {...}
    if #arg == 0 then
@@ -241,13 +279,15 @@ function Array:reshape(...)
    return new
 end
 
--- Reshaping an array to one dimension
+--- Return a deep copy of the Array in a 1D array (equivalent to `:reshape(0)`)
+-- @return a 1D-Array with the same total size and values, but with a single dimension
 function Array:flatten()
    return self:reshape( 0 )
 end
 
 
--- Create a copy of the array with the absolute values
+--- Return a copy of the Array with all values being the absolute value.
+-- @return the absolute of all elements in a new Array
 function Array:abs()
    local a = Array( self.shape:copy() )
 
@@ -265,7 +305,14 @@ function Array:abs()
 end
 
 
--- Create a norm of the array
+--- Return a the norm of the Array.
+-- Example:
+--    a = Array( 2, 3)
+--    a:fill(1.)
+--    print(a:norm(2)) -- [3 ^ 0.5, 3 ^ 0.5]
+--    print(a:norm(0)) -- 6 ^ 0.5
+-- @int[opt=#self.shape] axis the axis along which the norm is taken, defaults to the last dimension, currently any axis between 0 and the last dimension is not implemented.
+-- @return a value if the `axis=0` or the Array is 1D, else a new Array with 1 less dimension is returned.
 function Array:norm(axis)
    local ax = ax_(axis or #self.shape)
    
@@ -302,19 +349,24 @@ function Array:norm(axis)
    return norm
 end
 
--- Scalar projection an array onto another array
--- If the axis is 0, or nil it will flatten the array before
--- doing the projection (but the returned projection will be same shape
--- as O
--- Currently anything but axis=0 is not available.
---  a . b / |b|
-function Array:scalar_project(O, axis)
+
+--- Return the scalar projection of this array onto another.
+-- Example:
+--    a = Array( 2, 3)
+--    print(a:scalar_project( Array.ones( 2, 3) )
+--
+-- The scalar projection is this formula:
+--    $\frac{a \cdot b}{|b|}$
+-- @Array P the projection array
+-- @int[opt=0] axis the axis along the projection, currently only a full projection is available
+-- @return a value if the `axis=0` or the Array is 1D, else a new Array with 1 less dimension is returned.
+function Array:scalar_project(P, axis)
    local ax = ax_(axis)
 
    if ax == 0 then
       
       -- Calculate norm of the projection vector
-      return self:flatten():dot( O:flatten() ) / O:norm(0)
+      return self:flatten():dot( P:flatten() ) / P:norm(0)
       
    else
       
@@ -324,20 +376,25 @@ function Array:scalar_project(O, axis)
 
 end
 
--- Project an array onto another array
--- If the axis is 0, or nil it will flatten the array before
--- doing the projection (but the returned projection will be same shape
--- as O
--- Currently anything but axis=0 is not available.
---  a . b / |b|^2 b
-function Array:project(O, axis)
+
+--- Return the projection of this array onto another.
+-- Example:
+--    a = Array( 2, 3)
+--    print(a:project( Array.ones( 2, 3) )
+--
+-- The scalar projection is this formula:
+--    $\frac{a \cdot b}{|b|^2} b$
+-- @Array P the projection array
+-- @int[opt=0] axis the axis along the projection, currently only a full projection is available
+-- @return a value if the `axis=0` or the Array is 1D, else a new Array with 1 less dimension is returned.
+function Array:project(P, axis)
    local ax = ax_(axis)
 
    if ax == 0 then
       
       -- Calculate norm of the projection vector
-      local dnorm2 = O:norm(0) ^ 2
-      return self:flatten():dot( O:flatten() ) / dnorm2 * O
+      local dnorm2 = P:norm(0) ^ 2
+      return self:flatten():dot( P:flatten() ) / dnorm2 * P
       
    else
       
@@ -347,7 +404,10 @@ function Array:project(O, axis)
 
 end
 
--- Extract the minimum of an array along a given dimension
+
+--- Return the minimum value of the Array
+-- @int[opt=0] axis either 0 or an axis. If 0 (or `nil`) the global minimum is returned, else along the given dimension
+-- @return a value if the `axis=0` or an Array with one less dimension (the axis dimension is _removed_).
 function Array:min(axis)
    local ax = ax_(axis)
 
@@ -380,7 +440,9 @@ function Array:min(axis)
 end
 
 
--- Extract the maximum of an array along a given dimension
+--- Return the maximum value of the Array
+-- @int[opt=0] axis either 0 or an axis. If 0 (or `nil`) the global maximum is returned, else along the given dimension
+-- @return a value if the `axis=0` or an Array with one less dimension (the axis dimension is _removed_).
 function Array:max(axis)
    local ax = ax_(axis)
 
@@ -412,7 +474,9 @@ function Array:max(axis)
    return max
 end
 
--- Sum along a given dimension (default total sum)
+--- Return the sum of elements of the Array
+-- @int[opt=0] axis either 0 or an axis. If 0 (or `nil`) the global sum is returned, else along the given dimension
+-- @return a value if the `axis=0` or an Array with one less dimension (the axis dimension is _removed_).
 function Array:sum(axis)
    -- Get the actual axis
    local ax = ax_(axis)
@@ -435,15 +499,17 @@ function Array:sum(axis)
    return sum
 end
 
--- Implementation of the cross product (only for Arrays with last dimension equal to 3)
--- Both the LHS and RHS must have the last dimension of length 3
-function Array:cross(other)
 
-   local sh = self.shape:align(other.shape)
+--- Return the sum of cross-product of two arrays (only for 1D arrays with `#Array == 3`)
+-- @Array rhs the second operand of the cross-product
+-- @return an Array with the cross-product of the two vectors
+function Array.cross(lhs, rhs)
+
+   local sh = lhs.shape:align(rhs.shape)
    if sh == nil then
       error("flos.Array cross product does not have aligned shapes")
    end
-   if self.shape[#self.shape] ~= 3 or other.shape[#other.shape] ~= 3 then
+   if lhs.shape[#lhs.shape] ~= 3 or rhs.shape[#rhs.shape] ~= 3 then
       error("flos.Array cross product requires the last dimension to have length 3")
    end
 
@@ -451,15 +517,15 @@ function Array:cross(other)
 
    if #cross.shape == 1 then
       
-      cross[1] = self[2] * other[3] - self[3] * other[2]
-      cross[2] = self[3] * other[1] - self[1] * other[3]
-      cross[3] = self[1] * other[2] - self[2] * other[1]
+      cross[1] = lhs[2] * rhs[3] - lhs[3] * rhs[2]
+      cross[2] = lhs[3] * rhs[1] - lhs[1] * rhs[3]
+      cross[3] = lhs[1] * rhs[2] - lhs[2] * rhs[1]
 
-   elseif self.shape == other.shape then
+   elseif lhs.shape == rhs.shape then
       -- We must do it on each of the arrays, in this case
       -- we can easily loop
       for i = 1, sh[1] do
-	 cross[i] = self[i]:cross(other[i])
+	 cross[i] = lhs[i]:cross(rhs[i])
       end
 
    else
@@ -471,8 +537,10 @@ function Array:cross(other)
 end
 
 
--- Create flatdot-product function.
--- It checks whether the size is the same and then performs dot-product
+--- Wrapper for doing a linear dot-product between any two ND arrays, the only
+-- requirement is that they have the same total size.
+-- @Array rhs the second operand of the dot-product
+-- @return the value of the dot-product
 function Array.flatdot(lhs, rhs)
 
    local size = lhs:size()
@@ -488,11 +556,13 @@ function Array.flatdot(lhs, rhs)
 end
 
 
--- Create dot-product function.
+--- Dot-product of two Arrays.
 -- For 1D arrays this returns a single value,
--- For ND arrays the shapes must fulfil self.shape[#self.shape] == other.shape[1],
---  as well as all dimensions self.shape[1:#self.shape-2] == other.shape[3:].reverse().
--- and a matrix-multiplication of the two inner most functions will prevail.
+-- for ND arrays the shapes must fulfil self.shape[#self.shape] == other.shape[1],
+-- as well as all dimensions self.shape[1:#self.shape-2] == other.shape[3:].reverse().
+-- Note that for 2D Arrays this is equivalent to matrix-multiplication.
+-- @Array rhs the second operand of the dot-product.
+-- @return a single value if both Arrays are 1D, else a new Array is returned.
 function Array.dot(lhs, rhs)
 
    -- The returned dot-product
@@ -584,7 +654,8 @@ function Array.dot(lhs, rhs)
 end
 
 
--- Return a copy of self with the transposed array
+--- Return the transpose of the Array (all dimensions are swapped).
+-- @return a copy of the Array with all dimensions reversed.
 function Array:transpose()
 
    -- Check dimensions, we cannot transpose a 1D array
@@ -609,9 +680,12 @@ function Array:transpose()
 end
 
 
--- Perform all element wise operations
--- In the following we document the __add function, whereas the
--- later functions are compressed for visibility
+--- Implement the element-wise addition of two arrays.
+-- It is required that both operands have the same shape (or
+-- one of them being a scalar).
+-- @param lhs the first operand (`Array` or `number`)
+-- @param rhs the second operand (`Array` or `number`)
+-- @return an Array with `lhs + rhs`
 function Array.__add(lhs, rhs)
 
    -- Create the return value
@@ -657,6 +731,11 @@ function Array.__add(lhs, rhs)
    return ret
 
 end
+
+--- Implement the element-wise subtraction of two arrays @see Array:__add for details.
+-- @param lhs the first operand
+-- @param rhs the second operand
+-- @return an Array with `lhs - rhs`
 function Array.__sub(lhs, rhs)
    local ret
    if isArray(lhs) and isArray(rhs) then
@@ -684,6 +763,10 @@ function Array.__sub(lhs, rhs)
    return ret
 end
 
+--- Implement the element-wise multiplication of two arrays @see Array:__add for details.
+-- @param lhs the first operand
+-- @param rhs the second operand
+-- @return an Array with `lhs * rhs`
 function Array.__mul(lhs, rhs)
    local ret
    if isArray(lhs) and isArray(rhs) then
@@ -711,6 +794,10 @@ function Array.__mul(lhs, rhs)
    return ret
 end
 
+--- Implement the element-wise division of two arrays @see Array:__add for details.
+-- @param lhs the first operand
+-- @param rhs the second operand
+-- @return an Array with `lhs / rhs`
 function Array.__div(lhs, rhs)
    local ret
    if isArray(lhs) and isArray(rhs) then
@@ -738,6 +825,8 @@ function Array.__div(lhs, rhs)
    return ret
 end
 
+--- Implement the element-wise unary negative of an Array.
+-- @return an Array with `-self`
 function Array:__unm()
    local ret = Array( self.shape:copy() )
    for i = 1, #self do
@@ -746,6 +835,10 @@ function Array:__unm()
    return ret
 end
 
+--- Implement the element-wise power operator of two arrays @see Array:__add for details.
+-- @param lhs the first operand
+-- @param rhs the second operand, this may be "T" to indicate a transpose, @see Array:transpose
+-- @return an Array with `lhs ^ rhs`, or the transpose if `rhs == "T"`.
 function Array.__pow(lhs, rhs)
    local ret
    if isArray(lhs) and isArray(rhs) then
@@ -784,7 +877,9 @@ function Array.__pow(lhs, rhs)
    return ret
 end
 
--- Create tostring method (always prints everything ;))
+--- Return the values of the array in a tabular format as a string.
+-- Currently the values are presented in a %12.5e format.
+-- @return a string representation of the Array
 function Array:__tostring()
    local ns = #self.shape
    local s = "["
@@ -817,8 +912,10 @@ local function table_size_(tbl)
 end
 
 
--- Return an array by reading a table
--- This function will automatically determine the size of the table.
+--- Given a regular Lua table this function returns a new Array
+-- with elements filled from the table.
+-- @tparam table tbl the input table.
+-- @return an Array with elements corresponding to the values in `tbl`
 function Array.from(tbl)
 
    local sh = shape.Shape( table_size_(tbl) )
