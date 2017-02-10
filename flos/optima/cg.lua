@@ -44,8 +44,10 @@ function CG:initialize(tbl)
    -- minimizing beta
    self.beta_damping = 0.8
       
-   -- Whether there is automatic restart (max(0, beta))
-   self.auto_restart = true
+   -- The restart method, currently this may be:
+   --   negative (restarting when beta < 0)
+   --   Powell (restart when orthogonality is low)
+   self.restart = "Powell"
 
    -- Counter for # of iterations
    self.niter = 0
@@ -63,12 +65,13 @@ function CG:initialize(tbl)
 					   max_dF = self.max_dF }) })
    end
    
-   self:_correct_beta()
+   self:_correct()
 end
 
-function CG:_correct_beta(beta)
-   local beta = beta or self.beta:lower()
+function CG:_correct()
 
+   -- Check beta method
+   local beta = self.beta:lower()
    if beta == "pr" or beta == "p-r" or beta == "polak-ribiere" then
       self.beta = "PR"
    elseif beta == "fr" or beta == "f-r" or beta == "fletcher-reeves" then
@@ -80,7 +83,17 @@ function CG:_correct_beta(beta)
    else
       error("flos.CG could not determine beta method.")
    end
-   
+
+   -- Check restart method
+   local restart = self.restart:lower()
+   if restart == "negative" then
+      self.restart = "negative"
+   elseif restart == "powell" or restart == "p" then
+      self.restart = "Powell"
+   else
+      error("flos.CG could not determine restart method.")
+   end
+
 end
 
 -- Reset the algorithm
@@ -202,9 +215,22 @@ function CG:conjugate()
       
    end
 
-   if self.auto_restart and beta < 0. then
-      -- This is a reset of the CG algorithm...
-      beta = 0.
+   if self.restart == "negative" then
+
+      beta = m.max(0., beta)
+
+   elseif self.restart == "Powell" then
+
+      -- Here we check whether the gradient of the current iteration
+      -- has "lost" orthogonality to the previous iteration
+      local n = self.G:norm(0) ^ 2
+      if self.G:flatten():dot( self.G0:flatten() ) / n >= 0.2 then
+
+	 -- There is a loss of orthogonality and we restart the CG algorithm
+	 beta = 0.
+
+      end
+
    end
 
    -- Damp memory for beta (older steepest descent directions
@@ -215,7 +241,7 @@ function CG:conjugate()
 
    -- Now calculate the new steepest descent direction
    return self.G + beta * self.conj0
-   
+
 end
 
 -- Print information regarding the CG algorithm
