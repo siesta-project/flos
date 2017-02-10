@@ -30,6 +30,8 @@ function Line:initialize(tbl)
    -- Initialize method to check
    self.optimizer = nil
 
+   self.niter = 0
+
    -- Ensure we update the elements as passed
    -- by new(...)
    if type(tbl) == "table" then
@@ -55,19 +57,14 @@ function Line:reset()
    self.direction = nil
    self.initial = nil
    self.alpha = 1.
+   self.niter = 0
    self.optimizer:reset()
 end
 
 
 -- Return the projected gradient along the line-search
 function Line:projection(G)
-   
-   -- Project onto the direction
-   local dnorm2 = self.direction:norm(0) ^ 2
-   -- a . b / |b|^2 b
-   local proj = G:flatten():dot( self.direction:flatten() ) / dnorm2 * self.direction
-
-   return proj
+   return G:project(self.direction)
 end
 
 -- Special optimized routine for a line-search
@@ -84,18 +81,21 @@ function Line:optimize(F, G)
 
    -- Create initial direction
    if self.direction == nil then
+      
       self.initial = F:copy()
       self.direction = G:copy()
       -- Reset alpha to zero
       self.alpha = 0.
+      
    end
 
    -- Calculate the new variables given the constraint on the projected vector
    local new = self.optimizer:optimize(F, self:projection(G))
    
    -- Before we return the new coordinates we need to update the alpha parameter
-   self.alpha = (new - self.initial):flatten():dot( self.direction:flatten() ) /
-      self.direction:norm(0)
+   self.alpha = (new - self.initial):scalar_project(self.direction)
+
+   self.niter = self.niter + 1
    
    return new
 
@@ -107,6 +107,7 @@ function Line:info()
    
    print("")
    print("Line: line search:")
+   print("Line: iterations " .. tostring(self.niter))
    self.optimizer:info()
    print("")
 
