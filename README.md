@@ -69,6 +69,7 @@ For instance to use the `flos` L-BFGS relaxation method:
 
 and set the following fdf-flag:
 
+    MD.TypeOfRun LUA
     LUA.Script relax.lua
 
 Now run SIESTA.
