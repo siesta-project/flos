@@ -302,6 +302,51 @@ function Array:norm(axis)
    return norm
 end
 
+-- Scalar projection an array onto another array
+-- If the axis is 0, or nil it will flatten the array before
+-- doing the projection (but the returned projection will be same shape
+-- as O
+-- Currently anything but axis=0 is not available.
+--  a . b / |b|
+function Array:scalar_project(O, axis)
+   local ax = ax_(axis)
+
+   if ax == 0 then
+      
+      -- Calculate norm of the projection vector
+      return self:flatten():dot( O:flatten() ) / O:norm(0)
+      
+   else
+      
+      error("flos.Array could not project on anything but flattened array")
+      
+   end
+
+end
+
+-- Project an array onto another array
+-- If the axis is 0, or nil it will flatten the array before
+-- doing the projection (but the returned projection will be same shape
+-- as O
+-- Currently anything but axis=0 is not available.
+--  a . b / |b|^2 b
+function Array:project(O, axis)
+   local ax = ax_(axis)
+
+   if ax == 0 then
+      
+      -- Calculate norm of the projection vector
+      local dnorm2 = O:norm(0) ^ 2
+      return self:flatten():dot( O:flatten() ) / dnorm2 * O
+      
+   else
+      
+      error("flos.Array could not project on anything but flattened array")
+      
+   end
+
+end
+
 -- Extract the minimum of an array along a given dimension
 function Array:min(axis)
    local ax = ax_(axis)
