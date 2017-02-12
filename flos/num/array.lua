@@ -212,7 +212,7 @@ function Array:size(axis)
 end
 
 -- Query the data using a linear index
-function Array:_get_index_lin(i)
+function Array:get_linear(i)
 
    -- If we are at the last dimension, return immediately.
    if #self.shape == 1 then
@@ -224,11 +224,11 @@ function Array:_get_index_lin(i)
    -- Calculate the first dimension index
    local j = m.tointeger( m.ceil(i / n_dim) )
    -- Transform i into the linear index in the underlying array
-   return self[j]:_get_index_lin( m.tointeger(i - (j-1) * n_dim) )
+   return self[j]:get_linear( m.tointeger(i - (j-1) * n_dim) )
 end
 
 -- Set the data using a linear index
-function Array:_set_index_lin(i, v)
+function Array:set_linear(i, v)
 
    -- If we are at the last dimension, return immediately.
    if #self.shape == 1 then
@@ -240,7 +240,7 @@ function Array:_set_index_lin(i, v)
       -- Calculate the first dimension index
       local j = m.tointeger( m.ceil(i / n_dim) )
       -- Transform i into the linear index in the underlying array
-      self[j]:_set_index_lin( m.tointeger(i - (j-1) * n_dim), v)
+      self[j]:set_linear( m.tointeger(i - (j-1) * n_dim), v)
       
    end
 end
@@ -273,7 +273,7 @@ function Array:reshape(...)
 
    -- Loop on the linear indices
    for i = 1, self:size() do
-      new:_set_index_lin(i, self:_get_index_lin(i))
+      new:set_linear(i, self:get_linear(i))
    end
 
    return new
@@ -323,7 +323,7 @@ function Array:norm(axis)
       -- we do a 1D norm
       norm = 0.
       for i = 1, self:size() do
-	 norm = norm + self:_get_index_lin(i) ^ 2
+	 norm = norm + self:get_linear(i) ^ 2
       end
       norm = m.sqrt(norm)
    
@@ -483,9 +483,16 @@ function Array:sum(axis)
 
    local sum
    if ax == 0 then
-      sum = self[1]:sum(0)
-      for i = 2, #self do
-	 sum = sum + self[i]:sum(0)
+      if #self.shape == 1 then
+	 sum = self[1]
+	 for i = 2, #self do
+	    sum = sum + self[i]
+	 end
+      else
+	 sum = self[1]:sum(0)
+	 for i = 2, #self do
+	    sum = sum + self[i]:sum(0)
+	 end
       end
    elseif ax > #self.shape then
       error("flos.Array sum must be along an existing dimension")
@@ -550,7 +557,7 @@ function Array.flatdot(lhs, rhs)
 
    local dot = 0.
    for i = 1, size do
-      dot = dot + lhs:_get_index_lin(i) * rhs:_get_index_lin(i)
+      dot = dot + lhs:get_linear(i) * rhs:get_linear(i)
    end
    return dot
 end
@@ -593,8 +600,8 @@ function Array.dot(lhs, rhs)
       -- This is a element wise product and sum
       dot = Array( rhs.shape[2] )
       for j = 1, #dot do
-	 local v = 0.
-	 for i = 1, #lhs do
+	 local v = lhs[1] * rhs[1][j]
+	 for i = 2, #lhs do
 	    v = v + lhs[i] * rhs[i][j]
 	 end
 	 dot[j] = v
@@ -629,6 +636,7 @@ function Array.dot(lhs, rhs)
       for j = 1 , #lhs do
 	 
 	 -- Get local reference
+	 --dot[j] = lhs[j]:dot(rhs)
 	 local drow = dot[j]
 	 local lrow = lhs[j]
 
@@ -672,7 +680,7 @@ function Array:transpose()
    -- Perform transpose
    local size = self:size()
    for i = 1, size do
-      new:_set_index_lin(size-i+1, self:_get_index_lin(i))
+      new:set_linear(size-i+1, self:get_linear(i))
    end
 
    return new
