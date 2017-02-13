@@ -232,17 +232,19 @@ function Array:set_linear(i, v)
 
    -- If we are at the last dimension, return immediately.
    if #self.shape == 1 then
-      self[i] = v
-   else
-
-      -- Calculate # of elements per first dimension
-      local n_dim = self:size() / self:size(1)
-      -- Calculate the first dimension index
-      local j = m.tointeger( m.ceil(i / n_dim) )
-      -- Transform i into the linear index in the underlying array
-      self[j]:set_linear( m.tointeger(i - (j-1) * n_dim), v)
       
+      self[i] = v
+
+      return
    end
+
+   -- Calculate # of elements per first dimension
+   local n_dim = self:size() / self:size(1)
+   -- Calculate the first dimension index
+   local j = m.tointeger( m.ceil(i / n_dim) )
+   -- Transform i into the linear index in the underlying array
+   self[j]:set_linear( m.tointeger(i - (j-1) * n_dim), v)
+      
 end
 
 
@@ -483,17 +485,23 @@ function Array:sum(axis)
 
    local sum
    if ax == 0 then
+      
+      -- Special case for the 1D case
       if #self.shape == 1 then
 	 sum = self[1]
 	 for i = 2, #self do
 	    sum = sum + self[i]
 	 end
+
       else
+
 	 sum = self[1]:sum(0)
 	 for i = 2, #self do
 	    sum = sum + self[i]:sum(0)
 	 end
+
       end
+
    elseif ax > #self.shape then
       error("flos.Array sum must be along an existing dimension")
    else
@@ -501,6 +509,7 @@ function Array:sum(axis)
       -- Create the new array
       sum = Array( self.shape:remove(ax) )
       error("flos.Array not implemented yet")
+
    end
 
    return sum
@@ -555,8 +564,8 @@ function Array.flatdot(lhs, rhs)
       error("flos.Array flatdot requires same length of the arrays")
    end
 
-   local dot = 0.
-   for i = 1, size do
+   local dot = lhs:get_linear(1) * rhs:get_linear(1)
+   for i = 2, size do
       dot = dot + lhs:get_linear(i) * rhs:get_linear(i)
    end
    return dot
@@ -634,21 +643,7 @@ function Array.dot(lhs, rhs)
 
       -- loop inner
       for j = 1 , #lhs do
-	 
-	 -- Get local reference
-	 --dot[j] = lhs[j]:dot(rhs)
-	 local drow = dot[j]
-	 local lrow = lhs[j]
-
-	 -- loop outer
-	 for i = 1 , rhs.shape[2] do
-
-	    local v = 0.
-	    for k = 1 , lhs.shape[2] do
-	       v = v + lrow[k] * rhs[k][i]
-	    end
-	    drow[i] = v
-	 end
+	 dot[j] = lhs[j]:dot(rhs)
       end
 
    else
@@ -710,22 +705,23 @@ function Array.__add(lhs, rhs)
       
       -- Create the return array
       ret = Array( lhs.shape )
+      -- Element-wise additions
       for i = 1, #lhs do
 	 ret[i] = lhs[i] + rhs[i]
       end
       
    elseif isArray(lhs) then
 
-      -- Element-wise additions
       ret = Array( lhs.shape )
 
+      -- Add scalar to all LHS
       for i = 1, #lhs do
 	 ret[i] = lhs[i] + rhs
       end
 
    elseif isArray(rhs) then
       
-      -- Element-wise additions
+      -- Add scalar to all RHS
       ret = Array( rhs.shape )
 
       for i = 1, #rhs do
@@ -907,6 +903,47 @@ function Array:__tostring()
       end
    end
    return s .. "]"
+end
+
+--- Write the values to an already open file-handle
+-- The format is defined via the `format` parameter and the content gets
+-- an empty line at the end of the array pri
+-- @param handle the file-handle to write to
+-- @param[opt="%20.13e"] format the output format of the values
+-- @param[opt="\n"] footer a string to write after the array values has been written
+function Array:savetxt(handle, format, footer)
+   local fmt = format or "%20.13e"
+   local foot = footer or "\n"
+
+   local ns = #self.shape
+
+   if ns == 1 then
+
+      local s = fmt:format(self[1])
+      for i = 2, #self do
+	 s = s .. " " .. fmt:format(self[i])
+      end
+      s = s .. "\n" .. foot
+      handle:write(s)
+
+   elseif ns == 2 then
+
+      for i = 1, #self do
+	 -- The 2D data will be stored as a "matrix"
+	 self[i]:savetxt(handle, fmt, "")
+      end
+      handle:write(foot)
+
+   else
+
+      for i = 1, #self do
+	 -- Each dimension will be separated by a newline
+	 self[i]:savetxt(handle, fmt, "\n")
+      end
+      handle:write(foot)
+
+   end
+
 end
 
 -- Simple recursive function to return a comma separated list

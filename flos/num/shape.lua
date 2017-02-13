@@ -1,16 +1,18 @@
---[[
-A shape is a simple array with integers >= 0 such that they
-describe a shape of an array.
+---
+-- Implementation of Shape to control the size of arrays (@see Array)
+-- @classmod Shape
+-- A helper class for managing the size of `Array`s. 
+--
+-- Having the Shape of an array in a separate class makes it much easier
+-- to implement a flexible interface for interacting with Arrays.
+--
+-- A Shape is basically a table which defines the size of the Array,
+-- the dimensions of the Array is `#Shape` while each axis size may
+-- be queried by `Shape[axis]`.
+-- Additionally a Shape may have a single dimension with size `0` which
+-- may _only_ be used to align two shapes, i.e. the `0` axis is inferred
+-- from the total size of the aligning Shape.
 
-Importantly one can define any _one_ of the array values by 
-0/nil to notify a variable length dimension for alignment with 
-another 
-
-Their basic use, if not only, is to describe the shape of any
-Array (see num/array.lua).
-
-Their main purpose is to assert that 
---]]
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
 
@@ -20,10 +22,13 @@ local error = ferr.floserr
 -- Create the shape class (globally so it returns)
 local Shape = mc.class("Shape")
 
+--- Check if a variable is a a Shape type object.
+-- @param obj the object/variable to check
+-- @return true if the object is an instance, or sub-class, of the Shape
 local function isShape(obj)
    if type(obj) == "table" then
       if obj.class then
-	 return obj:isInstanceOf(Shape)
+	 return obj:isInstanceOf(Shape) or obj:isSubclassOf(Shape)
       end
    end
    return false
@@ -39,8 +44,12 @@ local function ax_(axis)
 end
 
 
--- The initialization method accepts any number of arguments
--- which defines a new shape.
+--- Initialization routine for the Shape object.
+-- Examples:
+--     Shape(2, 3) -- a shape with 2 dimensions of given sizes
+--     Shape(2, 3, 4) -- a shape with 3 dimensions
+-- @param ... a comma-separated list of integers
+-- @return a new Shape object with the given shape
 function Shape:initialize(...)
    local args = {...}
 
@@ -61,12 +70,15 @@ function Shape:initialize(...)
 
 end
 
--- Return a copy of this shape
+--- Copy the shape by duplicating the dimension sizes
+-- @return a new Shape with the same content
 function Shape:copy()
    return Shape( table.unpack(self) )
 end
 
--- Return a reverse shape
+
+--- Reverse the dimension sizes, `Shape( 2, 3, 4):reverse() == Shape( 4, 3, 2)`
+-- @return a new Shape
 function Shape:reverse()
    -- create the reversed shape
    local sh = {}
@@ -77,9 +89,9 @@ function Shape:reverse()
    return Shape( table.unpack(sh) )
 end
 
--- Return the size along a given dimension,
--- equivalent to Shape[1], for Shape:size(1), however,
--- if 0 is passed it returns the full size.
+--- Query the size of the Shape, either a given dimension, or the total size
+-- @int[opt=0] axis the dimension one wish to query (0 for total)
+-- @return the size of the dimension (as an integer)
 function Shape:size(axis)
    local ax = ax_(axis)
    local size = 1
@@ -96,7 +108,8 @@ function Shape:size(axis)
    return m.tointeger(size)
 end
 
--- Return a new shape _without_ the given dimension
+--- Removes a dimension from the Shape
+-- @return a new shape with the given axis removed
 function Shape:remove(axis)
    local ax = ax_(axis)
    if ax == 0 then
@@ -114,7 +127,9 @@ function Shape:remove(axis)
    return Shape( table.unpack(s) )
 end
 
--- Return true/false whether the shape has an unknown dimension
+
+--- Query index of the first zero index
+-- @return the first axis with a zero size, if none, `0` is returned
 function Shape:zero()
    for i, v in ipairs(self) do
       if v == 0 then
@@ -172,7 +187,8 @@ function Shape:align(other)
    end
 end
 
--- Convert the Shape to a pretty-printed string
+--- Convert the Shape to a pretty-printed string
+-- @return a string with the dimensions of the shape in a comma separated string
 function Shape:__tostring()
    local s = "[" .. tostring(self[1])
    for i = 2 , #self do
@@ -182,7 +198,8 @@ function Shape:__tostring()
 end
    
 
--- Determine whether two shapes are the same
+--- Checks whether two Shapes are the same (with respect to dimensions)
+-- @return `true` if each dimension is the same
 function Shape.__eq(a, b)
    if #a ~= #b then
       return false
