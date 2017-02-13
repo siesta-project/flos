@@ -283,11 +283,11 @@ function NEB:save(IO)
       local row = dat[i+1]
       -- image number (0 for initial, n_images + 1 for final)
       row[1] = i
-      -- Reaction coordinate
+      -- Accumulated reaction coordinate
       if i == 0 then
 	 row[2] = 0.
       else
-	 row[2] = self:dR(i-1, i):norm(0)
+	 row[2] = dat[i][2] + self:dR(i-1, i):norm(0)
       end
       -- Total energy of current iteration
       row[3] = self[i].E
