@@ -139,7 +139,7 @@ function NEB:climbing(image)
    local E_next = self[image+1].E
    
    -- Return boolean value depending on energies
-   return (E_this > E_prev and E_this > E_next) or (E_this < E_prev and E_this < E_next)
+   return (E_prev < E_this) and (E_this > E_next)
 
 end
 
