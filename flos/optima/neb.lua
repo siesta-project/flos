@@ -221,6 +221,11 @@ function NEB:force(image, IO)
 
       local f
 
+      -- Current coordinates (ie .R)
+      f = io.open( ("NEB.%d.R"):format(image), "a")
+      self[image].R:savetxt(f)
+      f:close()
+
       -- Forces before (ie .F)
       f = io.open( ("NEB.%d.F"):format(image), "a")
       F:savetxt(f)
@@ -329,6 +334,7 @@ function NEB:init_files()
 	    "Image reaction-coordinate Energy E-diff Curvature F-max(atom)")
    
    for img = 1, self.n_images do
+      new_file( ("NEB.%d.R"):format(img), "Coordinates")
       new_file( ("NEB.%d.F"):format(img), "Constrained force")
       new_file( ("NEB.%d.F.P"):format(img), "Perpendicular force")
       new_file( ("NEB.%d.F.S"):format(img), "Spring force")
