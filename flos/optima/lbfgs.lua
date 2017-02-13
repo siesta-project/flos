@@ -37,7 +37,7 @@ function LBFGS:initialize(tbl)
 
    -- this is the convergence tolerance of the gradient
    self.tolerance = 0.02
-   self.is_optimized = false
+   self._optimized = false
    
    -- Maximum change in functional allowed (cut-off)
    self.max_dF = 0.1
@@ -201,7 +201,7 @@ function LBFGS:optimize(F, G)
 
    -- Calculate next step
    local newF
-   if not self.is_optimized then
+   if not self:optimized() then
       newF = F + delta
    else
       newF = F:copy()

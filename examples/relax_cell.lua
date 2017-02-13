@@ -155,7 +155,7 @@ function siesta_move(siesta)
       -- The optimization routine requires the stress to be per cell
       all_strain[i] = LBFGS[i]:optimize(strain, stress * vol)
 
-      -- The LBFGS algorithms updates the is_optimized
+      -- The LBFGS algorithms updates the internal optimized
       -- variable based on stress * vol (eV / cell)
       -- However, we are relaxing the stress in (eV / Ang^3)
       -- So force the optimization to be estimated on the
@@ -188,10 +188,10 @@ function siesta_move(siesta)
    -- be applied to the cell vectors to minimize the stress.
    -- Also track if we have converged (stress < min-stress)
    local out_strain = all_strain[1] * weight[1]
-   local relaxed = LBFGS[1].is_optimized
+   local relaxed = LBFGS[1]:optimized()
    for i = 2, #LBFGS do
       out_strain = out_strain + all_strain[i] * weight[i]
-      relaxed = relaxed and LBFGS[i].is_optimized
+      relaxed = relaxed and LBFGS[i]:optimized()
    end
    -- Immediately clean-up to reduce memory overhead (force GC)
    all_strain = nil

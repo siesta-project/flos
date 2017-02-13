@@ -1,5 +1,5 @@
 --[[
-Example on how to relax a geometry using the FIRE
+Example on how to relax a geometry using the CG 
 algorithm.
 
 This example can take any geometry and will relax it
@@ -8,19 +8,19 @@ according to the siesta input options:
  - MD.MaxForceTol
  - MD.MaxCGDispl
 
-One should note that the FIRE algorithm first converges
+One should note that the CG algorithm first converges
 when the total force (norm) on the atoms are below the 
 tolerance. This is contrary to the SIESTA default which
 is a force tolerance for the individual directions,
 i.e. max-direction force.
 
 This example is prepared to easily create
-a combined relaxation of several FIRE algorithms
+a combined relaxation of several CG algorithms
 simultaneously. In some cases this is shown to
 speed up the convergence because an average is taken
 over several optimizations.
 
-This example defaults to two simultaneous FIRE algorithms
+This example defaults to two simultaneous CG algorithms
 which seems adequate in most situations.
 
 --]]
@@ -28,19 +28,22 @@ which seems adequate in most situations.
 -- Load the FLOS module
 local flos = require "flos"
 
-local FIRE = {}
--- In this example we take a mean of 4 different methods
-local dt_init = 0.5
-FIRE[1] = flos.FIRE:new({dt_init = dt_init, direction="global", correct="local"})
-FIRE[2] = flos.FIRE:new({dt_init = dt_init, direction="global", correct="global"})
-FIRE[3] = flos.FIRE:new({dt_init = dt_init, direction="local", correct="local"})
-FIRE[4] = flos.FIRE:new({dt_init = dt_init, direction="local", correct="global"})
+-- Create the two CG algorithms with
+-- initial Hessians 1/75 and 1/50
+local CG = {}
+CG[1] = flos.CG(
+   { beta='PR', line=flos.Line( {optimizer = flos.LBFGS({H0 = 1. / 75.}) } ) }
+)
+CG[2] = flos.CG(
+   { beta='PR', line=flos.Line( {optimizer = flos.LBFGS({H0 = 1. / 50.}) } ) }
+)
 -- To use more simultaneously simply add a
--- new line... with a separate FIRE algorithm.
+-- new line... with a separate CG algorithm.
 
 -- Grab the unit table of siesta (it is already created
 -- by SIESTA)
 local Unit = siesta.Units
+
 
 function siesta_comm()
    
@@ -54,28 +57,32 @@ function siesta_comm()
       -- convergence criteria
       --  MD.MaxDispl
       --  MD.MaxForceTol
-      -- We also need the mass for scaling the displacments
       siesta_get({"MD.MaxDispl",
-		  "MD.MaxForceTol",
-		  "geom.mass"})
+		  "MD.MaxForceTol"})
+
 
       -- Print information
       if siesta.IONode then
 	 -- empty line
-	 print("\nLUA convergence information for the FIRE algorithms:")
+	 print("\nLUA convergence information for the LBFGS algorithms:")
       end
 
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
-      for i = 1, #FIRE do
+      for i = 1, #CG do
 	 
-	 FIRE[i].tolerance = siesta.MD.MaxForceTol * Unit.Ang / Unit.eV
-	 FIRE[i].max_dF = siesta.MD.MaxDispl / Unit.Ang
-	 FIRE[i].set_mass(siesta.geom.mass)
+	 CG[i].tolerance = siesta.MD.MaxForceTol * Unit.Ang / Unit.eV
+	 CG[i].max_dF = siesta.MD.MaxDispl / Unit.Ang
+	 -- Propagate the tolerances down to the line-search for reducing
+	 -- amount of line-searches
+	 CG[i].line.tolerance = CG[i].tolerance
+	 CG[i].line.max_dF = CG[i].max_dF -- this is not used
+	 CG[i].line.optimizer.tolerance = CG[i].tolerance -- this is not used
+	 CG[i].line.optimizer.max_dF = CG[i].max_dF -- this is used
 
 	 -- Print information
 	 if siesta.IONode then
-	    FIRE[i]:info()
+	    CG[i]:info()
 	 end
       end
 
@@ -83,13 +90,12 @@ function siesta_comm()
 
    if siesta.state == siesta.MOVE then
       
-      -- Here we are doing the actual FIRE algorithm.
+      -- Here we are doing the actual CG algorithm.
       -- We retrieve the current coordinates, the forces
       -- and whether the geometry has relaxed
       siesta_get({"geom.xa",
 		  "geom.fa",
 		  "MD.Relaxed"})
-
       ret_tbl = siesta_move(siesta)
       
    end
@@ -101,51 +107,49 @@ function siesta_move(siesta)
 
    -- Retrieve the atomic coordinates and the forces
    local xa = flos.Array.from(siesta.geom.xa) / Unit.Ang
-   -- Note the FIRE requires the gradient, and
-   -- the force is the negative gradient.
    local fa = flos.Array.from(siesta.geom.fa) * Unit.Ang / Unit.eV
 
    -- Perform step (initialize arrays to do averaging if more
-   -- FIRE algorithms are in use).
+   -- CG algorithms are in use).
    local all_xa = {}
    local weight = {}
    local sum_w = 0.
-   for i = 1, #FIRE do
+   for i = 1, #CG do
       
       -- Calculate the next optimized structure (that
       -- minimizes the Hessian)
-      all_xa[i] = FIRE[i]:optimize(xa, fa)
-
+      all_xa[i] = CG[i]:optimize(xa, fa)
+      
       -- Get the optimization length for calculating
       -- the best average.
-      weight[i] = FIRE[i].weight
+      weight[i] = CG[i].weight
       sum_w = sum_w + weight[i]
       
    end
 
    -- Normalize according to the weighing scheme.
    -- We also print-out the weights for the algorithms
-   -- if there are more than one of the FIRE algorithms
+   -- if there are more than one of the CG algorithms
    -- running simultaneously.
    local s = ""
-   for i = 1, #FIRE do
+   for i = 1, #CG do
       
       weight[i] = weight[i] / sum_w
       s = s .. ", " .. string.format("%7.4f", weight[i])
       
    end
-   if siesta.IONode and #FIRE > 1 then
-      print("\nFIRE weighted average: ", s:sub(3))
+   if siesta.IONode and #CG > 1 then
+      print("\nCG weighted average: ", s:sub(3))
    end
 
    -- Calculate the new coordinates and figure out
    -- if the algorithms has been optimized.
    local out_xa = all_xa[1] * weight[1]
-   local relaxed = FIRE[1]:optimized()
-   for i = 2, #FIRE do
+   local relaxed = CG[1]:optimized()
+   for i = 2, #CG do
       
       out_xa = out_xa + all_xa[i] * weight[i]
-      relaxed = relaxed and FIRE[i]:optimized()
+      relaxed = relaxed and CG[i]:optimized()
       
    end
    -- Immediately clean-up to reduce memory overhead (force GC)

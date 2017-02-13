@@ -58,7 +58,7 @@ function FIRE:initialize(tbl)
    self.max_dF = 0.1
    -- this is the convergence tolerance of the gradient
    self.tolerance = 0.02
-   self.is_optimized = false
+   self._optimized = false
 
    -- Ensure we update the elements as passed
    -- by new(...)
@@ -280,7 +280,7 @@ function FIRE:optimize(F, G)
    
    -- Calculate next step
    local newF
-   if not self.is_optimized then
+   if not self:optimized() then
       newF = F + dF
    else
       newF = F:copy()

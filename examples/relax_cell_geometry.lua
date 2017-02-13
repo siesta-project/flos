@@ -345,7 +345,7 @@ function siesta_cell(siesta)
       -- The optimization routine requires the stress to be per cell
       all_strain[i] = lattice[i]:optimize(strain, stress * vol)
 
-      -- The LBFGS algorithms updates the is_optimized
+      -- The LBFGS algorithms updates the internal optimized
       -- variable based on stress * vol (eV / cell)
       -- However, we are relaxing the stress in (eV / Ang^3)
       -- So force the optimization to be estimated on the

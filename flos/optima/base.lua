@@ -11,6 +11,12 @@ local opt = mc.class('Optimizer')
 
 -- Function to determine whether the an algorithm has converged
 function opt.optimized(self, G)
+
+   -- Return stored optimized quantity if G is not
+   -- passed
+   if G == nil then
+      return self._optimized
+   end
    
    -- Check convergence
    local norm
@@ -22,9 +28,9 @@ function opt.optimized(self, G)
    end
 
    -- Determine whether the algorithm is complete.
-   self.is_optimized = norm < self.tolerance
+   self._optimized = norm < self.tolerance
 
-   return self.is_optimized
+   return self._optimized
    
 end
 
