@@ -140,11 +140,11 @@ function Shape:zero()
 end
 
 
--- Returns a new shape with an aligned shape according to other.
--- If other is nil, a copy of self.shape will be returned
--- if other is a shape with a single 0, the unknown dimensions size will be
--- calculated and a new shape will be returned. In case the size does not
--- match, a nil will be returned (to signal no alignment)
+--- Return a new shape such that the shapes are equal in size
+-- In case either shape has a 0-size dimension that size will be
+-- calculated so that the total size is the same.
+-- @param other the shape to compare with
+-- @return a new Shape which is a copy of `other` if they already are aligned
 function Shape:align(other)
    if other == nil then
       return self:copy()

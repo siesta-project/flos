@@ -1,8 +1,8 @@
---[[ 
-This module implements the CG algorithm
-for minimization of a functional with an accompanying
-gradient.
---]]
+---
+-- Implementation of the Conjugate Gradient algorithm
+-- @classmod CG
+-- An implementation of the conjugate gradient optimization
+-- algorithm.
 
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
@@ -61,13 +61,14 @@ function CG:initialize(tbl)
    end
 
    if self.line == nil then
-      self.line = Line( { method = LBFGS({ tolerance = self.tolerance,
-					   max_dF = self.max_dF }) })
+      self.line = Line:new({tolerance = self.tolerance,
+			    max_dF = self.max_dF})
    end
    
    self:_correct()
 end
 
+--- Internal routine for correcting the passed options
 function CG:_correct()
 
    -- Check beta method
@@ -96,21 +97,27 @@ function CG:_correct()
 
 end
 
--- Reset the algorithm
--- Basically all variables that
--- are set should be reset
+
+--- Reset the CG algorithm for restart purposes
+-- All history will be cleared and the algorithm will restart the CG
+-- optimization from scratch.
 function CG:reset()
    self.niter = 0
    self.G0, self.G = nil, nil
    self.conj0, self.conj = nil, nil
+   self.line
 end
 
--- Function to return the current iteration count
+
+--- Return current iteration count
+-- @return the iteration count
 function CG:iteration()
    return self.niter
 end
 
--- Add the values to the history (i.e. the previous gradient)
+--- Add the current parameters and the gradient for those to the history
+-- @param F the parameters
+-- @param G the gradient for the function with the parameters `F`
 function CG:add_history(F, G)
 
    -- Cycle data
@@ -123,8 +130,12 @@ function CG:add_history(F, G)
 
 end
 
--- Calculate the optimized variable (F) which
--- minimizes the gradient (G).
+
+--- Returns the optimized parameters which should minimize the function
+-- with respect to the current conjugate gradient
+-- @param F the parameters for the function
+-- @param G the gradient for the parameters
+-- @return a new set of parameters to be used for the function
 function CG:optimize(F, G)
 
    local new = nil
@@ -182,7 +193,9 @@ function CG:optimize(F, G)
 end
 
 
--- Return the next conjugate direction dependent on the method and variables
+--- Return the new conjugate direction
+-- This will take into account how the beta-value is calculated.
+-- @return the new conjugate direction
 function CG:conjugate()
 
    -- The beta value to determine the step of the steepest descent direction
@@ -240,7 +253,8 @@ function CG:conjugate()
 
 end
 
--- Print information regarding the CG algorithm
+
+--- Print some information regarding the CG algorithm
 function CG:info()
    
    print("")
