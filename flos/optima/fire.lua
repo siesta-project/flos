@@ -278,18 +278,11 @@ function FIRE:optimize(F, G)
    -- Update the internal velocity
    self:set_velocity(V + G * self.dt)
    
-   -- Calculate next step
-   local newF
-   if not self:optimized() then
-      newF = F + dF
-   else
-      newF = F:copy()
-   end
-
    -- Update iteration counter
    self.niter = self.niter + 1
-   
-   return newF
+
+   -- return next step regardless of optimization
+   return F + dF
 end
 
 -- Regular MD step by a given velocity, and force

@@ -131,7 +131,14 @@ function LBFGS:add_history(F, G)
       
       -- Calculate dot-product and store the kernel
       self.rho[iter] = -1. / self.dF[iter]:flatdot(self.dG[iter])
-      
+      if self.rho[iter] == -m.huge or m.huge == self.rho[iter] then
+	 -- An inf number 
+	 self.rho[iter] = 0.
+      elseif self.rho[iter] ~= self.rho[iter] then
+	 -- A nan number does not equal it-self
+	 self.rho[iter] = 0.
+      end
+
    end
    
    -- In case we have stored too many points
@@ -194,22 +201,15 @@ function LBFGS:optimize(F, G)
    
    -- Update step
    self.weight = m.abs(G:flatdot(z))
-   local delta = self:correct_dF(z) * self.damping
+   local dF = self:correct_dF(z) * self.damping
    
    -- Determine whether we have optimized the parameter/functional
    self:optimized(G)
-
-   -- Calculate next step
-   local newF
-   if not self:optimized() then
-      newF = F + delta
-   else
-      newF = F:copy()
-   end
-
-   self.niter = self.niter + 1
    
-   return newF
+   self.niter = self.niter + 1
+
+   -- return optimized coordinates, regardless
+   return F + dF
       
 end
 

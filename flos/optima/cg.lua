@@ -177,11 +177,7 @@ function CG:optimize(F, G)
 
    -- Check whether we have finalized the optimization
    -- to the given tolerance
-   if self:optimized(G) then
-      return F
-   else
-      return new
-   end
+   return new
 
 end
 

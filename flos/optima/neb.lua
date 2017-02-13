@@ -93,8 +93,8 @@ function NEB:tangent(image)
    local E_next = self[image+1].E
 
    -- Determine position differences
-   local dR_plus  = self:dR(image, image+1)
-   local dR_minus = self:dR(image-1, image)
+   local dR_prev = self:dR(image-1, image)
+   local dR_next = self:dR(image, image+1)
 
    -- Returned value
    local tangent
@@ -102,11 +102,11 @@ function NEB:tangent(image)
    -- Determine relevant energy scenario
    if E_next > E_this and E_this > E_prev then
       
-      tangent = dR_plus
+      tangent = dR_next
 
    elseif E_next < E_this and E_this < E_prev then
       
-      tangent = dR_minus
+      tangent = dR_prev
 
    else
       
@@ -115,9 +115,9 @@ function NEB:tangent(image)
       local dEmin = m.min( m.abs(E_next - E_this), m.abs(E_prev - E_this) )
       
       if E_next > E_prev then
-	 tangent = dR_plus * dEmax + dR_minus * dEmin
+	 tangent = dR_next * dEmax + dR_prev * dEmin
       else
-	 tangent = dR_plus * dEmin + dR_minus * dEmax
+	 tangent = dR_next * dEmin + dR_prev * dEmax
       end
       
    end
@@ -148,11 +148,11 @@ function NEB:spring_force(image)
    self:_check_image(image)
    
    -- Determine position norms
-   local dR_plus  = self:dR(image, image+1):norm(0)
-   local dR_minus = self:dR(image-1, image):norm(0)
+   local dR_prev = self:dR(image-1, image):norm(0)
+   local dR_next = self:dR(image, image+1):norm(0)
    
    -- Set spring force as F = k (R1-R2) * tangent
-   return self.k[image] * (dR_plus - dR_minus) * self:tangent(image)
+   return self.k[image] * (dR_next - dR_prev) * self:tangent(image)
    
 end
 
@@ -188,12 +188,9 @@ function NEB:neb_force(image)
    -- Typically this number is 5.
    if self.niter > self._climbing and self:climbing(image) then
       local F = self[image].F
-      local tangent = self:tangent(image)
-      NEB_F = F - 2 * F:project(tangent)
+      NEB_F = F - 2 * F:project( self:tangent(image) )
    else
-      local perp_F = self:perpendicular_force(image)
-      local spring_F = self:spring_force(image)
-      NEB_F = perp_F + spring_F
+      NEB_F = self:perpendicular_force(image) + self:spring_force(image)
    end
 
    return NEB_F
@@ -343,6 +340,28 @@ function NEB:init_files()
       new_file( ("NEB.%d.dR_prev"):format(img), "Reaction distance (previous)")
       new_file( ("NEB.%d.dR_next"):format(img), "Reaction distance (next)")
    end
+
+end
+
+
+--- Print to screen some information regarding the NEB algorithm
+function NEB:info()
+
+   print("NEB has " .. self.n_images)
+   print("NEB uses climbing after " .. self._climbing .. " steps")
+   local tmp = array.Array( self.n_images + 1 )
+   tmp[1] = self:dR(0, 1):norm(0)
+   for i = 2, self.n_images + 1 do
+      tmp[i] = tmp[i-1] + self:dR(i-1, i):norm(0)
+   end
+   print("NEB reaction coordinates: ")
+   print(tostring(tmp))
+   local tmp = array.Array( self.n_images )
+   for i = 1, self.n_images do
+      tmp[i] = self.k[i]
+   end
+   print("NEB spring constant: ")
+   print(tostring(tmp))
 
 end
 

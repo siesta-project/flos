@@ -6,10 +6,10 @@ Example on how to use an NEB method.
 local flos = require "flos"
 
 -- The prefix of the files that contain the images
-local image_label = "GEOMETRY_"
+local image_label = "Siesta."
 
 -- Total number of images (excluding initial[0] and final[n_images+1])
-local n_images = 3
+local n_images = 6
 -- Table of image geometries
 local images = {}
 
@@ -48,6 +48,9 @@ end
 
 -- Now we have all images...
 local NEB = flos.NEB:new(images)
+if siesta.IONode then
+   NEB:info()
+end
 -- Remove global (we use NEB.n_images)
 n_images = nil
 
@@ -187,30 +190,15 @@ function siesta_move(siesta)
 
    elseif current_image < NEB.n_images then
 
-      -- Figure out the next image
       current_image = current_image + 1
-      while relax[current_image][1]:optimized() do
-	 current_image = current_image + 1
-	 
-	 if current_image > NEB.n_images then
-	    break
-	 end
-      end
-      
-      if current_image <= NEB.n_images then
-	 
-	 -- Set the atomic coordinates for the image
-	 siesta.geom.xa = NEB[current_image].R * Unit.Ang
-	 
-	 IOprint(("\nLUA/NEB running NEB image %d / %d\n"):format(current_image, NEB.n_images))
-	 
-	 -- The siesta relaxation is already not set
-	 return {'geom.xa'}
 
-      else
-	 -- The NEB routine have the remaining images
-	 -- relaxed, so we proceed with the NEB-force method
-      end
+      -- Set the atomic coordinates for the image
+      siesta.geom.xa = NEB[current_image].R * Unit.Ang
+      
+      IOprint(("\nLUA/NEB running NEB image %d / %d\n"):format(current_image, NEB.n_images))
+      
+      -- The siesta relaxation is already not set
+      return {'geom.xa'}
 
    end
    
@@ -246,7 +234,7 @@ function siesta_move(siesta)
       end
       
       -- Calculate the new coordinates and figure out
-      -- if the algorithms has been optimized.
+      -- if the algorithm has converged (all forces below)
       local out_xa = all_xa[1] * weight[1]
       relaxed = relaxed and relax[img][1]:optimized()
       for i = 2, #relax[img] do
