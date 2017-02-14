@@ -1,8 +1,10 @@
---[[ 
-This module implements the FIRE algorithm
-for minimization of a functional with an accompanying
-gradient.
---]]
+---
+-- Implementation of the Fast-Inertial-Relaxation-Engine
+-- @classmod FIRE
+-- The implementation has several options related to the
+-- original method.
+--
+-- 
 
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
@@ -12,7 +14,8 @@ local optim = require "flos.optima.base"
 local FIRE = mc.class("FIRE", optim.Optimizer)
 
 function FIRE:initialize(tbl)
-   -- Wrapper which basically does nothing..
+   -- Initialize from generic optimizer
+   optim.Optimizer.initialize(self)
 
    -- All variables are defined as given in the FIRE
    -- paper.
@@ -37,9 +40,6 @@ function FIRE:initialize(tbl)
    -- When n_P_pos >= N_min we step the time-step
    self.n_P_pos = 0
    
-   -- Currently reached iteration
-   self.niter = 0
-
    -- Special options regarding the FIRE algorithm
 
    -- This value can be either "local" or "global"
@@ -53,12 +53,6 @@ function FIRE:initialize(tbl)
    -- according to the global norm.
    -- For "local" each atoms velocity is maintained.
    self.direction = "global"
-
-   -- Specify the maximum step of the variables
-   self.max_dF = 0.1
-   -- this is the convergence tolerance of the gradient
-   self.tolerance = 0.02
-   self._optimized = false
 
    -- Ensure we update the elements as passed
    -- by new(...)
@@ -91,6 +85,7 @@ end
 -- Basically all variables that
 -- are set should be reset
 function FIRE:reset()
+   optim.Optimizer.reset(self)
    self.dt = self.dt_init
    self.alpha = self.alpha_init
    if self.mass == nil then

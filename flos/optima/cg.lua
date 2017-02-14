@@ -3,6 +3,16 @@
 -- @classmod CG
 -- An implementation of the conjugate gradient optimization
 -- algorithm.
+-- This class implements 4 different variations of CG defined
+-- by the _so-called_ beta-parameter:
+--  1. Polak-Ribiere
+--  2. Fletcher-Reeves
+--  3. Hestenes-Stiefel
+--  4. Dai-Yuan
+--
+-- Additionally this CG implementation defaults to a beta-damping
+-- factor to achieve a _smooth_ restart method, instead of
+-- abrupt CG restarts when `beta < 0`, for instance.
 
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
@@ -15,15 +25,8 @@ local LBFGS = require "flos.optima.lbfgs"
 local CG = mc.class("CG", optim.Optimizer)
 
 function CG:initialize(tbl)
-   -- Wrapper which basically does nothing..
-   -- All variables are defined subsequently
-
-   -- this is the convergence tolerance of the gradient
-   self.tolerance = 0.02
-   self._optimized = false
-   
-   -- Maximum change in functional allowed (cut-off)
-   self.max_dF = 0.1
+   -- Initialize from generic optimizer
+   optim.Optimizer.initialize(self)
 
    -- Storing the previous steepest descent direction
    -- and the previous gradient
@@ -48,9 +51,6 @@ function CG:initialize(tbl)
    --   negative (restarting when beta < 0)
    --   Powell (restart when orthogonality is low)
    self.restart = "Powell"
-
-   -- Counter for # of iterations
-   self.niter = 0
 
    -- Ensure we update the elements as passed
    -- by new(...)
@@ -102,10 +102,10 @@ end
 -- All history will be cleared and the algorithm will restart the CG
 -- optimization from scratch.
 function CG:reset()
-   self.niter = 0
+   optim.Optimizer.reset(self)
    self.G0, self.G = nil, nil
    self.conj0, self.conj = nil, nil
-   self.line
+   self.line:reset()
 end
 
 
@@ -267,6 +267,9 @@ function CG:info()
    elseif self.beta == "DY" then
       print("CG: beta method: Dai-Yuan")
    end
+   print("CG: beta-damping "..tostring(self.beta_damping))
+   print("CG: Restart "..tostring(self.restart))
+
    print("CG: Tolerance "..tostring(self.tolerance))
    print("CG: Iterations "..tostring(self.niter))
 

@@ -1,16 +1,45 @@
-
---[[ 
-Create a table with the default classes for optimization.
---]]
+---
+-- Basic optimization class that is to be inherited by all the
+-- optimization classes.
+-- @classmod Optimizer
+-- The basic class used for optimization routines.
 
 local mc = require "flos.middleclass.middleclass"
 
 -- Add the LBFGS optimization to the returned
 -- optimization table.
-local opt = mc.class('Optimizer')
+local Optimizer = mc.class('Optimizer')
 
--- Function to determine whether the an algorithm has converged
-function opt.optimized(self, G)
+--- Initialization routine for all optimizers
+function Optimizer:initialize()
+
+   -- Currently reached iteration
+   self.niter = 0
+
+   -- Specify the maximum step of the variables
+   self.max_dF = 0.1
+   
+   -- this is the convergence tolerance of the gradient
+   self.tolerance = 0.02
+
+   -- Whether the optimization algorithm has been optimized
+   self._optimized = false
+
+end
+
+--- Reset default variables, such as the number of iterations
+function Optimizer:reset()
+   self.niter = 0
+end
+
+--- Check whether the optimization routine has been optimized
+-- such that the maximum vector norm of the gradient is below
+-- a given tolerance.
+-- @param[opt] G the gradient `Array` to check for convergence
+-- @return a boolean of whether the gradient is below the tolerance
+--    if `G` is `nil`, it returns the last status of this function
+--    call.
+function Optimizer:optimized(G)
 
    -- Return stored optimized quantity if G is not
    -- passed
@@ -34,5 +63,5 @@ function opt.optimized(self, G)
    
 end
 
-
-return {Optimizer = opt}
+-- Return table
+return {Optimizer = Optimizer}

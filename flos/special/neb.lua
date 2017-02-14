@@ -8,10 +8,9 @@ local mc = require "flos.middleclass.middleclass"
 local array = require "flos.num"
 local ferror = require "flos.error"
 local error = ferror.floserr
-local optim = require "flos.optima.base"
 
 -- Create the NEB class (inheriting the Optimizer construct)
-local NEB = mc.class("NEB", optim.Optimizer)
+local NEB = mc.class("NEB")
 
 function NEB:initialize(images, climbing, k)
 

@@ -13,13 +13,8 @@ local LBFGS = require "flos.optima.lbfgs"
 local Line = mc.class("Line", optim.Optimizer)
 
 function Line:initialize(tbl)
-
-   -- this is the convergence tolerance of the gradient
-   self.tolerance = 0.02
-   self._optimized = false
-   
-   -- Maximum change in functional allowed (cut-off)
-   self.max_dF = 0.1
+   -- Initialize from generic optimizer
+   optim.Optimizer.initialize(self)
 
    -- The initial direction of the line-search
    self.direction = nil
@@ -29,8 +24,6 @@ function Line:initialize(tbl)
 
    -- Initialize method to check
    self.optimizer = nil
-
-   self.niter = 0
 
    -- Ensure we update the elements as passed
    -- by new(...)
@@ -54,10 +47,10 @@ end
 -- Basically all variables that
 -- are set should be reset
 function Line:reset()
+   optim.Optimizer.reset(self)
    self.direction = nil
    self.initial = nil
    self.alpha = 1.
-   self.niter = 0
    self.optimizer:reset()
 end
 

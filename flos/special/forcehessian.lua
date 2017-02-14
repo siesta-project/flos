@@ -9,7 +9,6 @@ local mc = require "flos.middleclass.middleclass"
 
 local ferr = require "flos.error"
 local error = ferr.floserr
-local optim = require "flos.optima.base"
 
 -- Class for performing force-constant runs
 local ForceHessian = mc.class('ForceHessian')

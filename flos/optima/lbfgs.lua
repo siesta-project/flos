@@ -13,8 +13,8 @@ local optim = require "flos.optima.base"
 local LBFGS = mc.class("LBFGS", optim.Optimizer)
 
 function LBFGS:initialize(tbl)
-   -- Wrapper which basically does nothing..
-   -- All variables are defined subsequently
+   -- Initialize from generic optimizer
+   optim.Optimizer.initialize(self)
 
    -- Damping of the BFGS algorithm
    --  damping > 1
@@ -32,16 +32,6 @@ function LBFGS:initialize(tbl)
    -- Number of history points used
    self.history = 100
 
-   -- Currently reached iteration
-   self.niter = 0
-
-   -- this is the convergence tolerance of the gradient
-   self.tolerance = 0.02
-   self._optimized = false
-   
-   -- Maximum change in functional allowed (cut-off)
-   self.max_dF = 0.1
-   
    -- Field of the functional we wish to optimize
    --
    --   F == optimization variable/functional
@@ -67,13 +57,14 @@ function LBFGS:initialize(tbl)
 	 self[k] = v
       end
    end
+
 end
 
 -- Reset the algorithm
 -- Basically all variables that
 -- are set should be reset
 function LBFGS:reset()
-   self.niter = 0
+   optim.Optimizer.reset(self)
    self.F0 = {}
    self.G0 = {}
    self.dF = {}
