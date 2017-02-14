@@ -17,6 +17,7 @@ As an example the following bash commands enables the library:
 
     cd $HOME
     git clone https://github.com/siesta-project/flos.git
+	cd flos
 	git submodule init
 	git submodule update
 	export LUA_PATH="$HOME/flos/?.lua;$HOME/flos/?/init.lua;$LUA_PATH"
