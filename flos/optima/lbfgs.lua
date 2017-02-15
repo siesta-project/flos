@@ -158,7 +158,7 @@ function LBFGS:optimize(F, G)
    self:add_history(F, G)
 
    -- Retrieve current iteration count
-   local iter = self:iteration()
+   local iter = m.min(self:iteration(), self.history)
 
    -- Create local pointers to tables
    -- (they are tables, hence by-reference)
@@ -209,11 +209,11 @@ end
 function LBFGS:info()
 
    print("")
-   local it = self:iteration()
-   if self:iteration() == 0 then
+   local it = m.min(self:iteration(), self.history)
+   if it == 0 then
       print("LBFGS: history: " .. self.history)
    else
-      print("LBFGS: current / history: "..tostring(m.min(it, self.history)) .. " / "..self.history)
+      print("LBFGS: current / history: "..tostring(it) .. " / "..self.history)
    end
    print("LBFGS: damping "..tostring(self.damping))
    print("LBFGS: H0 "..tostring(self.H0))
