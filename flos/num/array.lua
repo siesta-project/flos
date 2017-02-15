@@ -248,6 +248,33 @@ function Array:set_linear(i, v)
 end
 
 
+--- Return the Array as a copy with every element mapped through the given function
+-- The function should accept a single value, and return a single value (not a table).
+-- @param func the cast function
+-- @return an Array with every element mapped through the function `func`
+function Array:map(func)
+   local ar = Array( self.shape:copy() )
+
+   -- Now create all values
+   if #ar.shape == 1 then
+
+      -- Process all elements
+      for i = 1, #ar do
+	 ar[i] = func(self[i])
+      end
+
+   else
+
+      -- Process all dimensions
+      for i = 1, #ar do
+	 ar[i] = self[i]:map(func)
+      end
+
+   end
+
+   return ar
+end
+
 --- Return a deep copy of the Array with a different shape
 -- @param ... the new shape of the array, any of the provided dimension
 --   sizes may be a 0 (or `nil`) which indicates that the length of said

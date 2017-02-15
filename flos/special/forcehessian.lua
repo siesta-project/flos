@@ -26,7 +26,9 @@ function ForceHessian:initialize(xa, indices, displacement, mass)
    -- We copy them because we need to be sure that they
    -- work
    self.xa = xa:copy()
-   self.indices = indices
+
+   -- Ensure that everything is an integer
+   self.indices = indices:map(m.tointeger)
 
    self:set_displacement(displacement)
    -- Optional argument
