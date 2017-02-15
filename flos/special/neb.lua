@@ -272,6 +272,9 @@ function NEB:save(IO)
       return
    end
 
+   -- local E0
+   local E0 = self[0].E
+
    -- Now setup the matrix to write the NEB-results
    local dat = array.Array( self.n_images + 2, 6)
    for i = 0, self.n_images + 1 do
@@ -287,12 +290,8 @@ function NEB:save(IO)
       end
       -- Total energy of current iteration
       row[3] = self[i].E
-      -- Energy difference from previous reaction coordinate
-      if i == 0 then
-	 row[4] = 0.
-      else
-	 row[4] = self[i].E - self[i-1].E
-      end
+      -- Energy difference from initial image
+      row[4] = self[i].E - E0
       -- Image curvature
       if i == 0 or i == self.n_images + 1 then
 	 row[5] = 0.
