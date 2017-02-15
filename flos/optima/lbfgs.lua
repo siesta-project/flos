@@ -1,8 +1,6 @@
---[[ 
-This module implements the L-BFGS algorithm
-for minimization of a functional with an accompanying
-gradient.
---]]
+---
+-- Implementation of the limited memory BFGS algorithm
+-- @classmod LBFGS
 
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
@@ -76,7 +74,7 @@ end
 --- Normalize the parameter displacement to a given max-change.
 -- The LBFGS algorithm always perfoms a global correction to maintain
 -- the minimization direction.
--- @param dF the parameter displacements that are to be normalized
+-- @Array dF the parameter displacements that are to be normalized
 -- @return the normalized `dF` according to the `global` or `local` correction
 function LBFGS:correct_dF(dF)
 
@@ -100,8 +98,8 @@ end
 
 --- Add the current optimization variable and the gradient variable to the history.
 -- This function calculates the residuals and updates the kernel of the residual dot-product.
--- @param F the parameters for the function
--- @param G the gradient of the function with the parameters `F`
+-- @Array F the parameters for the function
+-- @Array G the gradient of the function with the parameters `F`
 function LBFGS:add_history(F, G)
 
    -- Retrieve the current iteration step.
@@ -150,8 +148,8 @@ end
 
 
 --- Perform a LBFGS step with input parameters `F` and gradient `G`
--- @param F the parameters for the function
--- @param G the gradient for the function with parameters `F`
+-- @Array F the parameters for the function
+-- @Array G the gradient for the function with parameters `F`
 -- @return a new set of parameters which should converge towards a
 --   local minimum point.
 function LBFGS:optimize(F, G)

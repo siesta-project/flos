@@ -517,6 +517,7 @@ end
 
 
 --- Return the sum of cross-product of two arrays (only for 1D arrays with `#Array == 3`)
+-- @Array lhs the left-hand side of the operand
 -- @Array rhs the second operand of the cross-product
 -- @return an Array with the cross-product of the two vectors
 function Array.cross(lhs, rhs)
@@ -555,6 +556,7 @@ end
 
 --- Wrapper for doing a linear dot-product between any two ND arrays, the only
 -- requirement is that they have the same total size.
+-- @Array lhs the first operand of the dot-product
 -- @Array rhs the second operand of the dot-product
 -- @return the value of the dot-product
 function Array.flatdot(lhs, rhs)
@@ -577,6 +579,7 @@ end
 -- for ND arrays the shapes must fulfil self.shape[#self.shape] == other.shape[1],
 -- as well as all dimensions self.shape[1:#self.shape-2] == other.shape[3:].reverse().
 -- Note that for 2D Arrays this is equivalent to matrix-multiplication.
+-- @Array lhs the first operand of the dot-product.
 -- @Array rhs the second operand of the dot-product.
 -- @return a single value if both Arrays are 1D, else a new Array is returned.
 function Array.dot(lhs, rhs)

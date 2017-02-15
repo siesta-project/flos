@@ -95,14 +95,14 @@ end
 
 
 --- Set the velocity for the FIRE algorithm
--- @param V an `Array` which has the atomic velocities
+-- @Array V an `Array` which has the atomic velocities
 function FIRE:set_velocity(V)
    -- Set the internal current velocity
    self.V = V:copy()
 end
 
 --- Set the masses for all atoms.
--- @param mass may either be a single number (all atoms have same mass), or an `Array`
+-- @Array mass may either be a single number (all atoms have same mass), or an `Array`
 --    which may contain different masses per atom.
 function FIRE:set_mass(mass)
    if mass == nil then
@@ -126,7 +126,7 @@ end
 -- The FIRE algorithm has an option which determines whether
 -- a global normalization occurs (maintain gradient), or
 -- whether a local normalization takes place.
--- @param dF the parameter displacements that are to be normalized
+-- @Array dF the parameter displacements that are to be normalized
 -- @return the normalized `dF` according to the `global` or `local` correction
 function FIRE:correct_dF(dF)
 
@@ -168,8 +168,8 @@ end
 
 
 --- Perform a FIRE step with input parameters `F` and gradient `G`
--- @param F the parameters for the function
--- @param G the gradient for the function with parameters `F`
+-- @Array F the parameters for the function
+-- @Array G the gradient for the function with parameters `F`
 -- @return a new set of parameters which should converge towards a
 --   local minimum point.
 function FIRE:optimize(F, G)
@@ -294,8 +294,8 @@ end
 --
 -- If one desires to use another MD-stepping algorithm one may
 -- overload this function.
--- @param V the velocities
--- @param G the gradient
+-- @Array V the velocities
+-- @Array G the gradient
 -- @return the step size of the parameters
 function FIRE:MD(V, G)
    -- V == velocity

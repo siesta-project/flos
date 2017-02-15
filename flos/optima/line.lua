@@ -1,7 +1,10 @@
---[[ 
-This module implements a simple line search method which
-may be subclassed and improved.
---]]
+---
+-- Implementation of a line minimizer algorithm
+-- @classmod Line
+-- A simple implementation of a line minimizer.
+-- This line-minimization algorithm may use any (default to `LBFGS`)
+-- optimizer and will optimize a given direction by projecting the
+-- gradient onto an initial gradient direction.
 
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
@@ -43,9 +46,18 @@ function Line:initialize(tbl)
 
 end
 
--- Reset the algorithm
--- Basically all variables that
--- are set should be reset
+
+--- Define the gradient direction we should minimize, with the accompanying initial
+-- parameters.
+-- @Array F the initial parameters
+-- @Array G the direction to be sampled
+function Line:set_direction(F, G)
+   self.initial = F:copy()
+   self.direction = G:copy()
+   self.alpha = 0.
+end
+
+--- Reset the Line algorithm by resetting the direction
 function Line:reset()
    optim.Optimizer.reset(self)
    self.direction = nil
@@ -55,30 +67,45 @@ function Line:reset()
 end
 
 
--- Return the projected gradient along the line-search
+--- Return a gradient projected onto the internal specified direction
+-- @Array G the input gradient
+-- @return `G` projected onto the internal gradient direction
 function Line:projection(G)
    return G:project(self.direction)
 end
 
--- Special optimized routine for a line-search
+
+--- Query whether the line minimization method has been optimized
+-- The input gradient will be projected onto the direction before
+-- the optimization will be checked.
+-- @Array[opt] G input gradient
+-- @return whether the line minimization has been minimized
 function Line:optimized(G)
    
    -- determine if the projected gradient has been optimized
-   return optim.Optimizer.optimized(self, self:projection(G))
+   if G == nil then
+      return optim.Optimizer.optimized(self)
+   else
+      return optim.Optimizer.optimized(self, self:projection(G))
+   end
 
 end
 
--- Calculate the optimized variable (F) which
--- minimizes the gradient (G).
+
+--- Calculates the next parameter set such that the gradient is minimized
+-- along the direction.
+--
+-- If the internal gradient direction has not been initialized the first
+-- gradient will be chosen as the direction, @see set_direction.
+-- @Array F input parameters for the function
+-- @Array G gradient for the function with the parameters `F`
+-- @return a new set of optimized coordinates
 function Line:optimize(F, G)
 
    -- Create initial direction
    if self.direction == nil then
-      
-      self.initial = F:copy()
-      self.direction = G:copy()
-      -- Reset alpha to zero
-      self.alpha = 0.
+
+      self:set_direction(F, G)
       
    end
 
@@ -100,7 +127,7 @@ function Line:info()
    
    print("")
    print("Line: line search:")
-   print("Line: iterations " .. tostring(self.niter))
+   print("Line: iterations " .. tostring(self:iteration()))
    self.optimizer:info()
    print("")
 

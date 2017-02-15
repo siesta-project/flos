@@ -1,6 +1,6 @@
 project='flos'
 title='flos documentation'
-description='A Lua optimization library for linking with SIESTA'
+description='A Lua library for linking with SIESTA'
 format='discount'
 backtick_references=false
 readme='README.md'

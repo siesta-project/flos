@@ -110,8 +110,8 @@ end
 
 
 --- Add the current parameters and the gradient for those to the history
--- @param F the parameters
--- @param G the gradient for the function with the parameters `F`
+-- @Array F the parameters
+-- @Array G the gradient for the function with the parameters `F`
 function CG:add_history(F, G)
 
    -- Cycle data
@@ -127,8 +127,8 @@ end
 
 --- Returns the optimized parameters which should minimize the function
 -- with respect to the current conjugate gradient
--- @param F the parameters for the function
--- @param G the gradient for the parameters
+-- @Array F the parameters for the function
+-- @Array G the gradient for the parameters
 -- @return a new set of parameters to be used for the function
 function CG:optimize(F, G)
 

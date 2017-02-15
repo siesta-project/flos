@@ -43,7 +43,7 @@ end
 --- Check whether the optimization routine has been optimized
 -- such that the maximum vector norm of the gradient is below
 -- a given tolerance.
--- @param[opt] G the gradient `Array` to check for convergence
+-- @Array[opt] G the gradient to check for convergence
 -- @return a boolean of whether the gradient is below the tolerance
 --    if `G` is `nil`, it returns the last status of this function
 --    call.
