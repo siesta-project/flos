@@ -69,6 +69,7 @@ function CG:initialize(tbl)
 end
 
 --- Internal routine for correcting the passed options
+-- @local
 function CG:_correct()
 
    -- Check beta method

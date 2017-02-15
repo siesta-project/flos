@@ -103,7 +103,6 @@ function siesta_comm()
 
    if siesta.state == siesta.MOVE then
       
-      -- Here we are doing the actual LBFGS algorithm.
       -- We retrieve the current coordinates, the forces
       -- and whether the geometry has relaxed
       siesta_get({"geom.xa",

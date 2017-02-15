@@ -1,10 +1,28 @@
 ---
 -- Implementation of a line minimizer algorithm
 -- @classmod Line
+-- The `Line` class optimizes a set of parameters for a function
+-- such that the gradient projected onto a gradient-direction will be minimized.
+-- I.e. it finds the minimum of a function on a gradient line such that the
+-- _true_ gradient is orthogonal to the direction.
+--
 -- A simple implementation of a line minimizer.
 -- This line-minimization algorithm may use any (default to `LBFGS`)
 -- optimizer and will optimize a given direction by projecting the
 -- gradient onto an initial gradient direction.
+--
+-- @usage
+-- line0 = Line:new()
+-- -- The default direction will be the gradient passed for in the
+-- -- first `optimize` call.
+-- line0:optimize(F, G)
+--
+-- line1 = Line:new(optimizer = flos.LBFGS:new())
+-- -- This is equivalent to the above case, but we explicitly define
+-- -- the minimization direction, and the optimizer.
+-- line1:set_direction(F, G)
+-- line1:optimize(F, G)
+
 
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
@@ -14,6 +32,22 @@ local LBFGS = require "flos.optima.lbfgs"
 
 -- Create the line search class (inheriting the Optimizer construct)
 local Line = mc.class("Line", optim.Optimizer)
+
+--- Instantiating a new `Line` object
+--
+-- The parameters _must_ be specified with a table of fields and values.
+--
+-- @usage
+-- Line:new({<field1 = value>, <field2 = value>})
+--
+-- @function Line:new
+-- @Array[opt] direction the line direction (defaults to the first optimization gradient that `Line` gets called with)
+-- @Optimizer[opt] optimizer the optimization method used to minimize along the direction (defaults to the `LBFGS` optimizer, @see LBFGS)
+-- @param[opt=0.1] max_dF the maximum change in parameters allowed
+-- @param[opt=0.02] tolerance maximum norm of the gradient that is allowed to converge
+local function doc_function()
+end
+
 
 function Line:initialize(tbl)
    -- Initialize from generic optimizer
@@ -38,10 +72,9 @@ function Line:initialize(tbl)
    
    if self.optimizer == nil then
       -- The optimization method
-      self.optimizer = LBFGS(
-	 { tolerance = self.tolerance,
-	   max_dF = self.max_dF,
-	 })
+      self.optimizer = LBFGS:new{ tolerance = self.tolerance,
+				  max_dF = self.max_dF,
+      }
    end
 
 end
@@ -64,14 +97,6 @@ function Line:reset()
    self.initial = nil
    self.alpha = 1.
    self.optimizer:reset()
-end
-
-
---- Return a gradient projected onto the internal specified direction
--- @Array G the input gradient
--- @return `G` projected onto the internal gradient direction
-function Line:projection(G)
-   return G:project(self.direction)
 end
 
 
@@ -122,7 +147,15 @@ function Line:optimize(F, G)
 end
 
 
--- Print information regarding the Line algorithm
+--- Return a gradient projected onto the internal specified direction
+-- @Array G the input gradient
+-- @return `G` projected onto the internal gradient direction
+function Line:projection(G)
+   return G:project(self.direction)
+end
+
+
+--- Print information regarding the Line algorithm
 function Line:info()
    
    print("")

@@ -1,6 +1,6 @@
---[[ 
-This module implements the NEB algorithm.
---]]
+---
+-- NEB class
+-- @classmod NEB
 
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
