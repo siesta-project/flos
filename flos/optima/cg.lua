@@ -109,12 +109,6 @@ function CG:reset()
 end
 
 
---- Return current iteration count
--- @return the iteration count
-function CG:iteration()
-   return self.niter
-end
-
 --- Add the current parameters and the gradient for those to the history
 -- @param F the parameters
 -- @param G the gradient for the function with the parameters `F`

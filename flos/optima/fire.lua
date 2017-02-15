@@ -121,12 +121,6 @@ function FIRE:set_mass(mass)
    end
 end
 
---- Query number of iterations the FIRE algorithm has runned.
--- @return number of iterations
-function FIRE:iteration()
-   return self.niter
-end
-
 
 --- Normalize the parameter displacement to a given max-change.
 -- The FIRE algorithm has an option which determines whether

@@ -60,9 +60,7 @@ function LBFGS:initialize(tbl)
 
 end
 
--- Reset the algorithm
--- Basically all variables that
--- are set should be reset
+--- Reset the LBFGS algorithm
 function LBFGS:reset()
    optim.Optimizer.reset(self)
    self.F0 = {}
@@ -73,14 +71,13 @@ function LBFGS:reset()
    self.weight = 1.
 end
 
--- Function to return the current iteration count
-function LBFGS:iteration()
-   return m.min(self.niter, self.history)
-end
 
--- Correct the step-size (change of optimization variable)
--- by asserting that the norm of each vector is below
--- a given threshold.
+
+--- Normalize the parameter displacement to a given max-change.
+-- The LBFGS algorithm always perfoms a global correction to maintain
+-- the minimization direction.
+-- @param dF the parameter displacements that are to be normalized
+-- @return the normalized `dF` according to the `global` or `local` correction
 function LBFGS:correct_dF(dF)
 
    -- Calculate the maximum norm
@@ -101,16 +98,16 @@ function LBFGS:correct_dF(dF)
    
 end
 
--- Add the current optimization variable and the
--- gradient variable to the history.
--- This function calculates the residuals
--- and updates the kernel of the residual dot-product.
+--- Add the current optimization variable and the gradient variable to the history.
+-- This function calculates the residuals and updates the kernel of the residual dot-product.
+-- @param F the parameters for the function
+-- @param G the gradient of the function with the parameters `F`
 function LBFGS:add_history(F, G)
 
    -- Retrieve the current iteration step.
    -- With respect to the history and total
    -- iteration count.
-   local iter = self:iteration()
+   local iter = m.min(self:iteration(), self.history)
 
    -- If the current iteration count is
    -- more than or equal to one, it means that
@@ -150,8 +147,13 @@ function LBFGS:add_history(F, G)
 
 end
 
--- Calculate the optimized variable (F) which
--- minimizes the gradient (G).
+
+
+--- Perform a LBFGS step with input parameters `F` and gradient `G`
+-- @param F the parameters for the function
+-- @param G the gradient for the function with parameters `F`
+-- @return a new set of parameters which should converge towards a
+--   local minimum point.
 function LBFGS:optimize(F, G)
    
    -- Add the current iteration to the history
@@ -204,14 +206,16 @@ function LBFGS:optimize(F, G)
       
 end
 
--- Print information regarding the LBFGS algorithm
+
+--- Print information regarding the LBFGS algorithm
 function LBFGS:info()
 
    print("")
+   local it = self:iteration()
    if self:iteration() == 0 then
       print("LBFGS: history: " .. self.history)
    else
-      print("LBFGS: current / history: "..tostring(self:iteration()) .. " / "..self.history)
+      print("LBFGS: current / history: "..tostring(m.min(it, self.history)) .. " / "..self.history)
    end
    print("LBFGS: damping "..tostring(self.damping))
    print("LBFGS: H0 "..tostring(self.H0))

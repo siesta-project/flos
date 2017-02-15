@@ -32,6 +32,14 @@ function Optimizer:reset()
    self.niter = 0
 end
 
+
+--- Query number of iterations this method has runned
+-- @return number of iterations this optimization method has runned
+function Optimizer:iteration()
+   return self.niter
+end
+
+
 --- Check whether the optimization routine has been optimized
 -- such that the maximum vector norm of the gradient is below
 -- a given tolerance.
