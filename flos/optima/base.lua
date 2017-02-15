@@ -10,6 +10,18 @@ local mc = require "flos.middleclass.middleclass"
 -- optimization table.
 local Optimizer = mc.class('Optimizer')
 
+--- Instantiating a new `Optimizer` object, this is a child-class
+-- and all inherited parents should call this function.
+--
+-- @usage
+-- Optimizer:new({<field1 = value>, <field2 = value>})
+--
+-- @function Optimizer:new
+-- @param[opt=0.1] max_dF the maximum change in parameters allowed
+-- @param[opt=0.02] tolerance maximum norm of the gradient that is allowed to converge
+local function doc_function()
+end
+
 --- Initialization routine for all optimizers
 function Optimizer:initialize()
 
@@ -45,8 +57,8 @@ end
 -- a given tolerance.
 -- @Array[opt] G the gradient to check for convergence
 -- @return a boolean of whether the gradient is below the tolerance
---    if `G` is `nil`, it returns the last status of this function
---    call.
+--   if `G` is `nil`, it returns the last status of this function
+--   call.
 function Optimizer:optimized(G)
 
    -- Return stored optimized quantity if G is not

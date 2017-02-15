@@ -10,6 +10,23 @@ local optim = require "flos.optima.base"
 -- Create the LBFGS class (inheriting the Optimizer construct)
 local LBFGS = mc.class("LBFGS", optim.Optimizer)
 
+
+--- Instantiating a new `LBFGS` object
+--
+-- The parameters _must_ be specified with a table of fields and values.
+--  
+-- @see Optimizer:new
+--
+-- @usage
+-- LBFGS:new({<field1 = value>, <field2 = value>})
+--
+-- @function LBFGS:new
+-- @param[opt=1] damping damping parameter for the parameter change
+-- @param[opt=1/75] H0 initial Hessian value, larger values are more safe, but takes possibly longer to converge
+-- @param[opt=100] history number of previous steps used when calculating the new Hessian
+local function doc_function()
+end
+
 function LBFGS:initialize(tbl)
    -- Initialize from generic optimizer
    optim.Optimizer.initialize(self)
@@ -58,7 +75,7 @@ function LBFGS:initialize(tbl)
 
 end
 
---- Reset the LBFGS algorithm
+--- Reset the `LBFGS` object
 function LBFGS:reset()
    optim.Optimizer.reset(self)
    self.F0 = {}
@@ -205,7 +222,7 @@ function LBFGS:optimize(F, G)
 end
 
 
---- Print information regarding the LBFGS algorithm
+--- Print information regarding the `LBFGS` object
 function LBFGS:info()
 
    print("")

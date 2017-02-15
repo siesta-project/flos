@@ -36,15 +36,16 @@ local Line = mc.class("Line", optim.Optimizer)
 --- Instantiating a new `Line` object
 --
 -- The parameters _must_ be specified with a table of fields and values.
+-- In addition to the parameters indicated.
+-- @see Optimizer:new
+-- @see LBFGS
 --
 -- @usage
 -- Line:new({<field1 = value>, <field2 = value>})
 --
 -- @function Line:new
 -- @Array[opt] direction the line direction (defaults to the first optimization gradient that `Line` gets called with)
--- @Optimizer[opt] optimizer the optimization method used to minimize along the direction (defaults to the `LBFGS` optimizer, @see LBFGS)
--- @param[opt=0.1] max_dF the maximum change in parameters allowed
--- @param[opt=0.02] tolerance maximum norm of the gradient that is allowed to converge
+-- @Optimizer[opt] optimizer the optimization method used to minimize along the direction (defaults to the `LBFGS` optimizer)
 local function doc_function()
 end
 

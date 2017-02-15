@@ -1,10 +1,12 @@
 project='flos'
 title='flos documentation'
 description='A Lua library for linking with SIESTA'
-format='discount'
-backtick_references=false
+format='markdown'
+backtick_references=true
 readme='README.md'
 not_luadoc='true'
+plain=false
+wrap=true
 style='!pale'
 dir='flos-doc'
 kind_names={topic='Manual',script='Programs'}
