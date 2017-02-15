@@ -81,9 +81,9 @@ function FIRE:initialize(tbl)
 
 end
 
--- Reset the algorithm
--- Basically all variables that
--- are set should be reset
+
+--- Reset FIRE algorithm by resetting initial parameters (`dt` and `alpha`)
+-- All masses are also set to 1.
 function FIRE:reset()
    optim.Optimizer.reset(self)
    self.dt = self.dt_init
@@ -93,13 +93,17 @@ function FIRE:reset()
    end
 end
 
--- Initialiaze the velocities
+
+--- Set the velocity for the FIRE algorithm
+-- @param V an `Array` which has the atomic velocities
 function FIRE:set_velocity(V)
    -- Set the internal current velocity
    self.V = V:copy()
 end
 
--- Update the masses, if nil, all masses will be the same
+--- Set the masses for all atoms.
+-- @param mass may either be a single number (all atoms have same mass), or an `Array`
+--    which may contain different masses per atom.
 function FIRE:set_mass(mass)
    if mass == nil then
       -- Create fake mass with all same masses
@@ -113,18 +117,23 @@ function FIRE:set_mass(mass)
 				    end,
 			       })
    else
-      self.mass = mass
+      self.mass = mass:copy()
    end
 end
 
--- Function to return the current iteration count
+--- Query number of iterations the FIRE algorithm has runned.
+-- @return number of iterations
 function FIRE:iteration()
    return self.niter
 end
 
--- Correct the step-size (change of optimization variable)
--- by asserting that the norm of each vector is below
--- a given threshold.
+
+--- Normalize the parameter displacement to a given max-change.
+-- The FIRE algorithm has an option which determines whether
+-- a global normalization occurs (maintain gradient), or
+-- whether a local normalization takes place.
+-- @param dF the parameter displacements that are to be normalized
+-- @return the normalized `dF` according to the `global` or `local` correction
 function FIRE:correct_dF(dF)
 
    if self.correct == "global" then
@@ -163,8 +172,12 @@ function FIRE:correct_dF(dF)
    
 end
 
--- Calculate the step for the FIRE algorithm,
--- eventually the gradient should be minimized
+
+--- Perform a FIRE step with input parameters `F` and gradient `G`
+-- @param F the parameters for the function
+-- @param G the gradient for the function with parameters `F`
+-- @return a new set of parameters which should converge towards a
+--   local minimum point.
 function FIRE:optimize(F, G)
 
    if self.V == nil then
@@ -280,8 +293,16 @@ function FIRE:optimize(F, G)
    return F + dF
 end
 
--- Regular MD step by a given velocity, and force
--- Then this returns a dF which is the step of the parameters F
+
+--- Internal function for performing an MD step
+-- This routine performs an Euler step with mid-point correction
+-- which takes into account the end-point gradient position as well.
+--
+-- If one desires to use another MD-stepping algorithm one may
+-- overload this function.
+-- @param V the velocities
+-- @param G the gradient
+-- @return the step size of the parameters
 function FIRE:MD(V, G)
    -- V == velocity
    -- G == gradient/force
@@ -298,7 +319,7 @@ function FIRE:MD(V, G)
 end
 
 
--- Print information regarding the FIRE algorithm
+--- Print information regarding the FIRE algorithm
 function FIRE:info()
 
    print("")
