@@ -62,10 +62,7 @@ function siesta_comm()
 
 
       -- Print information
-      if siesta.IONode then
-	 -- empty line
-	 print("\nLUA convergence information for the LBFGS algorithms:")
-      end
+      IOprint("\nLUA convergence information for the LBFGS algorithms:")
 
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
@@ -138,8 +135,8 @@ function siesta_move(siesta)
       s = s .. ", " .. string.format("%7.4f", weight[i])
       
    end
-   if siesta.IONode and #CG > 1 then
-      print("\nCG weighted average: ", s:sub(3))
+   if #CG > 1 then
+      IOprint("\nCG weighted average: ", s:sub(3))
    end
 
    -- Calculate the new coordinates and figure out

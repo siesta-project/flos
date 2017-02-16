@@ -52,9 +52,7 @@ function siesta_comm()
       -- Overwrite to ensure we start from the beginning
       siesta.Mesh.Cutoff.Minimum = cutoff[icutoff]
 
-      if siesta.IONode then
-	 print( ("\nLUA: starting mesh-cutoff: %8.3f Ry\n"):format(cutoff[icutoff]) )
-      end
+      IOprint( ("\nLUA: starting mesh-cutoff: %8.3f Ry\n"):format(cutoff[icutoff]) )
 
       ret_tbl = {"Mesh.Cutoff.Minimum"}
 

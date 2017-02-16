@@ -81,10 +81,7 @@ function siesta_comm()
       end
 
       -- Print information
-      if siesta.IONode then
-	 -- empty line
-	 print("\nLUA convergence information for the LBFGS algorithms:")
-      end
+      IOprint("\nLUA convergence information for the LBFGS algorithms:")
 
       -- Store the initial cell (global variable)
       cell_first = flos.Array.from(siesta.geom.cell) / Unit.Ang
@@ -180,8 +177,8 @@ function siesta_move(siesta)
       weight[i] = weight[i] / sum_w
       s = s .. ", " .. string.format("%7.4f", weight[i])
    end
-   if siesta.IONode and #LBFGS > 1 then
-      print("\nLBFGS weighted average: ", s:sub(3))
+   if #LBFGS > 1 then
+      IOprint("\nLBFGS weighted average: ", s:sub(3))
    end
 
    -- Calculate the new optimized strain that should

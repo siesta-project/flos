@@ -61,11 +61,8 @@ function siesta_comm()
 		  "MD.MaxForceTol"})
 
 
-      -- Print information
-      if siesta.IONode then
-	 -- empty line
-	 print("\nLUA convergence information for the LBFGS algorithms:")
-      end
+      -- Print information (only on IONode)
+      IOprint("\nLUA convergence information for the LBFGS algorithms:")
 
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
@@ -132,8 +129,8 @@ function siesta_move(siesta)
       s = s .. ", " .. string.format("%7.4f", weight[i])
       
    end
-   if siesta.IONode and #LBFGS > 1 then
-      print("\nLBFGS weighted average: ", s:sub(3))
+   if #LBFGS > 1 then
+      IOprint("\nLBFGS weighted average: ", s:sub(3))
    end
 
    -- Calculate the new coordinates and figure out

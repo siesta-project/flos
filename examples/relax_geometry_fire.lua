@@ -60,10 +60,7 @@ function siesta_comm()
 		  "geom.mass"})
 
       -- Print information
-      if siesta.IONode then
-	 -- empty line
-	 print("\nLUA convergence information for the FIRE algorithms:")
-      end
+      IOprint("\nLUA convergence information for the FIRE algorithms:")
 
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
@@ -134,8 +131,8 @@ function siesta_move(siesta)
       s = s .. ", " .. string.format("%7.4f", weight[i])
       
    end
-   if siesta.IONode and #FIRE > 1 then
-      print("\nFIRE weighted average: ", s:sub(3))
+   if #FIRE > 1 then
+      IOprint("\nFIRE weighted average: ", s:sub(3))
    end
 
    -- Calculate the new coordinates and figure out

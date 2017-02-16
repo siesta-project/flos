@@ -92,19 +92,14 @@ function siesta_comm()
       end
 
       -- Print information
-      if siesta.IONode then
-	 -- empty line
-	 print("\nLUA convergence information for the LBFGS algorithms:")
-      end
+      IOprint("\nLUA convergence information for the LBFGS algorithms:")
 
       -- Store the initial cell (global variable)
       cell_first = flos.Array.from(siesta.geom.cell) / Unit.Ang
 
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
-      if siesta.IONode then
-	 print("Lattice optimization:")
-      end
+      IOprint("Lattice optimization:")
       for i = 1, #lattice do
 	 lattice[i].tolerance = siesta.MD.MaxStressTol * Unit.Ang ^ 3 / Unit.eV
 	 lattice[i].max_dF = siesta.MD.MaxDispl / Unit.Ang
@@ -115,9 +110,7 @@ function siesta_comm()
 	 end
       end
 
-      if siesta.IONode then
-	 print("\nGeometry optimization:")
-      end
+      IOprint("\nGeometry optimization:")
       for i = 1, #geom do
 	 geom[i].tolerance = siesta.MD.MaxForceTol * Unit.Ang / Unit.eV
 	 geom[i].max_dF = siesta.MD.MaxDispl / Unit.Ang
@@ -128,12 +121,10 @@ function siesta_comm()
 	 end
       end
 
-      if siesta.IONode then
-	 if relax_geom then
-	    print("\nLUA: Starting with geometry relaxation!\n")
-	 else
-	    print("\nLUA: Starting with cell relaxation!\n")
-	 end
+      if relax_geom then
+	 IOprint("\nLUA: Starting with geometry relaxation!\n")
+      else
+	 IOprint("\nLUA: Starting with cell relaxation!\n")
       end
       
    end
@@ -200,9 +191,7 @@ function siesta_move(siesta)
       -- Also initialize the initial strain
       strain = flos.Array.zeros(6)
 
-      if siesta.IONode then
-	 print("\nLUA: switching to cell relaxation!\n")
-      end
+      IOprint("\nLUA: switching to cell relaxation!\n")
       
    elseif (not relax_geom) and conv_lattice then
       
@@ -212,9 +201,7 @@ function siesta_move(siesta)
 	 lattice[i]:reset()
       end
 
-      if siesta.IONode then
-	 print("\nLUA: switching to geometry relaxation!\n")
-      end
+      IOprint("\nLUA: switching to geometry relaxation!\n")
 
    end
 
@@ -300,8 +287,8 @@ function siesta_geometry(siesta)
       s = s .. ", " .. string.format("%7.4f", weight[i])
       
    end
-   if siesta.IONode and #geom > 1 then
-      print("\nGeometry weighted average: ", s:sub(3))
+   if #geom > 1 then
+      IOprint("\nGeometry weighted average: ", s:sub(3))
    end
 
    -- Calculate the new coordinates and figure out
@@ -370,8 +357,8 @@ function siesta_cell(siesta)
       weight[i] = weight[i] / sum_w
       s = s .. ", " .. string.format("%7.4f", weight[i])
    end
-   if siesta.IONode and #lattice > 1 then
-      print("\nLattice weighted average: ", s:sub(3))
+   if #lattice > 1 then
+      IOprint("\nLattice weighted average: ", s:sub(3))
    end
 
    -- Calculate the new optimized strain that should

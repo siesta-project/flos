@@ -101,9 +101,7 @@ function siesta_comm()
       -- Ensure we update the convergence criteria
       -- from SIESTA (in this way one can ensure siesta options)
       for img = 1, NEB.n_images do
-	 if siesta.IONode then
-	    print(("\nLUA NEB relaxation method for image %d:"):format(img))
-	 end
+	 IOprint(("\nLUA NEB relaxation method for image %d:"):format(img))
 	 for i = 1, #relax[img] do
 	    relax[img][i].tolerance = siesta.MD.MaxForceTol * Unit.Ang / Unit.eV
 	    relax[img][i].max_dF = siesta.MD.MaxDispl / Unit.Ang
@@ -229,8 +227,8 @@ function siesta_move(siesta)
       end
       weight = weight / weight:sum()
 
-      if siesta.IONode and #relax[img] > 1 then
-	 print("\n weighted average for relaxation: ", tostring(weight))
+      if #relax[img] > 1 then
+	 IOprint("\n weighted average for relaxation: ", tostring(weight))
       end
       
       -- Calculate the new coordinates and figure out

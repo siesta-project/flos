@@ -75,10 +75,7 @@ function siesta_comm()
 		  "MD.FC.Last"})
 
       -- Print information
-      if siesta.IONode then
-	 -- empty line
-	 print("\nLUA Using the FC run")
-      end
+      IOprint("\nLUA Using the FC run")
 
       if displ == nil then
 	 -- Specify the displacement if the user requests
