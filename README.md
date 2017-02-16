@@ -7,6 +7,8 @@ the same `flo + SIESTA = flos`.
 This enables scripting level languages to inter-act and develop
 new MD schemes, such as new geometry constraints, geometry relaxations, etc.
 
+The API documentation may be found [here][flos-doc].
+
 ## Installation
 
 This Lua library may be used out of the box. To enable the use of this library
@@ -77,4 +79,5 @@ Now run SIESTA.
 
 
 [flook]: https://github.com/ElectronicStructureLibrary/flook
+[flos-doc]: https://siesta-project.github.com/flos/index.html
 [siesta]: https://launchpad.net/siesta
