@@ -935,6 +935,37 @@ function Array.__mul(lhs, rhs)
    return ret
 end
 
+--- Elementwise modulo (%) of two arrays (see `Array:__add`)
+-- @param lhs the first operand
+-- @param rhs the second operand
+-- @return an Array with `lhs % rhs`
+function Array.__mod(lhs, rhs)
+   local ret
+   if isArray(lhs) and isArray(rhs) then
+      local sh = lhs.shape:align(rhs.shape)
+      if sh == nil then
+	 error("flos.Array % requires the same shape for two different Arrays")
+      end
+      ret = Array( lhs.shape )
+      for i = 1, #lhs do
+	 ret[i] = lhs[i] % rhs[i]
+      end
+   elseif isArray(lhs) then
+      ret = Array( lhs.shape )
+      for i = 1, #lhs do
+	 ret[i] = lhs[i] % rhs
+      end
+   elseif isArray(rhs) then
+      ret = Array( rhs.shape )
+      for i = 1, #rhs do
+	 ret[i] = lhs % rhs[i]
+      end
+   else
+      error("flos.Array % could not figure out the types")
+   end
+   return ret
+end
+
 --- Elementwise division of two arrays (see `Array:__add`)
 -- @param lhs the first operand
 -- @param rhs the second operand
@@ -962,6 +993,37 @@ function Array.__div(lhs, rhs)
       end
    else
       error("flos.Array / could not figure out the types")
+   end
+   return ret
+end
+
+--- Elementwise floor division of two arrays (see `Array:__add`)
+-- @param lhs the first operand
+-- @param rhs the second operand
+-- @return an Array with `lhs // rhs`
+function Array.__idiv(lhs, rhs)
+   local ret
+   if isArray(lhs) and isArray(rhs) then
+      local sh = lhs.shape:align(rhs.shape)
+      if sh == nil then
+	 error("flos.Array // requires the same shape for two different Arrays")
+      end
+      ret = Array( lhs.shape )
+      for i = 1, #lhs do
+	 ret[i] = lhs[i] // rhs[i]
+      end
+   elseif isArray(lhs) then
+      ret = Array( lhs.shape )
+      for i = 1, #lhs do
+	 ret[i] = lhs[i] // rhs
+      end
+   elseif isArray(rhs) then
+      ret = Array( rhs.shape )
+      for i = 1, #rhs do
+	 ret[i] = lhs // rhs[i]
+      end
+   else
+      error("flos.Array // could not figure out the types")
    end
    return ret
 end
