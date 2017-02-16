@@ -17,8 +17,8 @@ local Optimizer = mc.class('Optimizer')
 -- Optimizer:new({<field1 = value>, <field2 = value>})
 --
 -- @function Optimizer:new
--- @param[opt=0.1] max_dF the maximum change in parameters allowed
--- @param[opt=0.02] tolerance maximum norm of the gradient that is allowed to converge
+-- @number[opt=0.1] max_dF the maximum change in parameters allowed
+-- @number[opt=0.02] tolerance maximum norm of the gradient that is allowed to converge
 local function doc_function()
 end
 

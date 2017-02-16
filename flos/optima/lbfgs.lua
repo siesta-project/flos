@@ -11,19 +11,25 @@ local optim = require "flos.optima.base"
 local LBFGS = mc.class("LBFGS", optim.Optimizer)
 
 
---- Instantiating a new `LBFGS` object
+--- Instantiating a new `LBFGS` object.
 --
--- The parameters _must_ be specified with a table of fields and values.
---  
--- @see Optimizer:new
+-- The LBFGS algorithm is a straight-forward optimization algorithm which requires
+-- very few arguments for a succesful optimization.
+-- The most important parameter is the initial Hessian value, which for large values (close to 1)
+-- may have difficulties in converging because it is more aggressive (keeps more of the initial
+-- gradient). The default value is rather safe and should enable optimization on most systems.
 --
 -- @usage
--- LBFGS:new({<field1 = value>, <field2 = value>})
+-- lbfgs = LBFGS:new({<field1 = value>, <field2 = value>})
+-- while not lbfgs:optimized() do
+--    F = lbfgs:optimize(F, G)
+-- end
 --
 -- @function LBFGS:new
--- @param[opt=1] damping damping parameter for the parameter change
--- @param[opt=1/75] H0 initial Hessian value, larger values are more safe, but takes possibly longer to converge
--- @param[opt=100] history number of previous steps used when calculating the new Hessian
+-- @number[opt=1] damping damping parameter for the parameter change
+-- @number[opt=1/75] H0 initial Hessian value, larger values are more safe, but takes possibly longer to converge
+-- @int[opt=25] history number of previous steps used when calculating the new Hessian
+-- @param ... any arguments `Optimizer:new` accepts
 local function doc_function()
 end
 
@@ -44,8 +50,8 @@ function LBFGS:initialize(tbl)
    -- Larger values are easier to converge
    self.H0 = 1. / 75.
 
-   -- Number of history points used
-   self.history = 100
+   -- Number of previous history points used
+   self.history = 25
 
    -- Field of the functional we wish to optimize
    --

@@ -37,7 +37,7 @@ local Line = mc.class("Line", optim.Optimizer)
 --
 -- The parameters _must_ be specified with a table of fields and values.
 -- In addition to the parameters indicated.
--- @see Optimizer:new
+--
 -- @see LBFGS
 --
 -- @usage
@@ -45,7 +45,7 @@ local Line = mc.class("Line", optim.Optimizer)
 --
 -- @function Line:new
 -- @Array[opt] direction the line direction (defaults to the first optimization gradient that `Line` gets called with)
--- @Optimizer[opt] optimizer the optimization method used to minimize along the direction (defaults to the `LBFGS` optimizer)
+-- @Optimizer[opt=`LBFGS`] optimizer the optimization method used to minimize along the direction (defaults to the `LBFGS` optimizer)
 local function doc_function()
 end
 

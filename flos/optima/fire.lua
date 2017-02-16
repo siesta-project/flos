@@ -13,6 +13,52 @@ local optim = require "flos.optima.base"
 -- Create the FIRE class (inheriting the Optimizer construct)
 local FIRE = mc.class("FIRE", optim.Optimizer)
 
+--- Instantiating a new `FIRE` object.
+--
+-- The parameters _must_ be specified with a table of fields and values.
+--
+-- The `FIRE` optimizer implements several variations of the original FIRE
+-- algorithm.
+--
+-- Here we allow to differentiate on how to normalize the displacements:
+--
+-- -  `correct` (argument for `FIRE:new`)
+--    - "global" perform a global normalization of the coordinates (maintain displacement direction)
+--    - "local" perform a local normalization (for each direction of each atom) (displacement direction is not maintained)
+-- -  `direction` (argument for `FIRE:new`)
+--    - "global" perform a global normalization of the velocities (maintain gradient direction)
+--    - "local" perform a local normalization of the velocity (for each atom) (gradient direction is not maintained)
+--
+-- This `FIRE` optimizer allows two variations of the scaling of the velocities
+-- and the resulting displacement.
+--
+-- The scaling of t
+--  one consider the FIRE algorithm 
+--
+--
+-- @usage
+-- fire = FIRE:new({<field1 = value>, <field2 = value>})
+-- while not fire:optimized() do
+--    F = fire:optimize(F, G)
+-- end
+--
+-- @function FIRE:new
+-- @number[opt=1] dt_init initial time-step
+-- @number[opt=10*dt_init] dt_max maximum time-step allowed
+-- @number[opt=1.1] f_inc factor used to increase time-step
+-- @number[opt=0.5] f_dec factor used to decrease time-step
+-- @number[opt=0.99] f_alpha factor used to decrease alpha-parameter
+-- @number[opt=1] alpha_init initial alpha-parameter
+-- @int[opt=5] N_min minimum number of iterations performed before time-step may be increased
+-- @string[opt="global"] correct how the new parameters are rescaled, `"global"` or `"local"`
+-- @string[opt="global"] direction how the velocity pparameter is scaled, `"global"` or `"local"`
+-- @param[opt=1] mass either a `table` or a `number`, control individually the masses of each atom
+-- @Optimizer[opt] optimizer the optimization method used to minimize along the direction (defaults to the `LBFGS` optimizer)
+-- @param ... any arguments `Optimizer:new` accepts
+local function doc_function()
+end
+
+
 function FIRE:initialize(tbl)
    -- Initialize from generic optimizer
    optim.Optimizer.initialize(self)
@@ -46,7 +92,7 @@ function FIRE:initialize(tbl)
    -- For "global" the correction of the displacements
    -- are using a rescaling of the global coordinates.
    -- For "local" each coordinate is rescaled.
-   self.correct = "local"
+   self.correct = "global"
 
    -- This value can be either "local" or "global"
    -- For "global" velocity operator are rescaled
@@ -67,7 +113,9 @@ function FIRE:initialize(tbl)
    end
 
    -- Maximum time-step
-   self.dt_max = 10 * self.dt_init
+   if tbl.dt_max == nil then
+      self.dt_max = 10 * self.dt_init
+   end
 
    -- Initialize the variables
    self:reset()
@@ -103,7 +151,7 @@ end
 
 --- Set the masses for all atoms.
 -- @Array mass may either be a single number (all atoms have same mass), or an `Array`
---    which may contain different masses per atom.
+--   which may contain different masses per atom.
 function FIRE:set_mass(mass)
    if mass == nil then
       -- Create fake mass with all same masses

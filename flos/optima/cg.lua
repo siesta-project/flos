@@ -28,33 +28,35 @@ local CG = mc.class("CG", optim.Optimizer)
 --- Instantiating a new `CG` object
 --
 -- The parameters _must_ be specified with a table of fields and values.
--- In addition to the parameters indicated.
--- The `CG` optimizer implements several variations of the algorithms:
--- The beta-parameter calculation may be performed using either:
 --
---  1. Polak-Ribiere (default)
---  2. Fletcher-Reeves
---  3. Hestenes-Stiefel
---  4. Dai-Yuan
+-- The `CG` optimizer implements several variations of the algorithms:
+-- The beta-parameter calculation may be performed using either (`beta` field in argument table):
+--
+--  - Polak-Ribiere (default)
+--  - Fletcher-Reeves
+--  - Hestenes-Stiefel
+--  - Dai-Yuan
 --
 -- CG algorithms also implements a restart method based on different criteria
 -- in this algorithm there is a default smooth restart by damping the `beta`
 -- parameter (default to `0.8`). In addition to this there are schemes for
--- explicit restart:
+-- explicit restart (`restart` field in argument table):
 --
---   1. negative, when `beta < 0` CG restarts the conjugate gradient
---   2. Powel, when the scalar-projection of the two previous gradients is above 0.2
+--  - negative, when `beta < 0` CG restarts the conjugate gradient
+--  - Powel, when the scalar-projection of the two previous gradients is above 0.2
 --  
--- @see Optimizer:new
---
 -- @usage
--- CG:new({<field1 = value>, <field2 = value>})
+-- cg = CG:new({<field1 = value>, <field2 = value>})
+-- while not cg:optimized() do
+--    F = cg:optimize(F, G)
+-- end
 --
 -- @function CG:new
--- @param[opt="PR"] beta determine the method used for `beta`-parameter calculation
--- @param[opt=0.8] beta_damping a factor for the `beta` variable such that a smooth restart is obtained
--- @param[opt="Powell"] restart method of restart
+-- @string[opt="PR"] beta determine the method used for `beta`-parameter calculation
+-- @number[opt=0.8] beta_damping a factor for the `beta` variable such that a smooth restart is obtained
+-- @string[opt="Powell"] restart method of restart
 -- @Optimizer[opt] optimizer the optimization method used to minimize along the direction (defaults to the `LBFGS` optimizer)
+-- @param ... any arguments `Optimizer:new` accepts
 local function doc_function()
 end
 

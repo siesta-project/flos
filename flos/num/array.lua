@@ -230,7 +230,6 @@ end
 
 --- Get an `Array` element through a linear index of the ND array
 -- @int i linear index in the (possible) ND array
--- @param v the value at index `i`
 function Array:get_linear(i)
 
    -- If we are at the last dimension, return immediately.
