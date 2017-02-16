@@ -1,0 +1,324 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/MDStep.html">MDStep</a></li>
+  <li><a href="../classes/Array.html">Array</a></li>
+  <li><a href="../classes/Shape.html">Shape</a></li>
+  <li><a href="../classes/Optimizer.html">Optimizer</a></li>
+  <li><strong>CG</strong></li>
+  <li><a href="../classes/FIRE.html">FIRE</a></li>
+  <li><a href="../classes/LBFGS.html">LBFGS</a></li>
+  <li><a href="../classes/Line.html">Line</a></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><a href="../examples/relax_geometry_lbfgs.lua.html">relax_geometry_lbfgs.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>CG</code></h1>
+<p>Implementation of the Conjugate Gradient algorithm</p>
+<p> An implementation of the conjugate gradient optimization
+ algorithm.
+ This class implements 4 different variations of CG defined
+ by the <em>so-called</em> beta-parameter:</p>
+
+<ol>
+    <li>Polak-Ribiere</li>
+    <li>Fletcher-Reeves</li>
+    <li>Hestenes-Stiefel</li>
+    <li>Dai-Yuan</li>
+</ol>
+
+<p> Additionally this CG implementation defaults to a beta-damping
+ factor to achieve a <em>smooth</em> restart method, instead of
+ abrupt CG restarts when <code>beta &lt; 0</code>, for instance.</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" ><a href="#CG:new">CG:new ([beta="PR"][, beta_damping=0.8][, restart="Powell"][, optimizer], ...)</a></td>
+	<td class="summary">Instantiating a new <a href="../classes/CG.html#">CG</a> object</p>
+
+<p> The parameters <em>must</em> be specified with a table of fields and values.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#CG:reset">CG:reset ()</a></td>
+	<td class="summary">Reset the CG algorithm for restart purposes
+ All history will be cleared and the algorithm will restart the CG
+ optimization from scratch.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#CG:add_history">CG:add_history (F, G)</a></td>
+	<td class="summary">Add the current parameters and the gradient for those to the history</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#CG:optimize">CG:optimize (F, G)</a></td>
+	<td class="summary">Returns the optimized parameters which should minimize the function
+ with respect to the current conjugate gradient</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#CG:conjugate">CG:conjugate ()</a></td>
+	<td class="summary">Return the new conjugate direction
+ This will take into account how the beta-value is calculated.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#CG:info">CG:info ()</a></td>
+	<td class="summary">Print some information regarding the <a href="../classes/CG.html#">CG</a> object</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "CG:new"></a>
+    <strong>CG:new ([beta="PR"][, beta_damping=0.8][, restart="Powell"][, optimizer], ...)</strong>
+    </dt>
+    <dd>
+
+<p>Instantiating a new <a href="../classes/CG.html#">CG</a> object</p>
+
+<p> The parameters <em>must</em> be specified with a table of fields and values. </p>
+
+<p> The <a href="../classes/CG.html#">CG</a> optimizer implements several variations of the algorithms:
+ The beta-parameter calculation may be performed using either (<code>beta</code> field in argument table):</p>
+
+<ul>
+    <li>Polak-Ribiere (default)</li>
+    <li>Fletcher-Reeves</li>
+    <li>Hestenes-Stiefel</li>
+    <li>Dai-Yuan</li>
+</ul>
+
+<p> CG algorithms also implements a restart method based on different criteria
+ in this algorithm there is a default smooth restart by damping the <code>beta</code>
+ parameter (default to <code>0.8</code>). In addition to this there are schemes for
+ explicit restart (<code>restart</code> field in argument table):</p>
+
+<ul>
+    <li>negative, when <code>beta &lt; 0</code> CG restarts the conjugate gradient</li>
+    <li>Powel, when the scalar-projection of the two previous gradients is above 0.2
+    </li>
+</ul>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">beta</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         determine the method used for <code>beta</code>-parameter calculation
+         (<em>default</em> "PR")
+        </li>
+        <li><span class="parameter">beta_damping</span>
+            <span class="types"><span class="type">number</span></span>
+         a factor for the <code>beta</code> variable such that a smooth restart is obtained
+         (<em>default</em> 0.8)
+        </li>
+        <li><span class="parameter">restart</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         method of restart
+         (<em>default</em> "Powell")
+        </li>
+        <li><span class="parameter">optimizer</span>
+            <span class="types"><a class="type" href="../classes/Optimizer.html#">Optimizer</a></span>
+         the optimization method used to minimize along the direction (defaults to the <a href="../classes/LBFGS.html#">LBFGS</a> optimizer)
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">...</span>
+         any arguments <a href="../classes/Optimizer.html#Optimizer:new">Optimizer:new</a> accepts
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">cg = CG:new({&lt;field1 = value&gt;, &lt;field2 = value&gt;})
+<span class="keyword">while</span> <span class="keyword">not</span> cg:optimized() <span class="keyword">do</span>
+   F = cg:optimize(F, G)
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "CG:reset"></a>
+    <strong>CG:reset ()</strong>
+    </dt>
+    <dd>
+    Reset the CG algorithm for restart purposes
+ All history will be cleared and the algorithm will restart the CG
+ optimization from scratch.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CG:add_history"></a>
+    <strong>CG:add_history (F, G)</strong>
+    </dt>
+    <dd>
+    Add the current parameters and the gradient for those to the history
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">F</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the parameters
+        </li>
+        <li><span class="parameter">G</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the gradient for the function with the parameters <code>F</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CG:optimize"></a>
+    <strong>CG:optimize (F, G)</strong>
+    </dt>
+    <dd>
+    Returns the optimized parameters which should minimize the function
+ with respect to the current conjugate gradient
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">F</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the parameters for the function
+        </li>
+        <li><span class="parameter">G</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the gradient for the parameters
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new set of parameters to be used for the function
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CG:conjugate"></a>
+    <strong>CG:conjugate ()</strong>
+    </dt>
+    <dd>
+    Return the new conjugate direction
+ This will take into account how the beta-value is calculated.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the new conjugate direction
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "CG:info"></a>
+    <strong>CG:info ()</strong>
+    </dt>
+    <dd>
+    Print some information regarding the <a href="../classes/CG.html#">CG</a> object
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

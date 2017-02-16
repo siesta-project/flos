@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Installation">Installation </a></li>
+<li><a href="#Basic_usage">Basic usage </a></li>
+<li><a href="#Usage_in_SIESTA">Usage in SIESTA </a></li>
+</ul>
+
+
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><strong>README</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/MDStep.html">MDStep</a></li>
+  <li><a href="../classes/Array.html">Array</a></li>
+  <li><a href="../classes/Shape.html">Shape</a></li>
+  <li><a href="../classes/Optimizer.html">Optimizer</a></li>
+  <li><a href="../classes/CG.html">CG</a></li>
+  <li><a href="../classes/FIRE.html">FIRE</a></li>
+  <li><a href="../classes/LBFGS.html">LBFGS</a></li>
+  <li><a href="../classes/Line.html">Line</a></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><a href="../examples/relax_geometry_lbfgs.lua.html">relax_geometry_lbfgs.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+
+<h1>flos</h1>
+
+<p>This library enables optimization schemes created in Lua to be
+used together with <a href="https://launchpad.net/siesta">SIESTA</a> via the <a href="https://github.com/ElectronicStructureLibrary/flook">flook</a> library, hence
+the same <code>flo + SIESTA = flos</code>.</p>
+
+<p>This enables scripting level languages to inter-act and develop
+new MD schemes, such as new geometry constraints, geometry relaxations, etc.</p>
+
+<p><a name="Installation"></a></p>
+<h2>Installation</h2>
+
+<p>This Lua library may be used out of the box. To enable the use of this library
+you only require the <code>LUA_PATH</code> to contain the path to the library. <br/>
+Importantly this library requires an explicit <code>&lt;path&gt;/?/init.lua</code> definition.</p>
+
+<p>As an example the following bash commands enables the library:</p>
+
+
+<pre>
+cd $HOME
+git clone https://github.com/siesta-project/flos.git
+cd flos
+git submodule init
+git submodule update
+export LUA_PATH=<span class="string">"$HOME/flos/?.lua;$HOME/flos/?/init.lua;$LUA_PATH"</span>
+</pre>
+
+<p>and that is it. Now you can use the <code>flos</code> library.</p>
+
+<p><a name="Basic_usage"></a></p>
+<h2>Basic usage</h2>
+
+<p>To enable this library you should add this to your Lua script:</p>
+
+
+<pre>
+<span class="keyword">local</span> flos = <span class="global">require</span> <span class="string">"flos"</span>
+</pre>
+
+<p>which enables you to interact with all implemented <code>flos</code> implemented algorithms.</p>
+
+
+<p><a name="Usage_in_SIESTA"></a></p>
+<h2>Usage in SIESTA</h2>
+
+<p>In principle <code>flos</code> is not relying on the <a href="https://launchpad.net/siesta">SIESTA</a> routines and may
+be used as a regular Lua library, although it has been developed
+with <a href="https://launchpad.net/siesta">SIESTA</a> in mind.</p>
+
+<p>In the <code>examples/</code> folder there are several examples which may be directly used in <em>any</em>
+<a href="https://launchpad.net/siesta">SIESTA</a> run for relaxation (they are generalized for any structure).</p>
+
+<p>In order to use any of these schemes you simply need to follow these steps:</p>
+
+<ol>
+    <li>Compile <code>flook</code>, see this page: <a href="https://github.com/ElectronicStructureLibrary/flook"><code>flook</code></a></li>
+    <li>Compile <a href="https://launchpad.net/siesta">SIESTA</a> with <code>flook</code> support. If you have followed the
+    procedure outlined <a href="https://github.com/ElectronicStructureLibrary/flook">here</a> you should add this to the SIESTA <code>arch.make</code>:</li>
+</ol>
+
+
+<pre>
+FLOOK_PATH  = /path/to/flook/parent
+FLOOK_LIBS  = -L$(FLOOK_PATH)/src -lflookall -ldl
+FLOOK_INC   = -I$(FLOOK_PATH)/src
+INCFLAGS += $(FLOOK_INC)
+LIBS += $(FLOOK_LIBS)
+FPPFLAGS += -DSIESTA__FLOOK
+</pre>
+
+<p>3. Then you have, for good (contrary to the <code>constr</code> routine in SIESTA),
+   enabled the Lua hook and you may exchange Lua scripts with other users
+   and use scripts as you please. <br/>
+   To enable Lua in SIESTA simply set these fdf-flags:</p>
+
+
+<pre>
+MD.TypeOfRun lua
+LUA.Script &lt;script-name&gt;
+</pre>
+
+<p>For instance to use the <code>flos</code> L-BFGS relaxation method:</p>
+
+
+<pre>
+cp flos/examples/relax_geometry_lbfgs.lua &lt;path-to-siesta-run&gt;/relax.lua
+</pre>
+
+<p>and set the following fdf-flag:</p>
+
+
+<pre>
+MD.TypeOfRun LUA
+LUA.Script relax.lua
+</pre>
+
+<p>Now run SIESTA.</p>
+
+
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

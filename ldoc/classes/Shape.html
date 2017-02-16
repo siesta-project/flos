@@ -1,0 +1,378 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+<li><a href="#Metamethods">Metamethods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/MDStep.html">MDStep</a></li>
+  <li><a href="../classes/Array.html">Array</a></li>
+  <li><strong>Shape</strong></li>
+  <li><a href="../classes/Optimizer.html">Optimizer</a></li>
+  <li><a href="../classes/CG.html">CG</a></li>
+  <li><a href="../classes/FIRE.html">FIRE</a></li>
+  <li><a href="../classes/LBFGS.html">LBFGS</a></li>
+  <li><a href="../classes/Line.html">Line</a></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><a href="../examples/relax_geometry_lbfgs.lua.html">relax_geometry_lbfgs.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>Shape</code></h1>
+<p>Implementation of Shape to control the size of arrays (@see Array)</p>
+<p> A helper class for managing the size of <a href="../classes/Array.html#">Array</a>s. </p>
+
+<p> Having the Shape of an array in a separate class makes it much easier
+ to implement a flexible interface for interacting with Arrays.</p>
+
+<p> A Shape is basically a table which defines the size of the Array,
+ the dimensions of the Array is <code>#Shape</code> while each axis size may
+ be queried by <code>Shape[axis]</code>.
+ Additionally a Shape may have a single dimension with size <code>0</code> which
+ may <em>only</em> be used to align two shapes, i.e. the <code>0</code> axis is inferred
+ from the total size of the aligning Shape.</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" ><a href="#Shape:initialize">Shape:initialize (...)</a></td>
+	<td class="summary">Initialization routine for the Shape object.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Shape:copy">Shape:copy ()</a></td>
+	<td class="summary">Copy the shape by duplicating the dimension sizes</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Shape:reverse">Shape:reverse ()</a></td>
+	<td class="summary">Reverse the dimension sizes, <code>Shape( 2, 3, 4):reverse() == Shape( 4, 3, 2)</code></td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Shape:size">Shape:size ([axis=0])</a></td>
+	<td class="summary">Query the size of the Shape, either a given dimension, or the total size</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Shape:remove">Shape:remove (axis)</a></td>
+	<td class="summary">Removes a dimension from the Shape</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Shape:zero">Shape:zero ()</a></td>
+	<td class="summary">Query index of the first zero index</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Shape:align">Shape:align (other)</a></td>
+	<td class="summary">Return a new shape such that the shapes are equal in size
+ In case either shape has a 0-size dimension that size will be
+ calculated so that the total size is the same.</td>
+	</tr>
+</table>
+<h2><a href="#Metamethods">Metamethods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" ><a href="#Shape:__tostring">Shape:__tostring ()</a></td>
+	<td class="summary">Convert the Shape to a pretty-printed string</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Shape:__eq">Shape:__eq (a, b)</a></td>
+	<td class="summary">Checks whether two Shapes are the same (with respect to dimensions)</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Shape:initialize"></a>
+    <strong>Shape:initialize (...)</strong>
+    </dt>
+    <dd>
+
+<p>Initialization routine for the Shape object.
+ Examples:</p>
+<pre><code> Shape(2, 3) -- a shape with 2 dimensions of given sizes
+ Shape(2, 3, 4) -- a shape with 3 dimensions
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         a comma-separated list of integers
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new Shape object with the given shape
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Shape:copy"></a>
+    <strong>Shape:copy ()</strong>
+    </dt>
+    <dd>
+    Copy the shape by duplicating the dimension sizes
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new Shape with the same content
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Shape:reverse"></a>
+    <strong>Shape:reverse ()</strong>
+    </dt>
+    <dd>
+    Reverse the dimension sizes, <code>Shape( 2, 3, 4):reverse() == Shape( 4, 3, 2)</code>
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new Shape
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Shape:size"></a>
+    <strong>Shape:size ([axis=0])</strong>
+    </dt>
+    <dd>
+    Query the size of the Shape, either a given dimension, or the total size
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">axis</span>
+            <span class="types"><span class="type">int</span></span>
+         the dimension one wish to query (0 for total)
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the size of the dimension (as an integer)
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Shape:remove"></a>
+    <strong>Shape:remove (axis)</strong>
+    </dt>
+    <dd>
+    Removes a dimension from the Shape
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">axis</span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new shape with the given axis removed
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Shape:zero"></a>
+    <strong>Shape:zero ()</strong>
+    </dt>
+    <dd>
+    Query index of the first zero index
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the first axis with a zero size, if none, <code>0</code> is returned
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Shape:align"></a>
+    <strong>Shape:align (other)</strong>
+    </dt>
+    <dd>
+    Return a new shape such that the shapes are equal in size
+ In case either shape has a 0-size dimension that size will be
+ calculated so that the total size is the same.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">other</span>
+         the shape to compare with
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new Shape which is a copy of <code>other</code> if they already are aligned
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header "><a name="Metamethods"></a>Metamethods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Shape:__tostring"></a>
+    <strong>Shape:__tostring ()</strong>
+    </dt>
+    <dd>
+    Convert the Shape to a pretty-printed string
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a string with the dimensions of the shape in a comma separated string
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Shape:__eq"></a>
+    <strong>Shape:__eq (a, b)</strong>
+    </dt>
+    <dd>
+    Checks whether two Shapes are the same (with respect to dimensions)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">a</span>
+
+
+
+        </li>
+        <li><span class="parameter">b</span>
+
+
+
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>true</code> if each dimension is the same
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

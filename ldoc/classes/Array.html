@@ -1,0 +1,1569 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Metamethods">Metamethods</a></li>
+<li><a href="#Initialization_routines">Initialization routines </a></li>
+<li><a href="#Object_information">Object information </a></li>
+<li><a href="#Manipulation_routines">Manipulation routines </a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/MDStep.html">MDStep</a></li>
+  <li><strong>Array</strong></li>
+  <li><a href="../classes/Shape.html">Shape</a></li>
+  <li><a href="../classes/Optimizer.html">Optimizer</a></li>
+  <li><a href="../classes/CG.html">CG</a></li>
+  <li><a href="../classes/FIRE.html">FIRE</a></li>
+  <li><a href="../classes/LBFGS.html">LBFGS</a></li>
+  <li><a href="../classes/Line.html">Line</a></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><a href="../examples/relax_geometry_lbfgs.lua.html">relax_geometry_lbfgs.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>Array</code></h1>
+<p>Implementation of ND Arrays in Lua.</p>
+<p>
+
+<p> A generic implementation of ND arrays in pure Lua.
+ This module tries to be as similar to the Python numpy package
+ as possible.</p>
+
+<p> Due to everything being in Lua there are not <em>views</em> of arrays which
+ means that many functions creates unnecessary data-duplications.
+ However, this may be leveraged later.</p>
+
+<p> The underlying Array class is implemented as follows:</p>
+
+<ol>
+    <li>Every Array gets associated a <a href="../classes/Shape.html#">Shape</a> which determines the size
+    of the current Array.</li>
+    <li>If the Array is > 1D all elements <code>Array[i]</code> is an array
+    with sub-Arrays of one less dimension.</li>
+    <li>This enables one to call any Array function on sub-partitions
+    of the Array without having to think about the details.</li>
+    <li>The special case is the last dimension which contains the actual
+    data.</li>
+</ol>
+</p>
+
+
+<h2><a href="#Metamethods">Metamethods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" ><a href="#Array:__newindex">Array:__newindex (i, v)</a></td>
+	<td class="summary">Internal function which inserts numerical values if they are not existing.</td>
+	</tr>
+</table>
+<h2><a href="#Initialization_routines">Initialization routines </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" ><a href="#Array:new">Array:new (...)</a></td>
+	<td class="summary">Initialization routine for the Array object.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:empty">Array:empty (...)</a></td>
+	<td class="summary">Initialize an Array, equivalent to <code>Array(...)</code>.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:zeros">Array:zeros (...)</a></td>
+	<td class="summary">Initialize an Array filled with 0's, equivalent to <code>a = Array(...); a:fill(0.)</code></td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:ones">Array:ones (...)</a></td>
+	<td class="summary">Initialize an Array filled with 1's, equivalent to <code>a = Array(...); a:fill(1.)</code></td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:copy">Array:copy ()</a></td>
+	<td class="summary">Create a deep copy of the array by copying all elements.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:range">Array:range (i1, i2[, step])</a></td>
+	<td class="summary">Initialize a 1D Array with a linear spacing of values starting from <code>i1</code>, ending with <code>i2</code> and with step size <code>step</code> which defaults to 1.</td>
+	</tr>
+</table>
+<h2><a href="#Object_information">Object information </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" ><a href="#Array:__len">Array:__len ()</a></td>
+	<td class="summary">Query the length of the first dimension of the Array</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:size">Array:size ([axis=0])</a></td>
+	<td class="summary">Query the size of the Array, @see Shape:size.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:get_linear">Array:get_linear (i)</a></td>
+	<td class="summary">Get an <a href="../classes/Array.html#">Array</a> element through a linear index of the ND array</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:set_linear">Array:set_linear (i, v)</a></td>
+	<td class="summary">Set an <a href="../classes/Array.html#">Array</a> element through a linear index of the ND array</td>
+	</tr>
+</table>
+<h2><a href="#Manipulation_routines">Manipulation routines </a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" ><a href="#Array:fill">Array:fill (val)</a></td>
+	<td class="summary">Fill all values in the Array with a given value.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:map">Array:map (func)</a></td>
+	<td class="summary">Return the Array as a copy with every element mapped through the given function
+ The function should accept a single value, and return a single value (not a table).</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:reshape">Array:reshape (...)</a></td>
+	<td class="summary">Return a deep copy of the Array with a different shape</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:flatten">Array:flatten ()</a></td>
+	<td class="summary">Return a deep copy of the Array in a 1D array (equivalent to <code>:reshape(0)</code>)</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:abs">Array:abs ()</a></td>
+	<td class="summary">Elementwise absolute operation</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:ceil">Array:ceil ()</a></td>
+	<td class="summary">Elementwise ceiling operation</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:floor">Array:floor ()</a></td>
+	<td class="summary">Elementwise floor operation</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:tointeger">Array:tointeger ()</a></td>
+	<td class="summary">Elementwise conversion to integer</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:exp">Array:exp ()</a></td>
+	<td class="summary">Elementwise exponential operation</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:cos">Array:cos ()</a></td>
+	<td class="summary">Elementwise cosine operation</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:sin">Array:sin ()</a></td>
+	<td class="summary">Elementwise sine operation</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:log">Array:log ([base=`e`])</a></td>
+	<td class="summary">Elementwise logarithm operation</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:tan">Array:tan ()</a></td>
+	<td class="summary">Elementwise tangent operation</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:sqrt">Array:sqrt ()</a></td>
+	<td class="summary">Elementwise square root operation</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:norm">Array:norm ([axis=#self.shape])</a></td>
+	<td class="summary">Return a the norm of the Array.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:scalar_project">Array:scalar_project (P[, axis=0])</a></td>
+	<td class="summary">Return the scalar projection of this array onto another.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:project">Array:project (P[, axis=0])</a></td>
+	<td class="summary">Return the projection of this array onto another.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:min">Array:min ([axis=0])</a></td>
+	<td class="summary">Return the minimum value of the Array</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:max">Array:max ([axis=0])</a></td>
+	<td class="summary">Return the maximum value of the Array</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:sum">Array:sum ([axis=0])</a></td>
+	<td class="summary">Return the sum of elements of the Array</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:cross">Array:cross (lhs, rhs)</a></td>
+	<td class="summary">Return the sum of cross-product of two arrays (only for 1D arrays with <code>#Array == 3</code>)</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:flatdot">Array:flatdot (lhs, rhs)</a></td>
+	<td class="summary">Wrapper for doing a linear dot-product between any two ND arrays, the only
+ requirement is that they have the same total size.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:dot">Array:dot (lhs, rhs)</a></td>
+	<td class="summary">Dot-product of two Arrays.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:transpose">Array:transpose ()</a></td>
+	<td class="summary">Return the transpose of the Array (all dimensions are swapped).</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:__add">Array:__add (lhs, rhs)</a></td>
+	<td class="summary">Elementwise addition of two arrays.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:__sub">Array:__sub (lhs, rhs)</a></td>
+	<td class="summary">Elementwise subtraction of two arrays (see <a href="../classes/Array.html#Array:__add">Array:__add</a>)</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:__mul">Array:__mul (lhs, rhs)</a></td>
+	<td class="summary">Elementwise multiplication of two arrays (see <a href="../classes/Array.html#Array:__add">Array:__add</a>)</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:__mod">Array:__mod (lhs, rhs)</a></td>
+	<td class="summary">Elementwise modulo (%) of two arrays (see <a href="../classes/Array.html#Array:__add">Array:__add</a>)</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:__div">Array:__div (lhs, rhs)</a></td>
+	<td class="summary">Elementwise division of two arrays (see <a href="../classes/Array.html#Array:__add">Array:__add</a>)</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:__idiv">Array:__idiv (lhs, rhs)</a></td>
+	<td class="summary">Elementwise floor division of two arrays (see <a href="../classes/Array.html#Array:__add">Array:__add</a>)</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:__unm">Array:__unm ()</a></td>
+	<td class="summary">Elementwise unary negation</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:__pow">Array:__pow (lhs, rhs)</a></td>
+	<td class="summary">Elementwise power of two arrays (see <a href="../classes/Array.html#Array:__add">Array:__add</a>)</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:__tostring">Array:__tostring ()</a></td>
+	<td class="summary">Return the values of the array in a tabular format as a string.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:savetxt">Array:savetxt (handle[, format="%20.13e"[, footer="\n"]])</a></td>
+	<td class="summary">Write the values to an already open file-handle
+ The format is defined via the <code>format</code> parameter and the content gets
+ an empty line at the end of the array pri</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Array:from">Array:from (tbl)</a></td>
+	<td class="summary">Given a regular Lua table this function returns a new Array
+ with elements filled from the table.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Metamethods"></a>Metamethods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Array:__newindex"></a>
+    <strong>Array:__newindex (i, v)</strong>
+    </dt>
+    <dd>
+    Internal function which inserts numerical values if they are not existing.
+ Checks whether the index is within the shape of the Array.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+         the index of the value
+        </li>
+        <li><span class="parameter">v</span>
+         the value of the index
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header has-description"><a name="Initialization_routines"></a>Initialization routines </h2>
+
+          <div class="section-description">
+           These functions may be used to instantiate a new <a href="../classes/Array.html#">Array</a> object.
+          </div>
+            <h3>Usage:</h3>
+            <pre class="example">Array(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- same as :empty
+</span>Array:empty(<span class="number">2</span>, <span class="number">3</span>)
+Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- filled with 1's all over
+</span>Array:zeros(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- filled with 0's all over
+</span>Array:range(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- [2, 3]
+</span>Array:ones(<span class="number">2</span>, <span class="number">3</span>):copy() <span class="comment">-- create a copy of another Array</span></pre>
+    <dl class="function">
+    <dt>
+    <a name = "Array:new"></a>
+    <strong>Array:new (...)</strong>
+    </dt>
+    <dd>
+    Initialization routine for the Array object.
+ Create a new empty <a href="../classes/Array.html#">Array</a>. Remark that no entries are defined.
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         a comma-separated list of integers, or a <a href="../classes/Shape.html#">Shape</a>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new Array object with the given shape
+    </ol>
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">Array(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- an array with the last element being <code>[2][3]</code>
+</span>Array(<span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>) <span class="comment">-- an array with the last element being <code>[2][3][4]</code>
+</span>Array( Shape(<span class="number">3</span>, <span class="number">2</span>) ) <span class="comment">-- an array with the last element being <code>[3][2]</code></span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Array:empty"></a>
+    <strong>Array:empty (...)</strong>
+    </dt>
+    <dd>
+    Initialize an Array, equivalent to <code>Array(...)</code>.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         the shape of the Array
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with no values set
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:zeros"></a>
+    <strong>Array:zeros (...)</strong>
+    </dt>
+    <dd>
+    Initialize an Array filled with 0's, equivalent to <code>a = Array(...); a:fill(0.)</code>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         the shape of the Array
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with all values set to 0.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:ones"></a>
+    <strong>Array:ones (...)</strong>
+    </dt>
+    <dd>
+    Initialize an Array filled with 1's, equivalent to <code>a = Array(...); a:fill(1.)</code>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         the shape of the Array
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with all values set to 1.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:copy"></a>
+    <strong>Array:copy ()</strong>
+    </dt>
+    <dd>
+    Create a deep copy of the array by copying all elements.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a copy of the Array
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:range"></a>
+    <strong>Array:range (i1, i2[, step])</strong>
+    </dt>
+    <dd>
+    Initialize a 1D Array with a linear spacing of values starting from <code>i1</code>, ending with <code>i2</code> and with step size <code>step</code> which defaults to 1.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i1</span>
+         the initial value of the range
+        </li>
+        <li><span class="parameter">i2</span>
+         the last value of the range (will only be present if <code>(i2-i1+1)/step</code> is an integer)
+        </li>
+        <li><span class="parameter">step</span>
+         the stepsize between consecutive values.
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with equally separated values.
+    </ol>
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header has-description"><a name="Object_information"></a>Object information </h2>
+
+          <div class="section-description">
+           Routines to retrieve information regarding the <a href="../classes/Array.html#">Array</a> object
+ I.e. the shape, total size, etc.
+          </div>
+            <h3>Usage:</h3>
+            <pre class="example">#Array <span class="comment">-- length of first dimension
+</span>#Array.shape <span class="comment">-- number of dimensions
+</span>Array.size([dim]) <span class="comment">-- size of dimension, total size if <code>dim=0</code></span></pre>
+    <dl class="function">
+    <dt>
+    <a name = "Array:__len"></a>
+    <strong>Array:__len ()</strong>
+    </dt>
+    <dd>
+    Query the length of the first dimension of the Array
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the length of the first dimension, <code>self.shape[1]</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:size"></a>
+    <strong>Array:size ([axis=0])</strong>
+    </dt>
+    <dd>
+    Query the size of the Array, @see Shape:size.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">axis</span>
+            <span class="types"><span class="type">int</span></span>
+         optional argument to query specific axes, if not supplied
+   the total size of the array will be returned.
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the length of the specified axis (or total size).
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:get_linear"></a>
+    <strong>Array:get_linear (i)</strong>
+    </dt>
+    <dd>
+    Get an <a href="../classes/Array.html#">Array</a> element through a linear index of the ND array
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">int</span></span>
+         linear index in the (possible) ND array
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:set_linear"></a>
+    <strong>Array:set_linear (i, v)</strong>
+    </dt>
+    <dd>
+    Set an <a href="../classes/Array.html#">Array</a> element through a linear index of the ND array
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">i</span>
+            <span class="types"><span class="type">int</span></span>
+         linear index in the (possible) ND array
+        </li>
+        <li><span class="parameter">v</span>
+         the value to be set at index <code>i</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+    <h2 class="section-header has-description"><a name="Manipulation_routines"></a>Manipulation routines </h2>
+
+          <div class="section-description">
+           All these routines can change the content and do operations of
+ <a href="../classes/Array.html#">Array</a> objects.
+          </div>
+    <dl class="function">
+    <dt>
+    <a name = "Array:fill"></a>
+    <strong>Array:fill (val)</strong>
+    </dt>
+    <dd>
+    Fill all values in the Array with a given value.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">val</span>
+         the value of all elements of this Array
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:map"></a>
+    <strong>Array:map (func)</strong>
+    </dt>
+    <dd>
+    Return the Array as a copy with every element mapped through the given function
+ The function should accept a single value, and return a single value (not a table).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">func</span>
+         the cast function
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with every element mapped through the function <code>func</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:reshape"></a>
+    <strong>Array:reshape (...)</strong>
+    </dt>
+    <dd>
+    Return a deep copy of the Array with a different shape
+   sizes may be a 0 (or <code>nil</code>) which indicates that the length of said
+   dimension will be inferred from the total size of the Array
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">...</span>
+         the new shape of the array, any of the provided dimension
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with the same total size and values, but with different shape
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:flatten"></a>
+    <strong>Array:flatten ()</strong>
+    </dt>
+    <dd>
+    Return a deep copy of the Array in a 1D array (equivalent to <code>:reshape(0)</code>)
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a 1D-Array with the same total size and values, but with a single dimension
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:abs"></a>
+    <strong>Array:abs ()</strong>
+    </dt>
+    <dd>
+    Elementwise absolute operation
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        |Array|
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="https://www.lua.org/manual/5.3/manual.html#pdf-math.abs">math.abs</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "Array:ceil"></a>
+    <strong>Array:ceil ()</strong>
+    </dt>
+    <dd>
+    Elementwise ceiling operation
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        math.ceil(Array)
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="https://www.lua.org/manual/5.3/manual.html#pdf-math.ceil">math.ceil</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "Array:floor"></a>
+    <strong>Array:floor ()</strong>
+    </dt>
+    <dd>
+    Elementwise floor operation
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        math.floor(Array)
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="https://www.lua.org/manual/5.3/manual.html#pdf-math.floor">math.floor</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "Array:tointeger"></a>
+    <strong>Array:tointeger ()</strong>
+    </dt>
+    <dd>
+    Elementwise conversion to integer
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        all values as integers
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="https://www.lua.org/manual/5.3/manual.html#pdf-math.tointeger">math.tointeger</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "Array:exp"></a>
+    <strong>Array:exp ()</strong>
+    </dt>
+    <dd>
+    Elementwise exponential operation
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>exp(Array[i])</code>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="https://www.lua.org/manual/5.3/manual.html#pdf-math.exp">math.exp</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "Array:cos"></a>
+    <strong>Array:cos ()</strong>
+    </dt>
+    <dd>
+    Elementwise cosine operation
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>cos(Array[i])</code>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="https://www.lua.org/manual/5.3/manual.html#pdf-math.cos">math.cos</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "Array:sin"></a>
+    <strong>Array:sin ()</strong>
+    </dt>
+    <dd>
+    Elementwise sine operation
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>sin(Array[i])</code>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="https://www.lua.org/manual/5.3/manual.html#pdf-math.sin">math.sin</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "Array:log"></a>
+    <strong>Array:log ([base=`e`])</strong>
+    </dt>
+    <dd>
+    Elementwise logarithm operation
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">base</span>
+         the base of the logarithm
+         (<em>default</em> `e`)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>log(Array[i], base)</code>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="https://www.lua.org/manual/5.3/manual.html#pdf-math.log">math.log</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "Array:tan"></a>
+    <strong>Array:tan ()</strong>
+    </dt>
+    <dd>
+    Elementwise tangent operation
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>tan(Array[i])</code>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="https://www.lua.org/manual/5.3/manual.html#pdf-math.tan">math.tan</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "Array:sqrt"></a>
+    <strong>Array:sqrt ()</strong>
+    </dt>
+    <dd>
+    Elementwise square root operation
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>sqrt(Array[i])</code>
+    </ol>
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="https://www.lua.org/manual/5.3/manual.html#pdf-math.sqrt">math.sqrt</a>
+    </ul>
+
+
+</dd>
+    <dt>
+    <a name = "Array:norm"></a>
+    <strong>Array:norm ([axis=#self.shape])</strong>
+    </dt>
+    <dd>
+
+<p>Return a the norm of the Array.
+ Example:</p>
+<pre><code>a = Array( 2, 3)
+a:fill(1.)
+print(a:norm(2)) -- [3 ^ 0.5, 3 ^ 0.5]
+print(a:norm(0)) -- 6 ^ 0.5
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">axis</span>
+            <span class="types"><span class="type">int</span></span>
+         the axis along which the norm is taken, defaults to the last dimension, currently any axis between 0 and the last dimension is not implemented.
+         (<em>default</em> #self.shape)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a value if the <code>axis=0</code> or the Array is 1D, else a new Array with 1 less dimension is returned.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:scalar_project"></a>
+    <strong>Array:scalar_project (P[, axis=0])</strong>
+    </dt>
+    <dd>
+
+<p>Return the scalar projection of this array onto another.
+ Example:</p>
+<pre><code>a = Array( 2, 3)
+print(a:scalar_project( Array.ones( 2, 3) )
+</code></pre>
+
+<p> The scalar projection is this formula:</p>
+<pre><code>$\frac{a \cdot b}{|b|}$
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">P</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the projection array
+        </li>
+        <li><span class="parameter">axis</span>
+            <span class="types"><span class="type">int</span></span>
+         the axis along the projection, currently only a full projection is available
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a value if the <code>axis=0</code> or the Array is 1D, else a new Array with 1 less dimension is returned.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:project"></a>
+    <strong>Array:project (P[, axis=0])</strong>
+    </dt>
+    <dd>
+
+<p>Return the projection of this array onto another.
+ Example:</p>
+<pre><code>a = Array( 2, 3)
+print(a:project( Array.ones( 2, 3) )
+</code></pre>
+
+<p> The scalar projection is this formula:</p>
+<pre><code>$\frac{a \cdot b}{|b|^2} b$
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">P</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the projection array
+        </li>
+        <li><span class="parameter">axis</span>
+            <span class="types"><span class="type">int</span></span>
+         the axis along the projection, currently only a full projection is available
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a value if the <code>axis=0</code> or the Array is 1D, else a new Array with 1 less dimension is returned.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:min"></a>
+    <strong>Array:min ([axis=0])</strong>
+    </dt>
+    <dd>
+    Return the minimum value of the Array
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">axis</span>
+            <span class="types"><span class="type">int</span></span>
+         either 0 or an axis. If 0 (or <code>nil</code>) the global minimum is returned, else along the given dimension
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a value if the <code>axis=0</code> or an Array with one less dimension (the axis dimension is <em>removed</em>).
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:max"></a>
+    <strong>Array:max ([axis=0])</strong>
+    </dt>
+    <dd>
+    Return the maximum value of the Array
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">axis</span>
+            <span class="types"><span class="type">int</span></span>
+         either 0 or an axis. If 0 (or <code>nil</code>) the global maximum is returned, else along the given dimension
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a value if the <code>axis=0</code> or an Array with one less dimension (the axis dimension is <em>removed</em>).
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:sum"></a>
+    <strong>Array:sum ([axis=0])</strong>
+    </dt>
+    <dd>
+    Return the sum of elements of the Array
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">axis</span>
+            <span class="types"><span class="type">int</span></span>
+         either 0 or an axis. If 0 (or <code>nil</code>) the global sum is returned, else along the given dimension
+         (<em>default</em> 0)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a value if the <code>axis=0</code> or an Array with one less dimension (the axis dimension is <em>removed</em>).
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:cross"></a>
+    <strong>Array:cross (lhs, rhs)</strong>
+    </dt>
+    <dd>
+    Return the sum of cross-product of two arrays (only for 1D arrays with <code>#Array == 3</code>)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">lhs</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the left-hand side of the operand
+        </li>
+        <li><span class="parameter">rhs</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the second operand of the cross-product
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with the cross-product of the two vectors
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:flatdot"></a>
+    <strong>Array:flatdot (lhs, rhs)</strong>
+    </dt>
+    <dd>
+    Wrapper for doing a linear dot-product between any two ND arrays, the only
+ requirement is that they have the same total size.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">lhs</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the first operand of the dot-product
+        </li>
+        <li><span class="parameter">rhs</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the second operand of the dot-product
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the value of the dot-product
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:dot"></a>
+    <strong>Array:dot (lhs, rhs)</strong>
+    </dt>
+    <dd>
+    Dot-product of two Arrays.
+ For 1D arrays this returns a single value,
+ for ND arrays the shapes must fulfil self.shape[#self.shape] == other.shape[1],
+ as well as all dimensions self.shape[1:#self.shape-2] == other.shape[3:].reverse().
+ Note that for 2D Arrays this is equivalent to matrix-multiplication.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">lhs</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the first operand of the dot-product.
+        </li>
+        <li><span class="parameter">rhs</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the second operand of the dot-product.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a single value if both Arrays are 1D, else a new Array is returned.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:transpose"></a>
+    <strong>Array:transpose ()</strong>
+    </dt>
+    <dd>
+    Return the transpose of the Array (all dimensions are swapped).
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a copy of the Array with all dimensions reversed.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:__add"></a>
+    <strong>Array:__add (lhs, rhs)</strong>
+    </dt>
+    <dd>
+    Elementwise addition of two arrays.
+ It is required that both operands have the same shape (or
+ one of them being a scalar).
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">lhs</span>
+         the first operand (<a href="../classes/Array.html#">Array</a> or <code>number</code>)
+        </li>
+        <li><span class="parameter">rhs</span>
+         the second operand (<a href="../classes/Array.html#">Array</a> or <code>number</code>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with <code>lhs + rhs</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:__sub"></a>
+    <strong>Array:__sub (lhs, rhs)</strong>
+    </dt>
+    <dd>
+    Elementwise subtraction of two arrays (see <a href="../classes/Array.html#Array:__add">Array:__add</a>)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">lhs</span>
+         the first operand
+        </li>
+        <li><span class="parameter">rhs</span>
+         the second operand
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with <code>lhs - rhs</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:__mul"></a>
+    <strong>Array:__mul (lhs, rhs)</strong>
+    </dt>
+    <dd>
+    Elementwise multiplication of two arrays (see <a href="../classes/Array.html#Array:__add">Array:__add</a>)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">lhs</span>
+         the first operand
+        </li>
+        <li><span class="parameter">rhs</span>
+         the second operand
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with <code>lhs * rhs</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:__mod"></a>
+    <strong>Array:__mod (lhs, rhs)</strong>
+    </dt>
+    <dd>
+    Elementwise modulo (%) of two arrays (see <a href="../classes/Array.html#Array:__add">Array:__add</a>)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">lhs</span>
+         the first operand
+        </li>
+        <li><span class="parameter">rhs</span>
+         the second operand
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with <code>lhs % rhs</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:__div"></a>
+    <strong>Array:__div (lhs, rhs)</strong>
+    </dt>
+    <dd>
+    Elementwise division of two arrays (see <a href="../classes/Array.html#Array:__add">Array:__add</a>)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">lhs</span>
+         the first operand
+        </li>
+        <li><span class="parameter">rhs</span>
+         the second operand
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with <code>lhs / rhs</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:__idiv"></a>
+    <strong>Array:__idiv (lhs, rhs)</strong>
+    </dt>
+    <dd>
+    Elementwise floor division of two arrays (see <a href="../classes/Array.html#Array:__add">Array:__add</a>)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">lhs</span>
+         the first operand
+        </li>
+        <li><span class="parameter">rhs</span>
+         the second operand
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with <code>lhs // rhs</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:__unm"></a>
+    <strong>Array:__unm ()</strong>
+    </dt>
+    <dd>
+    Elementwise unary negation
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with <code>-self</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:__pow"></a>
+    <strong>Array:__pow (lhs, rhs)</strong>
+    </dt>
+    <dd>
+    Elementwise power of two arrays (see <a href="../classes/Array.html#Array:__add">Array:__add</a>)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">lhs</span>
+         the first operand
+        </li>
+        <li><span class="parameter">rhs</span>
+         the second operand, this may be "T" to indicate a transpose, @see Array:transpose
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with <code>lhs ^ rhs</code>, or the transpose if <code>rhs == &quot;T&quot;</code>.
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:__tostring"></a>
+    <strong>Array:__tostring ()</strong>
+    </dt>
+    <dd>
+    Return the values of the array in a tabular format as a string.
+ Currently the values are presented in a %12.5e format.
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a string representation of the Array
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:savetxt"></a>
+    <strong>Array:savetxt (handle[, format="%20.13e"[, footer="\n"]])</strong>
+    </dt>
+    <dd>
+    Write the values to an already open file-handle
+ The format is defined via the <code>format</code> parameter and the content gets
+ an empty line at the end of the array pri
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">handle</span>
+         the file-handle to write to
+        </li>
+        <li><span class="parameter">format</span>
+         the output format of the values
+         (<em>default</em> "%20.13e")
+        </li>
+        <li><span class="parameter">footer</span>
+         a string to write after the array values has been written
+         (<em>default</em> "\n")
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Array:from"></a>
+    <strong>Array:from (tbl)</strong>
+    </dt>
+    <dd>
+    Given a regular Lua table this function returns a new Array
+ with elements filled from the table.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">tbl</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+         the input table.
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        an Array with elements corresponding to the values in <code>tbl</code>
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

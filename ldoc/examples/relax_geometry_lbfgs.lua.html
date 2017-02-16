@@ -1,0 +1,241 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><strong>relax_geometry_lbfgs.lua</strong></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/MDStep.html">MDStep</a></li>
+  <li><a href="../classes/Array.html">Array</a></li>
+  <li><a href="../classes/Shape.html">Shape</a></li>
+  <li><a href="../classes/Optimizer.html">Optimizer</a></li>
+  <li><a href="../classes/CG.html">CG</a></li>
+  <li><a href="../classes/FIRE.html">FIRE</a></li>
+  <li><a href="../classes/LBFGS.html">LBFGS</a></li>
+  <li><a href="../classes/Line.html">Line</a></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>relax_geometry_lbfgs.lua</h2>
+<pre>
+<span class="comment">--[[
+Example on how to relax a geometry using the LBFGS
+algorithm.
+
+This example can take any geometry and will relax it
+according to the siesta input options:
+
+ - MD.MaxForceTol
+ - MD.MaxCGDispl
+
+One should note that the LBFGS algorithm first converges
+when the total force (norm) on the atoms are below the
+tolerance. This is contrary to the SIESTA default which
+is a force tolerance for the individual directions,
+i.e. max-direction force.
+
+This example is prepared to easily create
+a combined relaxation of several LBFGS algorithms
+simultaneously. In some cases this is shown to
+speed up the convergence because an average is taken
+over several optimizations.
+
+To converge using several LBFGS algorithms simultaneously
+may be understood phenomenologically by a "line-search"
+optimization by weighing two Hessian optimizations.
+
+This example defaults to two simultaneous LBFGS algorithms
+which seems adequate in most situations.
+
+--]]</span>
+
+<span class="comment">-- Load the FLOS module
+</span><span class="keyword">local</span> flos = <span class="global">require</span> <span class="string">"flos"</span>
+
+<span class="comment">-- Create the two LBFGS algorithms with
+</span><span class="comment">-- initial Hessians 1/75 and 1/50
+</span><span class="keyword">local</span> LBFGS = {}
+LBFGS[<span class="number">1</span>] = flos.LBFGS:new({H0 = <span class="number">1.</span> / <span class="number">75.</span>})
+LBFGS[<span class="number">2</span>] = flos.LBFGS:new({H0 = <span class="number">1.</span> / <span class="number">50.</span>})
+<span class="comment">-- To use more simultaneously simply add a
+</span><span class="comment">-- new line... with a separate LBFGS algorithm.
+</span>
+<span class="comment">-- Grab the unit table of siesta (it is already created
+</span><span class="comment">-- by SIESTA)
+</span><span class="keyword">local</span> Unit = siesta.Units
+
+
+<span class="keyword">function</span> siesta_comm()
+
+   <span class="comment">-- This routine does exchange of data with SIESTA
+</span>   <span class="keyword">local</span> ret_tbl = {}
+
+   <span class="comment">-- Do the actual communication with SIESTA
+</span>   <span class="keyword">if</span> siesta.state == siesta.INITIALIZE <span class="keyword">then</span>
+
+      <span class="comment">-- In the initialization step we request the
+</span>      <span class="comment">-- convergence criteria
+</span>      <span class="comment">--  MD.MaxDispl
+</span>      <span class="comment">--  MD.MaxForceTol
+</span>      siesta_get({<span class="string">"MD.MaxDispl"</span>,
+		  <span class="string">"MD.MaxForceTol"</span>})
+
+
+      <span class="comment">-- Print information
+</span>      <span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
+	 <span class="comment">-- empty line
+</span>	 <span class="global">print</span>(<span class="string">"\nLUA convergence information for the LBFGS algorithms:"</span>)
+      <span class="keyword">end</span>
+
+      <span class="comment">-- Ensure we update the convergence criteria
+</span>      <span class="comment">-- from SIESTA (in this way one can ensure siesta options)
+</span>      <span class="keyword">for</span> i = <span class="number">1</span>, #LBFGS <span class="keyword">do</span>
+
+	 LBFGS[i].tolerance = siesta.MD.MaxForceTol * Unit.Ang / Unit.eV
+	 LBFGS[i].max_dF = siesta.MD.MaxDispl / Unit.Ang
+
+	 <span class="comment">-- Print information
+</span>	 <span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
+	    LBFGS[i]:info()
+	 <span class="keyword">end</span>
+      <span class="keyword">end</span>
+
+   <span class="keyword">end</span>
+
+   <span class="keyword">if</span> siesta.state == siesta.MOVE <span class="keyword">then</span>
+
+      <span class="comment">-- Here we are doing the actual LBFGS algorithm.
+</span>      <span class="comment">-- We retrieve the current coordinates, the forces
+</span>      <span class="comment">-- and whether the geometry has relaxed
+</span>      siesta_get({<span class="string">"geom.xa"</span>,
+		  <span class="string">"geom.fa"</span>,
+		  <span class="string">"MD.Relaxed"</span>})
+      ret_tbl = siesta_move(siesta)
+
+   <span class="keyword">end</span>
+
+   siesta_return(ret_tbl)
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> siesta_move(siesta)
+
+   <span class="comment">-- Retrieve the atomic coordinates and the forces
+</span>   <span class="keyword">local</span> xa = flos.Array.from(siesta.geom.xa) / Unit.Ang
+   <span class="keyword">local</span> fa = flos.Array.from(siesta.geom.fa) * Unit.Ang / Unit.eV
+
+   <span class="comment">-- Perform step (initialize arrays to do averaging if more
+</span>   <span class="comment">-- LBFGS algorithms are in use).
+</span>   <span class="keyword">local</span> all_xa = {}
+   <span class="keyword">local</span> weight = {}
+   <span class="keyword">local</span> sum_w = <span class="number">0.</span>
+   <span class="keyword">for</span> i = <span class="number">1</span>, #LBFGS <span class="keyword">do</span>
+
+      <span class="comment">-- Calculate the next optimized structure (that
+</span>      <span class="comment">-- minimizes the Hessian)
+</span>      all_xa[i] = LBFGS[i]:optimize(xa, fa)
+
+      <span class="comment">-- Get the optimization length for calculating
+</span>      <span class="comment">-- the best average.
+</span>      weight[i] = LBFGS[i].weight
+      sum_w = sum_w + weight[i]
+
+   <span class="keyword">end</span>
+
+   <span class="comment">-- Normalize according to the weighing scheme.
+</span>   <span class="comment">-- We also print-out the weights for the algorithms
+</span>   <span class="comment">-- if there are more than one of the LBFGS algorithms
+</span>   <span class="comment">-- running simultaneously.
+</span>   <span class="keyword">local</span> s = <span class="string">""</span>
+   <span class="keyword">for</span> i = <span class="number">1</span>, #LBFGS <span class="keyword">do</span>
+
+      weight[i] = weight[i] / sum_w
+      s = s .. <span class="string">", "</span> .. <span class="global">string</span>.format(<span class="string">"%7.4f"</span>, weight[i])
+
+   <span class="keyword">end</span>
+   <span class="keyword">if</span> siesta.IONode <span class="keyword">and</span> #LBFGS &gt; <span class="number">1</span> <span class="keyword">then</span>
+      <span class="global">print</span>(<span class="string">"\nLBFGS weighted average: "</span>, s:sub(<span class="number">3</span>))
+   <span class="keyword">end</span>
+
+   <span class="comment">-- Calculate the new coordinates and figure out
+</span>   <span class="comment">-- if the algorithms has been optimized.
+</span>   <span class="keyword">local</span> out_xa = all_xa[<span class="number">1</span>] * weight[<span class="number">1</span>]
+   <span class="keyword">local</span> relaxed = LBFGS[<span class="number">1</span>]:optimized()
+   <span class="keyword">for</span> i = <span class="number">2</span>, #LBFGS <span class="keyword">do</span>
+
+      out_xa = out_xa + all_xa[i] * weight[i]
+      relaxed = relaxed <span class="keyword">and</span> LBFGS[i]:optimized()
+
+   <span class="keyword">end</span>
+   <span class="comment">-- Immediately clean-up to reduce memory overhead (force GC)
+</span>   all_xa = <span class="keyword">nil</span>
+
+   <span class="comment">-- Send back new coordinates (convert to Bohr)
+</span>   siesta.geom.xa = out_xa * Unit.Ang
+   siesta.MD.Relaxed = relaxed
+
+   <span class="keyword">return</span> {<span class="string">"geom.xa"</span>,
+	   <span class="string">"MD.Relaxed"</span>}
+<span class="keyword">end</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

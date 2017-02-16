@@ -1,0 +1,339 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/MDStep.html">MDStep</a></li>
+  <li><a href="../classes/Array.html">Array</a></li>
+  <li><a href="../classes/Shape.html">Shape</a></li>
+  <li><a href="../classes/Optimizer.html">Optimizer</a></li>
+  <li><a href="../classes/CG.html">CG</a></li>
+  <li><a href="../classes/FIRE.html">FIRE</a></li>
+  <li><a href="../classes/LBFGS.html">LBFGS</a></li>
+  <li><strong>Line</strong></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><a href="../examples/relax_geometry_lbfgs.lua.html">relax_geometry_lbfgs.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>Line</code></h1>
+<p>Implementation of a line minimizer algorithm</p>
+<p> The <a href="../classes/Line.html#">Line</a> class optimizes a set of parameters for a function
+ such that the gradient projected onto a gradient-direction will be minimized.
+ I.e. it finds the minimum of a function on a gradient line such that the
+ <em>true</em> gradient is orthogonal to the direction.</p>
+
+<p> A simple implementation of a line minimizer.
+ This line-minimization algorithm may use any (default to <a href="../classes/LBFGS.html#">LBFGS</a>)
+ optimizer and will optimize a given direction by projecting the
+ gradient onto an initial gradient direction.</p>
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">line0 = Line:new()
+-- The default direction will be the gradient passed for in the
+-- first `optimize` call.
+line0:optimize(F, G)
+
+line1 = Line:new(optimizer = flos.LBFGS:new())
+-- This is equivalent to the above case, but we explicitly define
+-- the minimization direction, and the optimizer.
+line1:set_direction(F, G)
+line1:optimize(F, G)
+</pre>
+    </ul>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" ><a href="#Line:new">Line:new ([direction[, optimizer=`LBFGS`]])</a></td>
+	<td class="summary">Instantiating a new <a href="../classes/Line.html#">Line</a> object</p>
+
+<p> The parameters <em>must</em> be specified with a table of fields and values.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Line:set_direction">Line:set_direction (F, G)</a></td>
+	<td class="summary">Define the gradient direction we should minimize, with the accompanying initial
+ parameters.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Line:reset">Line:reset ()</a></td>
+	<td class="summary">Reset the Line algorithm by resetting the direction</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Line:optimized">Line:optimized ([G])</a></td>
+	<td class="summary">Query whether the line minimization method has been optimized
+ The input gradient will be projected onto the direction before
+ the optimization will be checked.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Line:optimize">Line:optimize (F, G)</a></td>
+	<td class="summary">Calculates the next parameter set such that the gradient is minimized
+ along the direction.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Line:projection">Line:projection (G)</a></td>
+	<td class="summary">Return a gradient projected onto the internal specified direction</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Line:info">Line:info ()</a></td>
+	<td class="summary">Print information regarding the Line algorithm</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Line:new"></a>
+    <strong>Line:new ([direction[, optimizer=`LBFGS`]])</strong>
+    </dt>
+    <dd>
+    Instantiating a new <a href="../classes/Line.html#">Line</a> object</p>
+
+<p> The parameters <em>must</em> be specified with a table of fields and values.
+ In addition to the parameters indicated.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">direction</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the line direction (defaults to the first optimization gradient that <a href="../classes/Line.html#">Line</a> gets called with)
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">optimizer</span>
+            <span class="types"><a class="type" href="../classes/Optimizer.html#">Optimizer</a></span>
+         the optimization method used to minimize along the direction (defaults to the <a href="../classes/LBFGS.html#">LBFGS</a> optimizer)
+         (<em>default</em> `LBFGS`)
+        </li>
+    </ul>
+
+
+
+    <h3>See also:</h3>
+    <ul>
+         <a href="../classes/LBFGS.html#">LBFGS</a>
+    </ul>
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">Line:new({&lt;field1 = value&gt;, &lt;field2 = value&gt;})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Line:set_direction"></a>
+    <strong>Line:set_direction (F, G)</strong>
+    </dt>
+    <dd>
+    Define the gradient direction we should minimize, with the accompanying initial
+ parameters.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">F</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the initial parameters
+        </li>
+        <li><span class="parameter">G</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the direction to be sampled
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Line:reset"></a>
+    <strong>Line:reset ()</strong>
+    </dt>
+    <dd>
+    Reset the Line algorithm by resetting the direction
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Line:optimized"></a>
+    <strong>Line:optimized ([G])</strong>
+    </dt>
+    <dd>
+    Query whether the line minimization method has been optimized
+ The input gradient will be projected onto the direction before
+ the optimization will be checked.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">G</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         input gradient
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        whether the line minimization has been minimized
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Line:optimize"></a>
+    <strong>Line:optimize (F, G)</strong>
+    </dt>
+    <dd>
+    Calculates the next parameter set such that the gradient is minimized
+ along the direction. </p>
+
+<p> If the internal gradient direction has not been initialized the first
+ gradient will be chosen as the direction, @see set_direction.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">F</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         input parameters for the function
+        </li>
+        <li><span class="parameter">G</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         gradient for the function with the parameters <code>F</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new set of optimized coordinates
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Line:projection"></a>
+    <strong>Line:projection (G)</strong>
+    </dt>
+    <dd>
+    Return a gradient projected onto the internal specified direction
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">G</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the input gradient
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>G</code> projected onto the internal gradient direction
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Line:info"></a>
+    <strong>Line:info ()</strong>
+    </dt>
+    <dd>
+    Print information regarding the Line algorithm
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

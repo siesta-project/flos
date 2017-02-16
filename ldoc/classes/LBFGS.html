@@ -1,0 +1,289 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/MDStep.html">MDStep</a></li>
+  <li><a href="../classes/Array.html">Array</a></li>
+  <li><a href="../classes/Shape.html">Shape</a></li>
+  <li><a href="../classes/Optimizer.html">Optimizer</a></li>
+  <li><a href="../classes/CG.html">CG</a></li>
+  <li><a href="../classes/FIRE.html">FIRE</a></li>
+  <li><strong>LBFGS</strong></li>
+  <li><a href="../classes/Line.html">Line</a></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><a href="../examples/relax_geometry_lbfgs.lua.html">relax_geometry_lbfgs.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>LBFGS</code></h1>
+<p>Implementation of the limited memory BFGS algorithm</p>
+<p>
+
+</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" ><a href="#LBFGS:new">LBFGS:new ([damping=1][, H0=1/75][, history=25], ...)</a></td>
+	<td class="summary">Instantiating a new <a href="../classes/LBFGS.html#">LBFGS</a> object.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#LBFGS:reset">LBFGS:reset ()</a></td>
+	<td class="summary">Reset the <a href="../classes/LBFGS.html#">LBFGS</a> object</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#LBFGS:correct_dF">LBFGS:correct_dF (dF)</a></td>
+	<td class="summary">Normalize the parameter displacement to a given max-change.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#LBFGS:add_history">LBFGS:add_history (F, G)</a></td>
+	<td class="summary">Add the current optimization variable and the gradient variable to the history.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#LBFGS:optimize">LBFGS:optimize (F, G)</a></td>
+	<td class="summary">Perform a LBFGS step with input parameters <code>F</code> and gradient <code>G</code></td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#LBFGS:info">LBFGS:info ()</a></td>
+	<td class="summary">Print information regarding the <a href="../classes/LBFGS.html#">LBFGS</a> object</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "LBFGS:new"></a>
+    <strong>LBFGS:new ([damping=1][, H0=1/75][, history=25], ...)</strong>
+    </dt>
+    <dd>
+    Instantiating a new <a href="../classes/LBFGS.html#">LBFGS</a> object. </p>
+
+<p> The LBFGS algorithm is a straight-forward optimization algorithm which requires
+ very few arguments for a succesful optimization.
+ The most important parameter is the initial Hessian value, which for large values (close to 1)
+ may have difficulties in converging because it is more aggressive (keeps more of the initial
+ gradient). The default value is rather safe and should enable optimization on most systems.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">damping</span>
+            <span class="types"><span class="type">number</span></span>
+         damping parameter for the parameter change
+         (<em>default</em> 1)
+        </li>
+        <li><span class="parameter">H0</span>
+            <span class="types"><span class="type">number</span></span>
+         initial Hessian value, larger values are more safe, but takes possibly longer to converge
+         (<em>default</em> 1/75)
+        </li>
+        <li><span class="parameter">history</span>
+            <span class="types"><span class="type">int</span></span>
+         number of previous steps used when calculating the new Hessian
+         (<em>default</em> 25)
+        </li>
+        <li><span class="parameter">...</span>
+         any arguments <a href="../classes/Optimizer.html#Optimizer:new">Optimizer:new</a> accepts
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">lbfgs = LBFGS:new({&lt;field1 = value&gt;, &lt;field2 = value&gt;})
+<span class="keyword">while</span> <span class="keyword">not</span> lbfgs:optimized() <span class="keyword">do</span>
+   F = lbfgs:optimize(F, G)
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "LBFGS:reset"></a>
+    <strong>LBFGS:reset ()</strong>
+    </dt>
+    <dd>
+    Reset the <a href="../classes/LBFGS.html#">LBFGS</a> object
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "LBFGS:correct_dF"></a>
+    <strong>LBFGS:correct_dF (dF)</strong>
+    </dt>
+    <dd>
+    Normalize the parameter displacement to a given max-change.
+ The LBFGS algorithm always perfoms a global correction to maintain
+ the minimization direction.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dF</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the parameter displacements that are to be normalized
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the normalized <code>dF</code> according to the <code>global</code> or <code>local</code> correction
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "LBFGS:add_history"></a>
+    <strong>LBFGS:add_history (F, G)</strong>
+    </dt>
+    <dd>
+    Add the current optimization variable and the gradient variable to the history.
+ This function calculates the residuals and updates the kernel of the residual dot-product.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">F</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the parameters for the function
+        </li>
+        <li><span class="parameter">G</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the gradient of the function with the parameters <code>F</code>
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "LBFGS:optimize"></a>
+    <strong>LBFGS:optimize (F, G)</strong>
+    </dt>
+    <dd>
+    Perform a LBFGS step with input parameters <code>F</code> and gradient <code>G</code>
+   local minimum point.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">F</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the parameters for the function
+        </li>
+        <li><span class="parameter">G</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the gradient for the function with parameters <code>F</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new set of parameters which should converge towards a
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "LBFGS:info"></a>
+    <strong>LBFGS:info ()</strong>
+    </dt>
+    <dd>
+    Print information regarding the <a href="../classes/LBFGS.html#">LBFGS</a> object
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,249 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><strong>MDStep</strong></li>
+  <li><a href="../classes/Array.html">Array</a></li>
+  <li><a href="../classes/Shape.html">Shape</a></li>
+  <li><a href="../classes/Optimizer.html">Optimizer</a></li>
+  <li><a href="../classes/CG.html">CG</a></li>
+  <li><a href="../classes/FIRE.html">FIRE</a></li>
+  <li><a href="../classes/LBFGS.html">LBFGS</a></li>
+  <li><a href="../classes/Line.html">Line</a></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><a href="../examples/relax_geometry_lbfgs.lua.html">relax_geometry_lbfgs.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>MDStep</code></h1>
+<p>A class for retaining MD-steps with optionally associated variables</p>
+<p> The MDStep class retains information on a single MD step.
+ Such a step may be represented by numerous quantities.
+ One may always add new information, but it may for instance
+ be used to retain information such as:
+  <code>R</code>, the atomic coordinates
+  <code>V</code>, the velocities
+  <code>F</code>, the forces
+  <code>E</code>, an energy associated with the current step.</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" ><a href="#MDStep:set">MDStep:set (args)</a></td>
+	<td class="summary">Set a specific value in the MDStep class
+ This routine easily enables specifying a set of
+ values simultaneously:</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#MDStep:set_R">MDStep:set_R (R)</a></td>
+	<td class="summary">Shorthand for <code>MDStep:set{R=R}</code></td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#MDStep:set_V">MDStep:set_V (V)</a></td>
+	<td class="summary">Shorthand for <code>MDStep:set{V=V}</code></td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#MDStep:set_F">MDStep:set_F (F)</a></td>
+	<td class="summary">Shorthand for <code>MDStep:set{F=F}</code></td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#MDStep:set_E">MDStep:set_E (E)</a></td>
+	<td class="summary">Shorthand for <code>MDStep:set{E=E}</code></td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "MDStep:set"></a>
+    <strong>MDStep:set (args)</strong>
+    </dt>
+    <dd>
+
+<p>Set a specific value in the MDStep class
+ This routine easily enables specifying a set of
+ values simultaneously:      MDStep:set{ R=R, F=F, E=E}</p>
+
+<p> and one may subsequently query the data through:</p>
+
+<pre><code> R, F, E = MDStep.R, MDStep.F, MDStep.E
+</code></pre>
+
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">args</span>
+            <span class="types"><span class="type">Routine for setting specific settings through direct table additions, i.e. MDStep</span></span>
+        set(R= R) will subsequently allow: MDStep.R queries.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "MDStep:set_R"></a>
+    <strong>MDStep:set_R (R)</strong>
+    </dt>
+    <dd>
+    Shorthand for <code>MDStep:set{R=R}</code>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">R</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "MDStep:set_V"></a>
+    <strong>MDStep:set_V (V)</strong>
+    </dt>
+    <dd>
+    Shorthand for <code>MDStep:set{V=V}</code>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">V</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "MDStep:set_F"></a>
+    <strong>MDStep:set_F (F)</strong>
+    </dt>
+    <dd>
+    Shorthand for <code>MDStep:set{F=F}</code>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">F</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "MDStep:set_E"></a>
+    <strong>MDStep:set_E (E)</strong>
+    </dt>
+    <dd>
+    Shorthand for <code>MDStep:set{E=E}</code>
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">E</span>
+
+
+
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

@@ -1,0 +1,216 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><strong>conv_meshcutoff.lua</strong></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><a href="../examples/relax_geometry_lbfgs.lua.html">relax_geometry_lbfgs.lua</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/MDStep.html">MDStep</a></li>
+  <li><a href="../classes/Array.html">Array</a></li>
+  <li><a href="../classes/Shape.html">Shape</a></li>
+  <li><a href="../classes/Optimizer.html">Optimizer</a></li>
+  <li><a href="../classes/CG.html">CG</a></li>
+  <li><a href="../classes/FIRE.html">FIRE</a></li>
+  <li><a href="../classes/LBFGS.html">LBFGS</a></li>
+  <li><a href="../classes/Line.html">Line</a></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>conv_meshcutoff.lua</h2>
+<pre>
+<span class="comment">--[[
+Example on how to converge the Mesh.Cutoff variable
+in SIESTA.
+
+This example can take any system and will
+perform a series of calculations with increasing
+Mesh.Cutoff.
+Finally it will write-out a table file to be plotted
+which contains the Mesh.Cutoff vs.
+
+ - MeshCutoff
+
+This example may be controlled via 3 values:
+
+ 1. cutoff_start
+ 2. cutoff_end
+ 3. cutoff_step
+
+where then this script will automatically create
+an array of those values and iterate them.
+Note the values here are in Ry.
+
+--]]</span>
+
+<span class="keyword">local</span> cutoff_start = <span class="number">150.</span>
+<span class="keyword">local</span> cutoff_end = <span class="number">650.</span>
+<span class="keyword">local</span> cutoff_step = <span class="number">50.</span>
+
+<span class="comment">-- Load the FLOS module
+</span><span class="keyword">local</span> flos = <span class="global">require</span> <span class="string">"flos"</span>
+
+<span class="comment">-- Create array of cut-offs
+</span><span class="keyword">local</span> cutoff = flos.Array.range(cutoff_step, cutoff_end, cutoff_step)
+<span class="keyword">local</span> Etot = flos.Array.zeros(cutoff.shape)
+<span class="keyword">local</span> icutoff = <span class="number">1</span>
+
+<span class="comment">-- Grab the unit table of siesta (it is already created by SIESTA)
+</span><span class="keyword">local</span> Unit = siesta.Units
+
+<span class="keyword">function</span> siesta_comm()
+
+   <span class="comment">-- This routine does exchange of data with SIESTA
+</span>   <span class="keyword">local</span> ret_tbl = {}
+
+   <span class="comment">-- Do the actual communication with SIESTA
+</span>   <span class="keyword">if</span> siesta.state == siesta.INITIALIZE <span class="keyword">then</span>
+
+      <span class="comment">-- In the initialization step we request the
+</span>      <span class="comment">-- Mesh cutoff (merely to be able to set it
+</span>      siesta_get({<span class="string">"Mesh.Cutoff.Minimum"</span>})
+
+      <span class="comment">-- Overwrite to ensure we start from the beginning
+</span>      siesta.Mesh.Cutoff.Minimum = cutoff[icutoff]
+
+      <span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
+	 <span class="global">print</span>( (<span class="string">"\nLUA: starting mesh-cutoff: %8.3f Ry\n"</span>):format(cutoff[icutoff]) )
+      <span class="keyword">end</span>
+
+      ret_tbl = {<span class="string">"Mesh.Cutoff.Minimum"</span>}
+
+   <span class="keyword">end</span>
+
+   <span class="keyword">if</span> siesta.state == siesta.INIT_MD <span class="keyword">then</span>
+
+      siesta_get({<span class="string">"Mesh.Cutoff.Used"</span>})
+      <span class="comment">-- Store the used meshcutoff for this iteration
+</span>      cutoff[icutoff] = siesta.Mesh.Cutoff.Used
+
+   <span class="keyword">end</span>
+
+   <span class="keyword">if</span> siesta.state == siesta.MOVE <span class="keyword">then</span>
+
+      <span class="comment">-- Retrieve the total energy and update the
+</span>      <span class="comment">-- meshcutoff for the next cycle
+</span>      <span class="comment">-- Notice, we do not move, or change the geometry
+</span>      <span class="comment">-- or cell-vectors.
+</span>      siesta_get({<span class="string">"E.total"</span>,
+		  <span class="string">"MD.Relaxed"</span>})
+
+      Etot[icutoff] = siesta.E.total
+
+      <span class="comment">-- Step the meshcutoff for the next iteration
+</span>      <span class="keyword">if</span> step_cutoff(cutoff[icutoff]) <span class="keyword">then</span>
+	 siesta.Mesh.Cutoff.Minimum = cutoff[icutoff]
+      <span class="keyword">else</span>
+	 siesta.MD.Relaxed = <span class="keyword">true</span>
+      <span class="keyword">end</span>
+
+      ret_tbl = {<span class="string">"Mesh.Cutoff.Minimum"</span>, <span class="string">"MD.Relaxed"</span>}
+
+   <span class="keyword">end</span>
+
+   <span class="keyword">if</span> siesta.state == siesta.ANALYSIS <span class="keyword">then</span>
+      <span class="comment">-- Here we simply write the obtained data
+</span>
+      <span class="keyword">local</span> file = <span class="global">io</span>.open(<span class="string">"MeshvsE.dat"</span>, <span class="string">"w"</span>)
+
+      file:write(<span class="string">"# Mesh-cutoff vs. energy\n"</span>)
+
+      <span class="comment">-- We write out a table with mesh-cutoff, the difference between
+</span>      <span class="comment">-- the last iteration, and the actual value
+</span>      file:write( (<span class="string">"%8.3e  %17.10e  %17.10e\n"</span>):format(cutoff[<span class="number">1</span>], <span class="number">0.</span>, Etot[<span class="number">1</span>]) )
+      <span class="keyword">for</span> i = <span class="number">2</span>, #cutoff <span class="keyword">do</span>
+	 file:write( (<span class="string">"%8.3e  %17.10e  %17.10e\n"</span>):format(cutoff[i], Etot[i]-Etot[i-<span class="number">1</span>], Etot[i]) )
+      <span class="keyword">end</span>
+
+      file:close()
+
+   <span class="keyword">end</span>
+
+   siesta_return(ret_tbl)
+<span class="keyword">end</span>
+
+<span class="comment">-- Step the cutoff counter and return
+</span><span class="comment">-- true if successfull (i.e. if there are
+</span><span class="comment">-- any more to check left).
+</span><span class="comment">-- This function will also step past values
+</span><span class="keyword">function</span> step_cutoff(cur_cutoff)
+
+   <span class="keyword">if</span> icutoff &lt; #cutoff <span class="keyword">then</span>
+      icutoff = icutoff + <span class="number">1</span>
+   <span class="keyword">else</span>
+      <span class="keyword">return</span> <span class="keyword">false</span>
+   <span class="keyword">end</span>
+
+   <span class="keyword">if</span> cutoff[icutoff] &lt;= cur_cutoff <span class="keyword">then</span>
+      cutoff[icutoff] = cutoff[icutoff-<span class="number">1</span>]
+      Etot[icutoff] = Etot[icutoff-<span class="number">1</span>]
+      <span class="keyword">return</span> step_cutoff(cur_cutoff)
+   <span class="keyword">end</span>
+
+   <span class="keyword">return</span> <span class="keyword">true</span>
+<span class="keyword">end</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

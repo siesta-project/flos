@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/MDStep.html">MDStep</a></li>
+  <li><a href="../classes/Array.html">Array</a></li>
+  <li><a href="../classes/Shape.html">Shape</a></li>
+  <li><strong>Optimizer</strong></li>
+  <li><a href="../classes/CG.html">CG</a></li>
+  <li><a href="../classes/FIRE.html">FIRE</a></li>
+  <li><a href="../classes/LBFGS.html">LBFGS</a></li>
+  <li><a href="../classes/Line.html">Line</a></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><a href="../examples/relax_geometry_lbfgs.lua.html">relax_geometry_lbfgs.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>Optimizer</code></h1>
+<p>Basic optimization class that is to be inherited by all the
+ optimization classes.</p>
+<p> The basic class used for optimization routines.</p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" ><a href="#Optimizer:new">Optimizer:new ([max_dF=0.1[, tolerance=0.02]])</a></td>
+	<td class="summary">Instantiating a new <a href="../classes/Optimizer.html#">Optimizer</a> object, this is a child-class
+ and all inherited parents should call this function.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Optimizer:initialize">Optimizer:initialize ()</a></td>
+	<td class="summary">Initialization routine for all optimizers</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Optimizer:reset">Optimizer:reset ()</a></td>
+	<td class="summary">Reset default variables, such as the number of iterations</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Optimizer:iteration">Optimizer:iteration ()</a></td>
+	<td class="summary">Query number of iterations this method has runned</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#Optimizer:optimized">Optimizer:optimized ([G])</a></td>
+	<td class="summary">Check whether the optimization routine has been optimized
+ such that the maximum vector norm of the gradient is below
+ a given tolerance.</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "Optimizer:new"></a>
+    <strong>Optimizer:new ([max_dF=0.1[, tolerance=0.02]])</strong>
+    </dt>
+    <dd>
+    Instantiating a new <a href="../classes/Optimizer.html#">Optimizer</a> object, this is a child-class
+ and all inherited parents should call this function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">max_dF</span>
+            <span class="types"><span class="type">number</span></span>
+         the maximum change in parameters allowed
+         (<em>default</em> 0.1)
+        </li>
+        <li><span class="parameter">tolerance</span>
+            <span class="types"><span class="type">number</span></span>
+         maximum norm of the gradient that is allowed to converge
+         (<em>default</em> 0.02)
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">Optimizer:new({&lt;field1 = value&gt;, &lt;field2 = value&gt;})</pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "Optimizer:initialize"></a>
+    <strong>Optimizer:initialize ()</strong>
+    </dt>
+    <dd>
+    Initialization routine for all optimizers
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Optimizer:reset"></a>
+    <strong>Optimizer:reset ()</strong>
+    </dt>
+    <dd>
+    Reset default variables, such as the number of iterations
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Optimizer:iteration"></a>
+    <strong>Optimizer:iteration ()</strong>
+    </dt>
+    <dd>
+    Query number of iterations this method has runned
+
+
+
+    <h3>Returns:</h3>
+    <ol>
+
+        number of iterations this optimization method has runned
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "Optimizer:optimized"></a>
+    <strong>Optimizer:optimized ([G])</strong>
+    </dt>
+    <dd>
+    Check whether the optimization routine has been optimized
+ such that the maximum vector norm of the gradient is below
+ a given tolerance.
+   if <code>G</code> is <code>nil</code>, it returns the last status of this function
+   call.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">G</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the gradient to check for convergence
+         (<em>optional</em>)
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+         a boolean of whether the gradient is below the tolerance
+    </ol>
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

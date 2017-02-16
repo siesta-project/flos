@@ -1,0 +1,414 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+<h2>Contents</h2>
+<ul>
+<li><a href="#Methods">Methods</a></li>
+</ul>
+
+
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/MDStep.html">MDStep</a></li>
+  <li><a href="../classes/Array.html">Array</a></li>
+  <li><a href="../classes/Shape.html">Shape</a></li>
+  <li><a href="../classes/Optimizer.html">Optimizer</a></li>
+  <li><a href="../classes/CG.html">CG</a></li>
+  <li><strong>FIRE</strong></li>
+  <li><a href="../classes/LBFGS.html">LBFGS</a></li>
+  <li><a href="../classes/Line.html">Line</a></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><a href="../examples/relax_geometry_lbfgs.lua.html">relax_geometry_lbfgs.lua</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+<h1>Class <code>FIRE</code></h1>
+<p>Implementation of the Fast-Inertial-Relaxation-Engine</p>
+<p> The implementation has several options related to the
+ original method.</p>
+
+<p> </p>
+
+
+<h2><a href="#Methods">Methods</a></h2>
+<table class="function_list">
+	<tr>
+	<td class="name" ><a href="#FIRE:new">FIRE:new ([dt_init=1][, dt_max=10*dt_init][, f_inc=1.1][, f_dec=0.5][, f_alpha=0.99][, alpha_init=1][, N_min=5][, correct="global"][, direction="global"][, mass=1][, optimizer], ...)</a></td>
+	<td class="summary">Instantiating a new <a href="../classes/FIRE.html#">FIRE</a> object.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#FIRE:reset">FIRE:reset ()</a></td>
+	<td class="summary">Reset FIRE algorithm by resetting initial parameters (<code>dt</code> and <code>alpha</code>)
+ All masses are also set to 1.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#FIRE:set_velocity">FIRE:set_velocity (V)</a></td>
+	<td class="summary">Set the velocity for the FIRE algorithm</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#FIRE:set_mass">FIRE:set_mass (mass)</a></td>
+	<td class="summary">Set the masses for all atoms.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#FIRE:correct_dF">FIRE:correct_dF (dF)</a></td>
+	<td class="summary">Normalize the parameter displacement to a given max-change.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#FIRE:optimize">FIRE:optimize (F, G)</a></td>
+	<td class="summary">Perform a FIRE step with input parameters <code>F</code> and gradient <code>G</code></td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#FIRE:MD">FIRE:MD (V, G)</a></td>
+	<td class="summary">Internal function for performing an MD step
+ This routine performs an Euler step with mid-point correction
+ which takes into account the end-point gradient position as well.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#FIRE:info">FIRE:info ()</a></td>
+	<td class="summary">Print information regarding the FIRE algorithm</td>
+	</tr>
+</table>
+
+<br/>
+<br/>
+
+
+    <h2 class="section-header "><a name="Methods"></a>Methods</h2>
+
+    <dl class="function">
+    <dt>
+    <a name = "FIRE:new"></a>
+    <strong>FIRE:new ([dt_init=1][, dt_max=10*dt_init][, f_inc=1.1][, f_dec=0.5][, f_alpha=0.99][, alpha_init=1][, N_min=5][, correct="global"][, direction="global"][, mass=1][, optimizer], ...)</strong>
+    </dt>
+    <dd>
+    Instantiating a new <a href="../classes/FIRE.html#">FIRE</a> object. </p>
+
+<p> The parameters <em>must</em> be specified with a table of fields and values.</p>
+
+<p> The <a href="../classes/FIRE.html#">FIRE</a> optimizer implements several variations of the original FIRE
+ algorithm.</p>
+
+<p> Here we allow to differentiate on how to normalize the displacements:</p>
+
+<ul>
+    <li><code>correct</code> (argument for <a href="../classes/FIRE.html#FIRE:new">FIRE:new</a>)
+    <ul>
+        <li>"global" perform a global normalization of the coordinates (maintain displacement direction)</li>
+        <li>"local" perform a local normalization (for each direction of each atom) (displacement direction is not maintained)</li>
+    </ul></li>
+    <li><code>direction</code> (argument for <a href="../classes/FIRE.html#FIRE:new">FIRE:new</a>)
+    <ul>
+        <li>"global" perform a global normalization of the velocities (maintain gradient direction)</li>
+        <li>"local" perform a local normalization of the velocity (for each atom) (gradient direction is not maintained)</li>
+    </ul></li>
+</ul>
+
+<p> This <a href="../classes/FIRE.html#">FIRE</a> optimizer allows two variations of the scaling of the velocities
+ and the resulting displacement.</p>
+
+<p> The scaling of t
+  one consider the FIRE algorithm
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dt_init</span>
+            <span class="types"><span class="type">number</span></span>
+         initial time-step
+         (<em>default</em> 1)
+        </li>
+        <li><span class="parameter">dt_max</span>
+            <span class="types"><span class="type">number</span></span>
+         maximum time-step allowed
+         (<em>default</em> 10*dt_init)
+        </li>
+        <li><span class="parameter">f_inc</span>
+            <span class="types"><span class="type">number</span></span>
+         factor used to increase time-step
+         (<em>default</em> 1.1)
+        </li>
+        <li><span class="parameter">f_dec</span>
+            <span class="types"><span class="type">number</span></span>
+         factor used to decrease time-step
+         (<em>default</em> 0.5)
+        </li>
+        <li><span class="parameter">f_alpha</span>
+            <span class="types"><span class="type">number</span></span>
+         factor used to decrease alpha-parameter
+         (<em>default</em> 0.99)
+        </li>
+        <li><span class="parameter">alpha_init</span>
+            <span class="types"><span class="type">number</span></span>
+         initial alpha-parameter
+         (<em>default</em> 1)
+        </li>
+        <li><span class="parameter">N_min</span>
+            <span class="types"><span class="type">int</span></span>
+         minimum number of iterations performed before time-step may be increased
+         (<em>default</em> 5)
+        </li>
+        <li><span class="parameter">correct</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         how the new parameters are rescaled, <code>&quot;global&quot;</code> or <code>&quot;local&quot;</code>
+         (<em>default</em> "global")
+        </li>
+        <li><span class="parameter">direction</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.4">string</a></span>
+         how the velocity pparameter is scaled, <code>&quot;global&quot;</code> or <code>&quot;local&quot;</code>
+         (<em>default</em> "global")
+        </li>
+        <li><span class="parameter">mass</span>
+         either a <a href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a> or a <code>number</code>, control individually the masses of each atom
+         (<em>default</em> 1)
+        </li>
+        <li><span class="parameter">optimizer</span>
+            <span class="types"><a class="type" href="../classes/Optimizer.html#">Optimizer</a></span>
+         the optimization method used to minimize along the direction (defaults to the <a href="../classes/LBFGS.html#">LBFGS</a> optimizer)
+         (<em>optional</em>)
+        </li>
+        <li><span class="parameter">...</span>
+         any arguments <a href="../classes/Optimizer.html#Optimizer:new">Optimizer:new</a> accepts
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">fire = FIRE:new({&lt;field1 = value&gt;, &lt;field2 = value&gt;})
+<span class="keyword">while</span> <span class="keyword">not</span> fire:optimized() <span class="keyword">do</span>
+   F = fire:optimize(F, G)
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "FIRE:reset"></a>
+    <strong>FIRE:reset ()</strong>
+    </dt>
+    <dd>
+    Reset FIRE algorithm by resetting initial parameters (<code>dt</code> and <code>alpha</code>)
+ All masses are also set to 1.
+
+
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "FIRE:set_velocity"></a>
+    <strong>FIRE:set_velocity (V)</strong>
+    </dt>
+    <dd>
+    Set the velocity for the FIRE algorithm
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">V</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         an <a href="../classes/Array.html#">Array</a> which has the atomic velocities
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "FIRE:set_mass"></a>
+    <strong>FIRE:set_mass (mass)</strong>
+    </dt>
+    <dd>
+    Set the masses for all atoms.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">mass</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         may either be a single number (all atoms have same mass), or an <a href="../classes/Array.html#">Array</a>
+   which may contain different masses per atom.
+        </li>
+    </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "FIRE:correct_dF"></a>
+    <strong>FIRE:correct_dF (dF)</strong>
+    </dt>
+    <dd>
+    Normalize the parameter displacement to a given max-change.
+ The FIRE algorithm has an option which determines whether
+ a global normalization occurs (maintain gradient), or
+ whether a local normalization takes place.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">dF</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the parameter displacements that are to be normalized
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the normalized <code>dF</code> according to the <code>global</code> or <code>local</code> correction
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "FIRE:optimize"></a>
+    <strong>FIRE:optimize (F, G)</strong>
+    </dt>
+    <dd>
+    Perform a FIRE step with input parameters <code>F</code> and gradient <code>G</code>
+   local minimum point.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">F</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the parameters for the function
+        </li>
+        <li><span class="parameter">G</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the gradient for the function with parameters <code>F</code>
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        a new set of parameters which should converge towards a
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "FIRE:MD"></a>
+    <strong>FIRE:MD (V, G)</strong>
+    </dt>
+    <dd>
+    Internal function for performing an MD step
+ This routine performs an Euler step with mid-point correction
+ which takes into account the end-point gradient position as well. </p>
+
+<p> If one desires to use another MD-stepping algorithm one may
+ overload this function.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">V</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the velocities
+        </li>
+        <li><span class="parameter">G</span>
+            <span class="types"><a class="type" href="../classes/Array.html#">Array</a></span>
+         the gradient
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        the step size of the parameters
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "FIRE:info"></a>
+    <strong>FIRE:info ()</strong>
+    </dt>
+    <dd>
+    Print information regarding the FIRE algorithm
+
+
+
+
+
+
+
+</dd>
+</dl>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

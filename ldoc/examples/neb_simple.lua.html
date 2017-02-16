@@ -1,0 +1,399 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><strong>neb_simple.lua</strong></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><a href="../examples/relax_geometry_lbfgs.lua.html">relax_geometry_lbfgs.lua</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/MDStep.html">MDStep</a></li>
+  <li><a href="../classes/Array.html">Array</a></li>
+  <li><a href="../classes/Shape.html">Shape</a></li>
+  <li><a href="../classes/Optimizer.html">Optimizer</a></li>
+  <li><a href="../classes/CG.html">CG</a></li>
+  <li><a href="../classes/FIRE.html">FIRE</a></li>
+  <li><a href="../classes/LBFGS.html">LBFGS</a></li>
+  <li><a href="../classes/Line.html">Line</a></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>neb_simple.lua</h2>
+<pre>
+<span class="comment">--[[
+Example on how to use an NEB method.
+--]]</span>
+
+<span class="comment">-- Load the FLOS module
+</span><span class="keyword">local</span> flos = <span class="global">require</span> <span class="string">"flos"</span>
+
+<span class="comment">-- The prefix of the files that contain the images
+</span><span class="keyword">local</span> image_label = <span class="string">"Siesta."</span>
+
+<span class="comment">-- Total number of images (excluding initial[0] and final[n_images+1])
+</span><span class="keyword">local</span> n_images = <span class="number">6</span>
+<span class="comment">-- Table of image geometries
+</span><span class="keyword">local</span> images = {}
+
+<span class="comment">-- The default output label of the DM files
+</span><span class="keyword">local</span> label = <span class="string">"siesta"</span>
+
+<span class="comment">-- Function for reading a geometry
+</span><span class="keyword">local</span> read_geom = <span class="keyword">function</span>(filename)
+   <span class="keyword">local</span> file = <span class="global">io</span>.open(filename, <span class="string">"r"</span>)
+   <span class="keyword">local</span> na = <span class="global">tonumber</span>(file:read())
+   <span class="keyword">local</span> R = flos.Array.zeros(na, <span class="number">3</span>)
+   file:read()
+   <span class="keyword">local</span> i = <span class="number">0</span>
+   <span class="keyword">local</span> <span class="keyword">function</span> tovector(s)
+      <span class="keyword">local</span> t = {}
+      s:gsub(<span class="string">'%S+'</span>, <span class="keyword">function</span>(n) t[#t+<span class="number">1</span>] = <span class="global">tonumber</span>(n) <span class="keyword">end</span>)
+      <span class="keyword">return</span> t
+   <span class="keyword">end</span>
+   <span class="keyword">for</span> i = <span class="number">1</span>, na <span class="keyword">do</span>
+      <span class="keyword">local</span> line = file:read()
+      <span class="keyword">if</span> line == <span class="keyword">nil</span> <span class="keyword">then</span> <span class="keyword">break</span> <span class="keyword">end</span>
+      <span class="comment">-- Get stuff into the R
+</span>      <span class="keyword">local</span> v = tovector(line)
+      R[i][<span class="number">1</span>] = v[<span class="number">1</span>]
+      R[i][<span class="number">2</span>] = v[<span class="number">2</span>]
+      R[i][<span class="number">3</span>] = v[<span class="number">3</span>]
+   <span class="keyword">end</span>
+   file:close()
+   <span class="keyword">return</span> R
+<span class="keyword">end</span>
+
+<span class="comment">-- Now read in the images
+</span><span class="keyword">for</span> i = <span class="number">0</span>, n_images + <span class="number">1</span> <span class="keyword">do</span>
+   images[#images+<span class="number">1</span>] = flos.MDStep:new{R=read_geom(image_label .. i .. <span class="string">".xyz"</span>)}
+<span class="keyword">end</span>
+
+<span class="comment">-- Now we have all images...
+</span><span class="keyword">local</span> NEB = flos.NEB:new(images)
+<span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
+   NEB:info()
+<span class="keyword">end</span>
+<span class="comment">-- Remove global (we use NEB.n_images)
+</span>n_images = <span class="keyword">nil</span>
+
+<span class="comment">-- Setup each image relaxation method (note it is prepared for several
+</span><span class="comment">-- relaxation methods per-image)
+</span><span class="keyword">local</span> relax = {}
+<span class="keyword">for</span> i = <span class="number">1</span>, NEB.n_images <span class="keyword">do</span>
+   <span class="comment">-- Select the relaxation method
+</span>   relax[i] = {}
+   relax[i][<span class="number">1</span>] = flos.LBFGS:new({H0 = <span class="number">1.</span> / <span class="number">75</span>})
+   <span class="comment">--relax[i][2] = flos.LBFGS:new({H0 = 1. / 50})
+</span>
+   <span class="comment">--relax[i][1] = flos.FIRE:new({dt_init = 1., direction="global", correct="global"})
+</span>   <span class="comment">-- add more relaxation schemes if needed ;)
+</span><span class="keyword">end</span>
+
+<span class="comment">-- Counter for controlling which image we are currently relaxing
+</span><span class="keyword">local</span> current_image = <span class="number">1</span>
+
+<span class="comment">-- Grab the unit table of siesta (it is already created
+</span><span class="comment">-- by SIESTA)
+</span><span class="keyword">local</span> Unit = siesta.Units
+
+
+<span class="keyword">function</span> siesta_comm()
+
+   <span class="comment">-- This routine does exchange of data with SIESTA
+</span>   <span class="keyword">local</span> ret_tbl = {}
+
+   <span class="comment">-- Do the actual communication with SIESTA
+</span>   <span class="keyword">if</span> siesta.state == siesta.INITIALIZE <span class="keyword">then</span>
+
+      <span class="comment">-- In the initialization step we request the
+</span>      <span class="comment">-- convergence criteria
+</span>      <span class="comment">--  MD.MaxDispl
+</span>      <span class="comment">--  MD.MaxForceTol
+</span>      siesta_get({<span class="string">"Label"</span>,
+		  <span class="string">"geom.xa"</span>,
+		  <span class="string">"MD.MaxDispl"</span>,
+		  <span class="string">"MD.MaxForceTol"</span>})
+
+      <span class="comment">-- Store the Label
+</span>      label = <span class="global">tostring</span>(siesta.Label)
+
+      <span class="comment">-- Print information
+</span>      IOprint(<span class="string">"\nLUA NEB calculator"</span>)
+
+      <span class="comment">-- Ensure we update the convergence criteria
+</span>      <span class="comment">-- from SIESTA (in this way one can ensure siesta options)
+</span>      <span class="keyword">for</span> img = <span class="number">1</span>, NEB.n_images <span class="keyword">do</span>
+	 <span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
+	    <span class="global">print</span>((<span class="string">"\nLUA NEB relaxation method for image %d:"</span>):format(img))
+	 <span class="keyword">end</span>
+	 <span class="keyword">for</span> i = <span class="number">1</span>, #relax[img] <span class="keyword">do</span>
+	    relax[img][i].tolerance = siesta.MD.MaxForceTol * Unit.Ang / Unit.eV
+	    relax[img][i].max_dF = siesta.MD.MaxDispl / Unit.Ang
+
+	    <span class="comment">-- Print information for this relaxation method
+</span>	    <span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
+	       relax[img][i]:info()
+	    <span class="keyword">end</span>
+	 <span class="keyword">end</span>
+      <span class="keyword">end</span>
+
+      <span class="comment">-- This is only reached one time, and that it as the beginning...
+</span>      <span class="comment">-- be sure to set the corresponding values
+</span>      siesta.geom.xa = NEB.initial.R * Unit.Ang
+
+      IOprint(<span class="string">"\nLUA/NEB initial state\n"</span>)
+
+      <span class="comment">-- force the initial image to be the first one to run
+</span>      current_image = <span class="number">0</span>
+
+      ret_tbl = {<span class="string">'geom.xa'</span>}
+
+   <span class="keyword">end</span>
+
+   <span class="keyword">if</span> siesta.state == siesta.MOVE <span class="keyword">then</span>
+
+      <span class="comment">-- Here we are doing the actual LBFGS algorithm.
+</span>      <span class="comment">-- We retrieve the current coordinates, the forces
+</span>      <span class="comment">-- and whether the geometry has relaxed
+</span>      siesta_get({<span class="string">"geom.fa"</span>,
+		  <span class="string">"E.total"</span>,
+		  <span class="string">"MD.Relaxed"</span>})
+
+      <span class="comment">-- Store the old image that has been tested,
+</span>      <span class="comment">-- in this way we can check whether we have moved to
+</span>      <span class="comment">-- a new image.
+</span>      <span class="keyword">local</span> old_image = current_image
+
+      ret_tbl = siesta_move(siesta)
+
+      <span class="comment">-- we need to re-organize the DM files for faster convergence
+</span>      <span class="comment">-- pass whether the image is the same
+</span>      siesta_update_DM(old_image, current_image)
+
+   <span class="keyword">end</span>
+
+   siesta_return(ret_tbl)
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> siesta_move(siesta)
+
+   <span class="comment">-- Retrieve the atomic coordinates, forces and the energy
+</span>   <span class="keyword">local</span> fa = flos.Array.from(siesta.geom.fa) * Unit.Ang / Unit.eV
+   <span class="keyword">local</span> E = siesta.E.total / Unit.eV
+
+   <span class="comment">-- First update the coordinates, forces and energy for the
+</span>   <span class="comment">-- just calculated image
+</span>   NEB[current_image]:set{F=fa, E=E}
+
+   <span class="keyword">if</span> current_image == <span class="number">0</span> <span class="keyword">then</span>
+      <span class="comment">-- Perform the final image, to retain that information
+</span>      current_image = NEB.n_images + <span class="number">1</span>
+
+      <span class="comment">-- Set the atomic coordinates for the final image
+</span>      siesta.geom.xa = NEB[current_image].R * Unit.Ang
+
+      IOprint(<span class="string">"\nLUA/NEB final state\n"</span>)
+
+      <span class="comment">-- The siesta relaxation is already not set
+</span>      <span class="keyword">return</span> {<span class="string">'geom.xa'</span>}
+
+   <span class="keyword">elseif</span> current_image == NEB.n_images + <span class="number">1</span> <span class="keyword">then</span>
+
+      <span class="comment">-- Start the NEB calculation
+</span>      current_image = <span class="number">1</span>
+
+      <span class="comment">-- Set the atomic coordinates for the final image
+</span>      siesta.geom.xa = NEB[current_image].R * Unit.Ang
+
+      IOprint((<span class="string">"\nLUA/NEB running NEB image %d / %d\n"</span>):format(current_image, NEB.n_images))
+
+      <span class="comment">-- The siesta relaxation is already not set
+</span>      <span class="keyword">return</span> {<span class="string">'geom.xa'</span>}
+
+   <span class="keyword">elseif</span> current_image &lt; NEB.n_images <span class="keyword">then</span>
+
+      current_image = current_image + <span class="number">1</span>
+
+      <span class="comment">-- Set the atomic coordinates for the image
+</span>      siesta.geom.xa = NEB[current_image].R * Unit.Ang
+
+      IOprint((<span class="string">"\nLUA/NEB running NEB image %d / %d\n"</span>):format(current_image, NEB.n_images))
+
+      <span class="comment">-- The siesta relaxation is already not set
+</span>      <span class="keyword">return</span> {<span class="string">'geom.xa'</span>}
+
+   <span class="keyword">end</span>
+
+   <span class="comment">-- First we figure out how perform the NEB optimizations
+</span>   <span class="comment">-- Now we have calculated all the systems and are ready for doing
+</span>   <span class="comment">-- an NEB MD step
+</span>
+   <span class="comment">-- Global variable to check for the NEB convergence
+</span>   <span class="comment">-- Initially assume it has relaxed
+</span>   <span class="keyword">local</span> relaxed = <span class="keyword">true</span>
+
+   IOprint(<span class="string">"\nNEB step"</span>)
+   <span class="keyword">local</span> out_R = {}
+
+   <span class="comment">-- loop on all images and pass the updated forces to the mixing algorithm
+</span>   <span class="keyword">for</span> img = <span class="number">1</span>, NEB.n_images <span class="keyword">do</span>
+
+      <span class="comment">-- Get the correct NEB force (note that the relaxation
+</span>      <span class="comment">-- methods require the negative force)
+</span>      <span class="keyword">local</span> F = NEB:force(img, siesta.IONode)
+      IOprint(<span class="string">"NEB: max F on image "</span>.. img .. (<span class="string">" = %10.5f"</span>):format(F:norm():max()) )
+
+      <span class="comment">-- Prepare the relaxation for image <code>img</code>
+</span>      <span class="keyword">local</span> all_xa, weight = {}, flos.Array( #relax[img] )
+      <span class="keyword">for</span> i = <span class="number">1</span>, #relax[img] <span class="keyword">do</span>
+	 all_xa[i] = relax[img][i]:optimize(NEB[img].R, F)
+	 weight[i] = relax[img][i].weight
+      <span class="keyword">end</span>
+      weight = weight / weight:sum()
+
+      <span class="keyword">if</span> siesta.IONode <span class="keyword">and</span> #relax[img] &gt; <span class="number">1</span> <span class="keyword">then</span>
+	 <span class="global">print</span>(<span class="string">"\n weighted average for relaxation: "</span>, <span class="global">tostring</span>(weight))
+      <span class="keyword">end</span>
+
+      <span class="comment">-- Calculate the new coordinates and figure out
+</span>      <span class="comment">-- if the algorithm has converged (all forces below)
+</span>      <span class="keyword">local</span> out_xa = all_xa[<span class="number">1</span>] * weight[<span class="number">1</span>]
+      relaxed = relaxed <span class="keyword">and</span> relax[img][<span class="number">1</span>]:optimized()
+      <span class="keyword">for</span> i = <span class="number">2</span>, #relax[img] <span class="keyword">do</span>
+	 out_xa = out_xa + all_xa[i] * weight[i]
+	 relaxed = relaxed <span class="keyword">and</span> relax[img][i]:optimized()
+      <span class="keyword">end</span>
+
+      <span class="comment">-- Copy the optimized coordinates to a table
+</span>      out_R[img] = out_xa
+
+   <span class="keyword">end</span>
+
+   <span class="comment">-- Before we update the coordinates we will write
+</span>   <span class="comment">-- the current steps results to the result file
+</span>   <span class="comment">-- (this HAS to be done before updating the coordinates)
+</span>   NEB:save( siesta.IONode )
+
+   <span class="comment">-- Now we may copy over the coordinates (otherwise
+</span>   <span class="comment">-- we do a consecutive update, and then overwrite)
+</span>   <span class="keyword">for</span> img = <span class="number">1</span>, NEB.n_images <span class="keyword">do</span>
+      NEB[img]:set{R=out_R[img]}
+   <span class="keyword">end</span>
+
+   <span class="comment">-- Start over in case the system has not relaxed
+</span>   current_image = <span class="number">1</span>
+   <span class="keyword">if</span> relaxed <span class="keyword">then</span>
+      <span class="comment">-- the final coordinates are returned
+</span>      siesta.geom.xa = NEB.final.R * Unit.Ang
+      IOprint(<span class="string">"\nLUA/NEB complete\n"</span>)
+   <span class="keyword">else</span>
+      siesta.geom.xa = NEB[<span class="number">1</span>].R * Unit.Ang
+      IOprint((<span class="string">"\nLUA/NEB running NEB image %d / %d\n"</span>):format(current_image, NEB.n_images))
+   <span class="keyword">end</span>
+
+   siesta.MD.Relaxed = relaxed
+
+   <span class="keyword">return</span> {<span class="string">"geom.xa"</span>,
+	   <span class="string">"MD.Relaxed"</span>}
+<span class="keyword">end</span>
+
+<span class="keyword">function</span> file_exists(name)
+   <span class="keyword">local</span> f = <span class="global">io</span>.open(name, <span class="string">"r"</span>)
+   <span class="keyword">if</span> f ~= <span class="keyword">nil</span> <span class="keyword">then</span>
+      <span class="global">io</span>.close(f)
+      <span class="keyword">return</span> <span class="keyword">true</span>
+   <span class="keyword">else</span>
+      <span class="keyword">return</span> <span class="keyword">false</span>
+   <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+<span class="comment">-- Function for retaining the DM files for the images so that we
+</span><span class="comment">-- can easily restart etc.
+</span><span class="keyword">function</span> siesta_update_DM(old, current)
+
+   <span class="keyword">if</span> <span class="keyword">not</span> siesta.IONode <span class="keyword">then</span>
+      <span class="comment">-- only allow the IOnode to perform stuff...
+</span>      <span class="keyword">return</span>
+   <span class="keyword">end</span>
+
+   <span class="comment">-- Move about files so that we re-use old DM files
+</span>   <span class="keyword">local</span> DM = label .. <span class="string">".DM"</span>
+   <span class="keyword">local</span> old_DM = DM .. <span class="string">"."</span> .. <span class="global">tostring</span>(old)
+   <span class="keyword">local</span> current_DM = DM .. <span class="string">"."</span> .. <span class="global">tostring</span>(current)
+
+   <span class="keyword">if</span> <span class="number">1</span> &lt;= old <span class="keyword">and</span> old &lt;= NEB.n_images <span class="keyword">and</span> file_exists(DM) <span class="keyword">then</span>
+      <span class="comment">-- store the current DM for restart purposes
+</span>      IOprint(<span class="string">"Saving "</span> .. DM .. <span class="string">" to "</span> .. old_DM)
+      <span class="global">os</span>.execute(<span class="string">"mv "</span> .. DM .. <span class="string">" "</span> .. old_DM)
+   <span class="keyword">elseif</span> file_exists(DM) <span class="keyword">then</span>
+      IOprint(<span class="string">"Deleting "</span> .. DM .. <span class="string">" for a clean restart..."</span>)
+      <span class="global">os</span>.execute(<span class="string">"rm "</span> .. DM)
+   <span class="keyword">end</span>
+
+   <span class="keyword">if</span> file_exists(current_DM) <span class="keyword">then</span>
+      IOprint(<span class="string">"Restoring "</span> .. current_DM .. <span class="string">" to "</span> .. DM)
+      <span class="global">os</span>.execute(<span class="string">"cp "</span> .. current_DM .. <span class="string">" "</span> .. DM)
+   <span class="keyword">end</span>
+
+<span class="keyword">end</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>
