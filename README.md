@@ -79,5 +79,5 @@ Now run SIESTA.
 
 
 [flook]: https://github.com/ElectronicStructureLibrary/flook
-[flos-doc]: https://siesta-project.github.com/flos/index.html
+[flos-doc]: https://siesta-project.github.io/flos/index.html
 [siesta]: https://launchpad.net/siesta
