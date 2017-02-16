@@ -50,13 +50,7 @@ local function ax_(axis)
    end
 end
 
---- Initialization routine for the Array object.
--- Examples:
---     Array(2, 3) -- an array with the last element being `[2][3]`
---     Array(2, 3, 4) -- an array with the last element being `[2][3][4]`
---     Array( Shape(3, 2) ) -- an array with the last element being `[3][2]`
--- @param ... a comma-separated list of integers, or a `Shape`
--- @return a new Array object with the given shape
+
 function Array:initialize(...)
    
    local sh = nil
@@ -101,6 +95,33 @@ function Array:__newindex(i, v)
    rawset(self, i, v)
 end
 
+--- Initialization routines.
+--
+-- These functions may be used to instantiate a new `Array` object.
+--
+-- @usage
+--   Array(2, 3) -- same as :empty
+--   Array:empty(2, 3)
+--   Array:ones(2, 3) -- filled with 1's all over
+--   Array:zeros(2, 3) -- filled with 0's all over
+--   Array:range(2, 3) -- [2, 3]
+--   Array:ones(2, 3):copy() -- create a copy of another Array
+-- @section init
+
+--- Initialization routine for the Array object.
+-- Create a new empty `Array`. Remark that no entries are defined.
+-- 
+-- @usage
+--   Array(2, 3) -- an array with the last element being `[2][3]`
+--   Array(2, 3, 4) -- an array with the last element being `[2][3][4]`
+--   Array( Shape(3, 2) ) -- an array with the last element being `[3][2]`
+--
+-- @function Array:new
+-- @param ... a comma-separated list of integers, or a `Shape`
+-- @return a new Array object with the given shape
+local function doc_function()
+end
+
 --- Initialize an Array, equivalent to `Array(...)`.
 -- @param ... the shape of the Array
 -- @return an Array with no values set
@@ -133,6 +154,24 @@ function Array.ones(...)
 end
 
 
+--- Create a deep copy of the array by copying all elements.
+-- @return a copy of the Array
+function Array:copy()
+   local new = Array( self.shape:copy() )
+   if #self.shape == 1 then
+      -- We need to extract the values, rather than
+      -- copying
+      for i = 1, #self do
+	 new[i] = self[i]
+      end
+   else
+      for i = 1, #self do
+	 new[i] = self[i]:copy()
+      end
+   end
+   return new
+end
+
 --- Initialize a 1D Array with a linear spacing of values starting from `i1`, ending with `i2` and with step size `step` which defaults to 1.
 -- @param i1 the initial value of the range
 -- @param i2 the last value of the range (will only be present if `(i2-i1+1)/step` is an integer)
@@ -163,39 +202,16 @@ function Array.range(i1, i2, step)
 end
 
 
---- Fill all values in the Array with a given value.
--- @param val the value of all elements of this Array
-function Array:fill(val)
-   if #self.shape == 1 then
-      -- We are at the last dimension so we set
-      -- the value accordingly
-      for i = 1, #self do
-	 self[i] = val
-      end
-   else
-      for i = 1, #self do
-	 self[i]:fill(val)
-      end
-   end
-end
-
---- Create a deep copy of the array by copying all elements.
--- @return a copy of the Array
-function Array:copy()
-   local new = Array( self.shape:copy() )
-   if #self.shape == 1 then
-      -- We need to extract the values, rather than
-      -- copying
-      for i = 1, #self do
-	 new[i] = self[i]
-      end
-   else
-      for i = 1, #self do
-	 new[i] = self[i]:copy()
-      end
-   end
-   return new
-end
+--- Object information.
+--
+--
+-- Routines to retrieve information regarding the `Array` object
+-- I.e. the shape, total size, etc.
+-- @usage
+--   #Array -- length of first dimension
+--   #Array.shape -- number of dimensions
+--   Array.size([dim]) -- size of dimension, total size if `dim=0`
+-- @section info
 
 --- Query the length of the first dimension of the Array
 -- @return the length of the first dimension, `self.shape[1]`
@@ -211,7 +227,10 @@ function Array:size(axis)
    return self.shape:size(axis)
 end
 
--- Query the data using a linear index
+
+--- Get an `Array` element through a linear index of the ND array
+-- @int i linear index in the (possible) ND array
+-- @param v the value at index `i`
 function Array:get_linear(i)
 
    -- If we are at the last dimension, return immediately.
@@ -227,7 +246,10 @@ function Array:get_linear(i)
    return self[j]:get_linear( m.tointeger(i - (j-1) * n_dim) )
 end
 
--- Set the data using a linear index
+
+--- Set an `Array` element through a linear index of the ND array
+-- @int i linear index in the (possible) ND array
+-- @param v the value to be set at index `i`
 function Array:set_linear(i, v)
 
    -- If we are at the last dimension, return immediately.
@@ -245,6 +267,31 @@ function Array:set_linear(i, v)
    -- Transform i into the linear index in the underlying array
    self[j]:set_linear( m.tointeger(i - (j-1) * n_dim), v)
       
+end
+
+
+--- Manipulation routines.
+--
+-- All these routines can change the content and do operations of
+-- `Array` objects.
+--
+-- @section computation
+
+
+--- Fill all values in the Array with a given value.
+-- @param val the value of all elements of this Array
+function Array:fill(val)
+   if #self.shape == 1 then
+      -- We are at the last dimension so we set
+      -- the value accordingly
+      for i = 1, #self do
+	 self[i] = val
+      end
+   else
+      for i = 1, #self do
+	 self[i]:fill(val)
+      end
+   end
 end
 
 
@@ -315,22 +362,83 @@ function Array:flatten()
 end
 
 
---- Return a copy of the Array with all values being the absolute value.
--- @return the absolute of all elements in a new Array
+--- Elementwise absolute operation
+-- @return |Array|
+-- @see math.abs
 function Array:abs()
-   local a = Array( self.shape:copy() )
+   return self:map(m.abs)
+end
 
-   -- Loop all values and create the absolute values
-   if #self.shape == 1 then
-      for i = 1, #self do
-	 a[i] = m.abs(self[i])
-      end
-   else
-      for i = 1, #self do
-	 a[i] = self[i]:abs()
-      end
+--- Elementwise ceiling operation
+-- @return math.ceil(Array)
+-- @see math.ceil
+function Array:ceil()
+   return self:map(m.ceil)
+end
+
+--- Elementwise floor operation
+-- @return math.floor(Array)
+-- @see math.floor
+function Array:floor()
+   return self:map(m.floor)
+end
+
+--- Elementwise conversion to integer
+-- @return all values as integers
+-- @see math.tointeger
+function Array:tointeger()
+   return self:map(m.tointeger)
+end
+
+--- Elementwise exponential operation
+-- @return `exp(Array[i])`
+-- @see math.exp
+function Array:exp()
+   return self:map(m.exp)
+end
+
+--- Elementwise cosine operation
+-- @return `cos(Array[i])`
+-- @see math.cos
+function Array:cos()
+   return self:map(m.cos)
+end
+
+--- Elementwise sine operation
+-- @return `sin(Array[i])`
+-- @see math.sin
+function Array:sin()
+   return self:map(m.sin)
+end
+
+--- Elementwise logarithm operation
+-- @param[opt=`e`] base the base of the logarithm
+-- @return `log(Array[i], base)`
+-- @see math.log
+function Array:log(base)
+   if base == nil then
+      return self:map(m.log)
    end
-   return a
+
+   -- Create local function with different base
+   local function lb(v)
+      return m.log(v, base)
+   end
+   return self:map(lb)
+end
+
+--- Elementwise tangent operation
+-- @return `tan(Array[i])`
+-- @see math.tan
+function Array:tan()
+   return self:map(m.tan)
+end
+
+--- Elementwise square root operation
+-- @return `sqrt(Array[i])`
+-- @see math.sqrt
+function Array:sqrt()
+   return self:map(m.sqrt)
 end
 
 
@@ -713,7 +821,7 @@ function Array:transpose()
 end
 
 
---- Implement the element-wise addition of two arrays.
+--- Elementwise addition of two arrays.
 -- It is required that both operands have the same shape (or
 -- one of them being a scalar).
 -- @param lhs the first operand (`Array` or `number`)
@@ -766,7 +874,7 @@ function Array.__add(lhs, rhs)
 
 end
 
---- Implement the element-wise subtraction of two arrays @see Array:__add for details.
+--- Elementwise subtraction of two arrays (see `Array:__add`)
 -- @param lhs the first operand
 -- @param rhs the second operand
 -- @return an Array with `lhs - rhs`
@@ -797,7 +905,7 @@ function Array.__sub(lhs, rhs)
    return ret
 end
 
---- Implement the element-wise multiplication of two arrays @see Array:__add for details.
+--- Elementwise multiplication of two arrays (see `Array:__add`)
 -- @param lhs the first operand
 -- @param rhs the second operand
 -- @return an Array with `lhs * rhs`
@@ -828,7 +936,7 @@ function Array.__mul(lhs, rhs)
    return ret
 end
 
---- Implement the element-wise division of two arrays @see Array:__add for details.
+--- Elementwise division of two arrays (see `Array:__add`)
 -- @param lhs the first operand
 -- @param rhs the second operand
 -- @return an Array with `lhs / rhs`
@@ -859,7 +967,7 @@ function Array.__div(lhs, rhs)
    return ret
 end
 
---- Implement the element-wise unary negative of an Array.
+--- Elementwise unary negation
 -- @return an Array with `-self`
 function Array:__unm()
    local ret = Array( self.shape:copy() )
@@ -869,7 +977,7 @@ function Array:__unm()
    return ret
 end
 
---- Implement the element-wise power operator of two arrays @see Array:__add for details.
+--- Elementwise power of two arrays (see `Array:__add`)
 -- @param lhs the first operand
 -- @param rhs the second operand, this may be "T" to indicate a transpose, @see Array:transpose
 -- @return an Array with `lhs ^ rhs`, or the transpose if `rhs == "T"`.
