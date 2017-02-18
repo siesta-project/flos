@@ -52,7 +52,7 @@ local FIRE = mc.class("FIRE", optim.Optimizer)
 -- @int[opt=5] N_min minimum number of iterations performed before time-step may be increased
 -- @string[opt="global"] correct how the new parameters are rescaled, `"global"` or `"local"`
 -- @string[opt="global"] direction how the velocity pparameter is scaled, `"global"` or `"local"`
--- @param[opt=1] mass either a `table` or a `number`, control individually the masses of each atom
+-- @tparam[opt=1] ?number|table mass control individually the masses of each atom
 -- @Optimizer[opt] optimizer the optimization method used to minimize along the direction (defaults to the `LBFGS` optimizer)
 -- @param ... any arguments `Optimizer:new` accepts
 local function doc_function()
