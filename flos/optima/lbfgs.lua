@@ -29,6 +29,7 @@ local LBFGS = mc.class("LBFGS", optim.Optimizer)
 -- @number[opt=1] damping damping parameter for the parameter change
 -- @number[opt=1/75] H0 initial Hessian value, larger values are more safe, but takes possibly longer to converge
 -- @int[opt=25] history number of previous steps used when calculating the new Hessian
+-- @string[opt="max"] discard method for discarding a previous history step
 -- @param ... any arguments `Optimizer:new` accepts
 local function doc_function()
 end
@@ -49,16 +50,27 @@ function LBFGS:initialize(tbl)
    -- instabilities
    -- Larger values are easier to converge
    self.H0 = 1. / 75.
+   self.H0_init = 1. / 75.
+
+   -- Scaling method for the initial Hessian
+   --  - none
+   --  - initial (dG . dF / |dG|^2)
+   --  - every (dG . dF / |dG|^2)
+   self.scaling = "none"
 
    -- Number of previous history points used
    self.history = 25
+   -- The discard method for the history step
+   --  - none
+   --  - max-dF
+   self.discard = "none"
 
    -- Field of the functional we wish to optimize
    --
    --   F == optimization variable/functional
    --   G == gradient variable/functional (minimization)
-   self.F0 = {}
-   self.G0 = {}
+   self.F0 = nil
+   self.G0 = nil
 
    -- History fields of the residuals.
    -- We store the residuals of the
@@ -79,13 +91,18 @@ function LBFGS:initialize(tbl)
       end
    end
 
+   -- Ensure the initial H0 is "fixed"
+   self.H0_init = self.H0
+
 end
 
 --- Reset the `LBFGS` object
 function LBFGS:reset()
    optim.Optimizer.reset(self)
-   self.F0 = {}
-   self.G0 = {}
+   -- Copy over the initial H0 (for safety)
+   self.H0 = self.H0_init
+   self.F0 = nil
+   self.G0 = nil
    self.dF = {}
    self.dG = {}
    self.rho = {}
@@ -128,12 +145,15 @@ function LBFGS:add_history(F, G)
    -- Retrieve the current iteration step.
    -- With respect to the history and total
    -- iteration count.
-   local iter = m.min(self:iteration(), self.history)
+   local iter = self:_history()
 
    -- If the current iteration count is
    -- more than or equal to one, it means that
    -- we already have F0 and G0
-   if iter > 0 then
+   if self.F0 ~= nil then
+
+      -- Increase history 
+      iter = iter + 1
 
       self.dF[iter] = F - self.F0
       self.dG[iter] = G - self.G0
@@ -168,6 +188,35 @@ function LBFGS:add_history(F, G)
 
 end
 
+--- Removes an element from the history
+-- @int[opt=1] index the index of the history to remove (1 == oldest)
+-- @local
+function LBFGS:remove_history(index)
+   local idx = index or 1
+   if idx > #self.dF then
+      return
+   end
+   
+   -- Remove history stuff...
+   -- This will automatically reorder the table
+   table.remove(self.dF, idx)
+   table.remove(self.dG, idx)
+   table.remove(self.rho, idx)
+
+end
+
+
+--- Return the current number of histories saved
+-- @return number of stored iterations
+-- @local
+function LBFGS:_history()
+   -- This is simply the number of elements in the dF
+   if self.F0 == nil then
+      return 0
+   else
+      return #self.dF
+   end
+end
 
 
 --- Perform a LBFGS step with input parameters `F` and gradient `G`
@@ -180,8 +229,8 @@ function LBFGS:optimize(F, G)
    -- Add the current iteration to the history
    self:add_history(F, G)
 
-   -- Retrieve current iteration count
-   local iter = m.min(self:iteration(), self.history)
+   -- Retrieve current number of previous elements stored
+   local iter = self:_history()
 
    -- Create local pointers to tables
    -- (they are tables, hence by-reference)
@@ -200,7 +249,19 @@ function LBFGS:optimize(F, G)
    end
 
    -- Solve for the rhs optimization
-   local z = q * self.H0
+   local z
+   if self.scaling == "initial" then
+      if iter == 1 then
+	 self.H0 = self.H0_init * dG[iter]:flatdot(dF[iter]) /
+	    dG[iter]:flatdot(dG[iter])
+      end
+      z = q * self.H0
+   elseif self.scaling == "every" and iter > 0 then
+      z = q * self.H0 * dG[iter]:flatdot(dF[iter]) /
+	 dG[iter]:flatdot(dG[iter])
+   else
+      z = q * self.H0
+   end
    -- Clean-up
    q = nil
 
@@ -215,7 +276,13 @@ function LBFGS:optimize(F, G)
    
    -- Update step
    self.weight = m.abs(G:flatdot(z))
-   local dF = self:correct_dF(z) * self.damping
+   local dF = self:correct_dF(z)
+
+   -- Figure out if we should discard some of the previous steps...
+   if self.discard == "max-dF" and (dF - z):sum(0) ~= 0. and iter > 0 then
+      print("LUA removed history step "..tostring(iter))
+      self:remove_history(iter)
+   end
    
    -- Determine whether we have optimized the parameter/functional
    self:optimized(G)
@@ -223,23 +290,25 @@ function LBFGS:optimize(F, G)
    self.niter = self.niter + 1
 
    -- return optimized coordinates, regardless
-   return F + dF
+   return F + dF * self.damping
       
 end
-
+   
 
 --- Print information regarding the `LBFGS` object
 function LBFGS:info()
 
    print("")
-   local it = m.min(self:iteration(), self.history)
+   local it = self:_history()
    if it == 0 then
       print("LBFGS: history: " .. self.history)
    else
       print("LBFGS: current / history: "..tostring(it) .. " / "..self.history)
    end
    print("LBFGS: damping "..tostring(self.damping))
-   print("LBFGS: H0 "..tostring(self.H0))
+   print("LBFGS: H0 "..tostring(self.H0_init))
+   print("LBFGS: scaling "..self.scaling)
+   print("LBFGS: discard "..self.discard)
    print("LBFGS: Tolerance "..tostring(self.tolerance))
    print("LBFGS: Maximum change "..tostring(self.max_dF))
    print("")
