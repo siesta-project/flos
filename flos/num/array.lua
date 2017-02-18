@@ -440,6 +440,39 @@ function Array:sqrt()
    return self:map(m.sqrt)
 end
 
+--- Elementwise cube-root operation
+-- @return `Array[i] ^ (1./3)`
+function Array:cbrt()
+   return self ^ ( 1. / 3 )
+end
+
+
+--- Return the product of array elements over a given axis
+-- @int[opt=0] axis optional argument to query specific axes, if not supplied
+--   the total product of the array will be returned.
+-- @return the product of the specified axis (or total product)
+function Array:prod(axis)
+   local ax = ax_(axis)
+
+   -- Return prod
+   local prod
+
+   if ax == 0 then
+
+      -- we do a full product
+      prod = 1.
+      for i = 1, #self do
+	 prod = prod * self[i]:prod()
+      end
+
+   else
+
+      error("flos.Array prod, not implemented for anything but full")
+
+   end
+
+   return prod
+end
 
 --- Return a the norm of the Array.
 -- Example:
@@ -642,11 +675,37 @@ function Array:sum(axis)
 
       -- Create the new array
       sum = Array( self.shape:remove(ax) )
-      error("flos.Array not implemented yet")
+      error("flos.Array sum not implemented yet")
 
    end
 
    return sum
+end
+
+
+--- Return the average of elements of the Array
+-- @int[opt=0] axis either 0 or an axis. If 0 (or `nil`) the global average is returned, else along the given dimension
+-- @return a value if the `axis=0` or an Array with one less dimension (the axis dimension is _removed_).
+function Array:average(axis)
+   -- Get the actual axis
+   local ax = ax_(axis)
+
+   local avg
+   if ax == 0 then
+
+      avg = self:sum(0) / self:size()
+
+   elseif ax > #self.shape then
+      error("flos.Array average must be along an existing dimension")
+   else
+
+      -- Create the new array
+      avg = Array( self.shape:remove(ax) )
+      error("flos.Array average not implemented yet")
+
+   end
+
+   return avg
 end
 
 
