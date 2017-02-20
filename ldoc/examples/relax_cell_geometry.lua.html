@@ -164,19 +164,14 @@ stress_mask[<span class="number">6</span>] = <span class="number">0.</span>
       <span class="keyword">end</span>
 
       <span class="comment">-- Print information
-</span>      <span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
-	 <span class="comment">-- empty line
-</span>	 <span class="global">print</span>(<span class="string">"\nLUA convergence information for the LBFGS algorithms:"</span>)
-      <span class="keyword">end</span>
+</span>      IOprint(<span class="string">"\nLUA convergence information for the LBFGS algorithms:"</span>)
 
       <span class="comment">-- Store the initial cell (global variable)
 </span>      cell_first = flos.Array.from(siesta.geom.cell) / Unit.Ang
 
       <span class="comment">-- Ensure we update the convergence criteria
 </span>      <span class="comment">-- from SIESTA (in this way one can ensure siesta options)
-</span>      <span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
-	 <span class="global">print</span>(<span class="string">"Lattice optimization:"</span>)
-      <span class="keyword">end</span>
+</span>      IOprint(<span class="string">"Lattice optimization:"</span>)
       <span class="keyword">for</span> i = <span class="number">1</span>, #lattice <span class="keyword">do</span>
 	 lattice[i].tolerance = siesta.MD.MaxStressTol * Unit.Ang ^ <span class="number">3</span> / Unit.eV
 	 lattice[i].max_dF = siesta.MD.MaxDispl / Unit.Ang
@@ -187,9 +182,7 @@ stress_mask[<span class="number">6</span>] = <span class="number">0.</span>
 	 <span class="keyword">end</span>
       <span class="keyword">end</span>
 
-      <span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
-	 <span class="global">print</span>(<span class="string">"\nGeometry optimization:"</span>)
-      <span class="keyword">end</span>
+      IOprint(<span class="string">"\nGeometry optimization:"</span>)
       <span class="keyword">for</span> i = <span class="number">1</span>, #geom <span class="keyword">do</span>
 	 geom[i].tolerance = siesta.MD.MaxForceTol * Unit.Ang / Unit.eV
 	 geom[i].max_dF = siesta.MD.MaxDispl / Unit.Ang
@@ -200,12 +193,10 @@ stress_mask[<span class="number">6</span>] = <span class="number">0.</span>
 	 <span class="keyword">end</span>
       <span class="keyword">end</span>
 
-      <span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
-	 <span class="keyword">if</span> relax_geom <span class="keyword">then</span>
-	    <span class="global">print</span>(<span class="string">"\nLUA: Starting with geometry relaxation!\n"</span>)
-	 <span class="keyword">else</span>
-	    <span class="global">print</span>(<span class="string">"\nLUA: Starting with cell relaxation!\n"</span>)
-	 <span class="keyword">end</span>
+      <span class="keyword">if</span> relax_geom <span class="keyword">then</span>
+	 IOprint(<span class="string">"\nLUA: Starting with geometry relaxation!\n"</span>)
+      <span class="keyword">else</span>
+	 IOprint(<span class="string">"\nLUA: Starting with cell relaxation!\n"</span>)
       <span class="keyword">end</span>
 
    <span class="keyword">end</span>
@@ -272,9 +263,7 @@ stress_mask[<span class="number">6</span>] = <span class="number">0.</span>
       <span class="comment">-- Also initialize the initial strain
 </span>      strain = flos.Array.zeros(<span class="number">6</span>)
 
-      <span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
-	 <span class="global">print</span>(<span class="string">"\nLUA: switching to cell relaxation!\n"</span>)
-      <span class="keyword">end</span>
+      IOprint(<span class="string">"\nLUA: switching to cell relaxation!\n"</span>)
 
    <span class="keyword">elseif</span> (<span class="keyword">not</span> relax_geom) <span class="keyword">and</span> conv_lattice <span class="keyword">then</span>
 
@@ -284,9 +273,7 @@ stress_mask[<span class="number">6</span>] = <span class="number">0.</span>
 	 lattice[i]:reset()
       <span class="keyword">end</span>
 
-      <span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
-	 <span class="global">print</span>(<span class="string">"\nLUA: switching to geometry relaxation!\n"</span>)
-      <span class="keyword">end</span>
+      IOprint(<span class="string">"\nLUA: switching to geometry relaxation!\n"</span>)
 
    <span class="keyword">end</span>
 
@@ -372,8 +359,8 @@ stress_mask[<span class="number">6</span>] = <span class="number">0.</span>
       s = s .. <span class="string">", "</span> .. <span class="global">string</span>.format(<span class="string">"%7.4f"</span>, weight[i])
 
    <span class="keyword">end</span>
-   <span class="keyword">if</span> siesta.IONode <span class="keyword">and</span> #geom &gt; <span class="number">1</span> <span class="keyword">then</span>
-      <span class="global">print</span>(<span class="string">"\nGeometry weighted average: "</span>, s:sub(<span class="number">3</span>))
+   <span class="keyword">if</span> #geom &gt; <span class="number">1</span> <span class="keyword">then</span>
+      IOprint(<span class="string">"\nGeometry weighted average: "</span>, s:sub(<span class="number">3</span>))
    <span class="keyword">end</span>
 
    <span class="comment">-- Calculate the new coordinates and figure out
@@ -442,8 +429,8 @@ stress_mask[<span class="number">6</span>] = <span class="number">0.</span>
       weight[i] = weight[i] / sum_w
       s = s .. <span class="string">", "</span> .. <span class="global">string</span>.format(<span class="string">"%7.4f"</span>, weight[i])
    <span class="keyword">end</span>
-   <span class="keyword">if</span> siesta.IONode <span class="keyword">and</span> #lattice &gt; <span class="number">1</span> <span class="keyword">then</span>
-      <span class="global">print</span>(<span class="string">"\nLattice weighted average: "</span>, s:sub(<span class="number">3</span>))
+   <span class="keyword">if</span> #lattice &gt; <span class="number">1</span> <span class="keyword">then</span>
+      IOprint(<span class="string">"\nLattice weighted average: "</span>, s:sub(<span class="number">3</span>))
    <span class="keyword">end</span>
 
    <span class="comment">-- Calculate the new optimized strain that should
@@ -506,7 +493,7 @@ stress_mask[<span class="number">6</span>] = <span class="number">0.</span>
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-02-16 20:11:12 </i>
+<i style="float:right;">Last updated 2017-02-20 11:30:44 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
