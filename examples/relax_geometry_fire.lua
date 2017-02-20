@@ -105,8 +105,7 @@ function siesta_move(siesta)
    -- Perform step (initialize arrays to do averaging if more
    -- FIRE algorithms are in use).
    local all_xa = {}
-   local weight = {}
-   local sum_w = 0.
+   local weight = flos.Array.empty(#FIRE)
    for i = 1, #FIRE do
       
       -- Calculate the next optimized structure (that
@@ -116,23 +115,13 @@ function siesta_move(siesta)
       -- Get the optimization length for calculating
       -- the best average.
       weight[i] = FIRE[i].weight
-      sum_w = sum_w + weight[i]
       
    end
 
-   -- Normalize according to the weighing scheme.
-   -- We also print-out the weights for the algorithms
-   -- if there are more than one of the FIRE algorithms
-   -- running simultaneously.
-   local s = ""
-   for i = 1, #FIRE do
-      
-      weight[i] = weight[i] / sum_w
-      s = s .. ", " .. string.format("%7.4f", weight[i])
-      
-   end
+   -- Normalize weight
+   weight = weight / weight:sum()
    if #FIRE > 1 then
-      IOprint("\nFIRE weighted average: ", s:sub(3))
+      IOprint("\nFIRE weighted average: ", weight)
    end
 
    -- Calculate the new coordinates and figure out

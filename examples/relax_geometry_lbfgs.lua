@@ -103,8 +103,7 @@ function siesta_move(siesta)
    -- Perform step (initialize arrays to do averaging if more
    -- LBFGS algorithms are in use).
    local all_xa = {}
-   local weight = {}
-   local sum_w = 0.
+   local weight = flos.Array.empty(#LBFGS)
    for i = 1, #LBFGS do
       
       -- Calculate the next optimized structure (that
@@ -114,23 +113,13 @@ function siesta_move(siesta)
       -- Get the optimization length for calculating
       -- the best average.
       weight[i] = LBFGS[i].weight
-      sum_w = sum_w + weight[i]
       
    end
-
-   -- Normalize according to the weighing scheme.
-   -- We also print-out the weights for the algorithms
-   -- if there are more than one of the LBFGS algorithms
-   -- running simultaneously.
-   local s = ""
-   for i = 1, #LBFGS do
-      
-      weight[i] = weight[i] / sum_w
-      s = s .. ", " .. string.format("%7.4f", weight[i])
-      
-   end
+   
+   -- Normalize weights
+   weight = weight / weight:sum()
    if #LBFGS > 1 then
-      IOprint("\nLBFGS weighted average: ", s:sub(3))
+      IOprint("\nLBFGS weighted average: ", weight)
    end
 
    -- Calculate the new coordinates and figure out

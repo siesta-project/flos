@@ -261,8 +261,7 @@ function siesta_geometry(siesta)
    -- Perform step (initialize arrays to do averaging if more
    -- LBFGS algorithms are in use).
    local all_xa = {}
-   local weight = {}
-   local sum_w = 0.
+   local weight = flos.Array.empty(#geom)
    for i = 1, #geom do
       
       -- Calculate the next optimized structure (that
@@ -272,23 +271,13 @@ function siesta_geometry(siesta)
       -- Get the optimization length for calculating
       -- the best average.
       weight[i] = geom[i].weight
-      sum_w = sum_w + weight[i]
       
    end
 
-   -- Normalize according to the weighing scheme.
-   -- We also print-out the weights for the algorithms
-   -- if there are more than one of the LBFGS algorithms
-   -- running simultaneously.
-   local s = ""
-   for i = 1, #geom do
-      
-      weight[i] = weight[i] / sum_w
-      s = s .. ", " .. string.format("%7.4f", weight[i])
-      
-   end
+   -- Normalize weight
+   weight = weight / weight:sum()
    if #geom > 1 then
-      IOprint("\nGeometry weighted average: ", s:sub(3))
+      IOprint("\nGeometry weighted average: ", weight)
    end
 
    -- Calculate the new coordinates and figure out
@@ -323,8 +312,7 @@ function siesta_cell(siesta)
    -- Perform step (initialize arrays to do averaging if more
    -- LBFGS algorithms are in use).
    local all_strain = {}
-   local weight = {}
-   local sum_w = 0.
+   local weight = flos.Array.empty(#lattice)
    for i = 1, #lattice do
       
       -- Calculate the next optimized cell structure (that
@@ -344,21 +332,13 @@ function siesta_cell(siesta)
       -- Get the optimization length for calculating
       -- the best average.
       weight[i] = lattice[i].weight
-      sum_w = sum_w + weight[i]
       
    end
 
-   -- Normalize according to the weighing scheme.
-   -- We also print-out the weights for the algorithms
-   -- if there are more than one of the LBFGS algorithms
-   -- running simultaneously.
-   local s = ""
-   for i = 1, #lattice do
-      weight[i] = weight[i] / sum_w
-      s = s .. ", " .. string.format("%7.4f", weight[i])
-   end
+   -- Normalize weight
+   weight = weight / weight:sum()
    if #lattice > 1 then
-      IOprint("\nLattice weighted average: ", s:sub(3))
+      IOprint("\nLattice weighted average: ", weight)
    end
 
    -- Calculate the new optimized strain that should

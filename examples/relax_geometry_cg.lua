@@ -109,8 +109,7 @@ function siesta_move(siesta)
    -- Perform step (initialize arrays to do averaging if more
    -- CG algorithms are in use).
    local all_xa = {}
-   local weight = {}
-   local sum_w = 0.
+   local weight = flos.Array.empty(#CG)
    for i = 1, #CG do
       
       -- Calculate the next optimized structure (that
@@ -120,23 +119,13 @@ function siesta_move(siesta)
       -- Get the optimization length for calculating
       -- the best average.
       weight[i] = CG[i].weight
-      sum_w = sum_w + weight[i]
       
    end
 
-   -- Normalize according to the weighing scheme.
-   -- We also print-out the weights for the algorithms
-   -- if there are more than one of the CG algorithms
-   -- running simultaneously.
-   local s = ""
-   for i = 1, #CG do
-      
-      weight[i] = weight[i] / sum_w
-      s = s .. ", " .. string.format("%7.4f", weight[i])
-      
-   end
+   -- Normalize weights
+   weight = weight / weight:sum()
    if #CG > 1 then
-      IOprint("\nCG weighted average: ", s:sub(3))
+      IOprint("\nCG weighted average: ", weight)
    end
 
    -- Calculate the new coordinates and figure out
