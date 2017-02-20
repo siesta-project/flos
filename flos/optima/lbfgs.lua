@@ -19,6 +19,19 @@ local LBFGS = mc.class("LBFGS", optim.Optimizer)
 -- may have difficulties in converging because it is more aggressive (keeps more of the initial
 -- gradient). The default value is rather safe and should enable optimization on most systems.
 --
+-- This optimization method also implements a history-discard strategy, if needed, for possible
+-- speeding up the convergence. A field in the argument table, `scaling`, may be passed which
+-- takes one of
+--  - "none", no discard strategy
+--  - "max-dF", if a displacement is being made beyond the max-displacement we do not store the
+--   step in the history
+--
+-- This optimization method also implements a scaling strategy, if needed, for possible speeding
+-- up the convergence. A field in the argument table, `scaling`, may be passed which takes one of
+--  - "none", no scaling strategy used
+--  - "initial", only the initial inverse Hessian and use that in all subsequent iterations
+--  - "every", scale for every step
+--
 -- @usage
 -- lbfgs = LBFGS:new({<field1 = value>, <field2 = value>})
 -- while not lbfgs:optimized() do
@@ -29,7 +42,8 @@ local LBFGS = mc.class("LBFGS", optim.Optimizer)
 -- @number[opt=1] damping damping parameter for the parameter change
 -- @number[opt=1/75] H0 initial Hessian value, larger values are more safe, but takes possibly longer to converge
 -- @int[opt=25] history number of previous steps used when calculating the new Hessian
--- @string[opt="max"] discard method for discarding a previous history step
+-- @string[opt="none"] discard method for discarding a previous history step
+-- @string[opt="none"] scaling method for scaling the inverse Hessian
 -- @param ... any arguments `Optimizer:new` accepts
 local function doc_function()
 end
