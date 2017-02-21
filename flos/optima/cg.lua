@@ -27,7 +27,7 @@ local CG = mc.class("CG", optim.Optimizer)
 
 --- Instantiating a new `CG` object
 --
--- The parameters _must_ be specified with a table of fields and values.
+-- The parameters _must_ be specified with a table of named arguments
 --
 -- The `CG` optimizer implements several variations of the algorithms:
 -- The beta-parameter calculation may be performed using either (`beta` field in argument table):
@@ -46,7 +46,7 @@ local CG = mc.class("CG", optim.Optimizer)
 --  - Powel, when the scalar-projection of the two previous gradients is above 0.2
 --  
 -- @usage
--- cg = CG:new({<field1 = value>, <field2 = value>})
+-- cg = CG{<field1 = value>, <field2 = value>}
 -- while not cg:optimized() do
 --    F = cg:optimize(F, G)
 -- end
@@ -63,6 +63,8 @@ end
 function CG:initialize(tbl)
    -- Initialize from generic optimizer
    optim.Optimizer.initialize(self)
+
+   local tbl = tbl or {}
 
    -- Storing the previous steepest descent direction
    -- and the previous gradient
@@ -171,6 +173,9 @@ function CG:optimize(F, G)
 
    local new = nil
 
+   -- Be sure to update the optimized parameter (for the CG method)
+   self:optimized(G)
+
    if self.G == nil then
       -- This is the first CG step
 
@@ -222,7 +227,6 @@ function CG:optimize(F, G)
    return new
 
 end
-
 
 --- Return the new conjugate direction
 -- This will take into account how the beta-value is calculated.
