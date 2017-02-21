@@ -247,13 +247,11 @@ function FIRE:optimize(F, G)
       end
       -- currently we force the first atom to be fixed
       j = 1
-      print("FIRE:")
+      print(("FIRE: %e"):format(min_norm))
       print(("FIRE:  ENFORCING CONSTRAINT ON ATOM: %d"):format(j))
       print("FIRE: The FIRE algorithm is MD based and requires at least a fixed atom!")
       print("FIRE:")
-      for i = 1, #G[j] do
-	 G[j][i] = 0.
-      end
+      G[j]:fill(0.)
    end
 
    -- Calculate power
@@ -275,8 +273,7 @@ function FIRE:optimize(F, G)
       if self.direction == "global" then
 	 
 	 -- This is the globally adjusted version:
-	 V = V + self.alpha * G / m.sqrt(G:flatdot(G)) *
-	    m.sqrt(self.V:flatdot(self.V))
+	 V = V + self.alpha * G / G:norm(0) * self.V:norm(0)
 
       elseif self.direction == "local" then
 	 
