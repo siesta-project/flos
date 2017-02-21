@@ -12,7 +12,31 @@ local error = ferror.floserr
 -- Create the NEB class (inheriting the Optimizer construct)
 local NEB = mc.class("NEB")
 
-function NEB:initialize(images, climbing, k)
+--- Instantiating a new `NEB` object.
+--
+-- For the `NEB` object it is important to pass the images, and _then_ all
+-- the NEB settings as named arguments in a table.
+--
+-- The `NEB` object implements a generic NEB algorithm as detailed in:
+--  1. "Improved tangent estimate in the nudged elastic band method for findingminimum energy paths and saddle points", Henkelman & Jonsson, JCP (113), 2000
+--  2. "A climbing image nudged elastic band method for finding saddle pointsand minimum energy paths", Henkelman, Uberuaga, & Jonsson, JCP (113), 2000
+-- 
+--
+-- @usage
+-- neb = NEB(images, {<field1 = value>, <field2 = value>})
+--
+-- @function NEB:new
+-- @tparam table images all images (starting with the initial, and ending with the final)
+-- @tparam[opt=5.] ?number|table k spring constant between the images, a table can be used for individual spring constants
+-- @number[opt=0.005] climbing_tol the tolerance for determining whether an image is climbing or not
+local function doc_function()
+end
+
+
+-- Initialization routine
+function NEB:initialize(images, tbl)
+   -- Convert the remaining arguments to a table
+   local tbl = tbl or {}
 
    -- Copy all images over
    local size_img = #images[1].R
@@ -34,7 +58,7 @@ function NEB:initialize(images, climbing, k)
 
    -- an integer that describes when the climbing image
    -- may be used, make large enough to never set it
-   local cl = climbing or 5
+   local cl = tbl.climbing or 5
    if cl == false then
       self._climbing = 1000000000000
    else
@@ -42,25 +66,25 @@ function NEB:initialize(images, climbing, k)
       self._climbing = cl
    end
 
+   -- Set the climbing energy tolerance
+   self.climbing_tol = tbl.climbing_tol or 0.005 -- if the input is in eV/Ang this is 5 meV
+
    self.niter = 0
 
    -- One should also attach the spring-constant
    -- It currently defaults to 5
-   if type(k) == "table" then
-      self.k = k
+   local kl = tbl.k or 5.
+   if type(kl) == "table" then
+      self.k = kl
    else
-      local nk = 5.
-      if k ~= nil then
-	 nk = k
-      end
       self.k = setmetatable({},
 			    {
 			       __index = function(t, k)
-				  return nk
+				  return kl
 			       end
 			    })
    end
-
+   
    self:init_files()
 
 end
@@ -136,10 +160,11 @@ function NEB:climbing(image)
    local E_prev = self[image-1].E
    local E_this = self[image  ].E
    local E_next = self[image+1].E
-   
-   -- Return boolean value depending on energies
-   return (E_prev < E_this) and (E_this > E_next)
 
+   -- Assert the tolerance is taken into consideration
+   return (E_this - E_prev > self.climbing_tol) and
+       (E_this - E_next > self.climbing_tol)
+   
 end
 
 -- Determine spring force on image (image as an integer, starting from 1)

@@ -35,8 +35,8 @@ local flos = require "flos"
 -- Create the two LBFGS algorithms with
 -- initial Hessians 1/75 and 1/50
 local LBFGS = {}
-LBFGS[1] = flos.LBFGS:new({H0 = 1. / 75.})
-LBFGS[2] = flos.LBFGS:new({H0 = 1. / 50.})
+LBFGS[1] = flos.LBFGS{H0 = 1. / 75.}
+LBFGS[2] = flos.LBFGS{H0 = 1. / 50.}
 -- To use more simultaneously simply add a
 -- new line... with a separate LBFGS algorithm.
 

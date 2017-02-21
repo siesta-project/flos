@@ -32,23 +32,20 @@ local FIRE = mc.class("FIRE", optim.Optimizer)
 -- This `FIRE` optimizer allows two variations of the scaling of the velocities
 -- and the resulting displacement.
 --
--- The scaling of t
---  one consider the FIRE algorithm 
---
 --
 -- @usage
--- fire = FIRE:new({<field1 = value>, <field2 = value>})
+-- fire = FIRE{<field1 = value>, <field2 = value>}
 -- while not fire:optimized() do
 --    F = fire:optimize(F, G)
 -- end
 --
 -- @function FIRE:new
--- @number[opt=1] dt_init initial time-step
+-- @number[opt=0.5] dt_init initial time-step
 -- @number[opt=10*dt_init] dt_max maximum time-step allowed
 -- @number[opt=1.1] f_inc factor used to increase time-step
 -- @number[opt=0.5] f_dec factor used to decrease time-step
 -- @number[opt=0.99] f_alpha factor used to decrease alpha-parameter
--- @number[opt=1] alpha_init initial alpha-parameter
+-- @number[opt=0.1] alpha_init initial alpha-parameter
 -- @int[opt=5] N_min minimum number of iterations performed before time-step may be increased
 -- @string[opt="global"] correct how the new parameters are rescaled, `"global"` or `"local"`
 -- @string[opt="global"] direction how the velocity pparameter is scaled, `"global"` or `"local"`
@@ -63,11 +60,13 @@ function FIRE:initialize(tbl)
    -- Initialize from generic optimizer
    optim.Optimizer.initialize(self)
 
+   local tbl = tbl or {}
+
    -- All variables are defined as given in the FIRE
    -- paper.
 
-   -- Initial time-step (in fs)
-   self.dt_init = 1.0
+   -- Initial time-step
+   self.dt_init = 0.5
 
    -- Increment and decrement values
    self.f_inc = 1.1

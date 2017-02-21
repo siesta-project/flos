@@ -31,12 +31,8 @@ local flos = require "flos"
 -- Create the two CG algorithms with
 -- initial Hessians 1/75 and 1/50
 local CG = {}
-CG[1] = flos.CG(
-   { beta='PR', line=flos.Line( {optimizer = flos.LBFGS({H0 = 1. / 75.}) } ) }
-)
-CG[2] = flos.CG(
-   { beta='PR', line=flos.Line( {optimizer = flos.LBFGS({H0 = 1. / 50.}) } ) }
-)
+CG[1] = flos.CG{beta='PR', line=flos.Line{optimizer = flos.LBFGS{H0 = 1. / 75.} } }
+CG[2] = flos.CG{beta='PR', line=flos.Line{optimizer = flos.LBFGS{H0 = 1. / 50.} } }
 -- To use more simultaneously simply add a
 -- new line... with a separate CG algorithm.
 
@@ -136,7 +132,7 @@ function siesta_move(siesta)
       
       out_xa = out_xa + all_xa[i] * weight[i]
       relaxed = relaxed and CG[i]:optimized()
-      
+
    end
    -- Immediately clean-up to reduce memory overhead (force GC)
    all_xa = nil

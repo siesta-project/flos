@@ -12,12 +12,12 @@
 -- gradient onto an initial gradient direction.
 --
 -- @usage
--- line0 = Line:new()
+-- line0 = Line()
 -- -- The default direction will be the gradient passed for in the
 -- -- first `optimize` call.
 -- line0:optimize(F, G)
 --
--- line1 = Line:new(optimizer = flos.LBFGS:new())
+-- line1 = Line{optimizer = flos.LBFGS{}}
 -- -- This is equivalent to the above case, but we explicitly define
 -- -- the minimization direction, and the optimizer.
 -- line1:set_direction(F, G)
@@ -41,7 +41,7 @@ local Line = mc.class("Line", optim.Optimizer)
 -- @see LBFGS
 --
 -- @usage
--- Line:new({<field1 = value>, <field2 = value>})
+-- Line{<field1 = value>, <field2 = value>}
 --
 -- @function Line:new
 -- @Array[opt] direction the line direction (defaults to the first optimization gradient that `Line` gets called with)
@@ -53,6 +53,8 @@ end
 function Line:initialize(tbl)
    -- Initialize from generic optimizer
    optim.Optimizer.initialize(self)
+
+   local tbl = tbl or {}
 
    -- The initial direction of the line-search
    self.direction = nil
@@ -73,9 +75,8 @@ function Line:initialize(tbl)
    
    if self.optimizer == nil then
       -- The optimization method
-      self.optimizer = LBFGS:new{ tolerance = self.tolerance,
-				  max_dF = self.max_dF,
-      }
+      self.optimizer = LBFGS{ tolerance = self.tolerance,
+			      max_dF = self.max_dF}
    end
 
 end

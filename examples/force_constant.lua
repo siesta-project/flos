@@ -89,11 +89,11 @@ function siesta_comm()
       indices = flos.Array.range(siesta.MD.FC.First, siesta.MD.FC.Last)
       if same_displ then
 	 -- No masses, all equal (implicitly)
-	 FC = flos.ForceHessian:new(xa, indices, displ[idispl])
+	 FC = flos.ForceHessian(xa, indices, displ[idispl])
       else
 	 -- Masses used
-	 FC = flos.ForceHessian:new(xa, indices, displ[idispl],
-				    siesta.geom.mass)
+	 FC = flos.ForceHessian(xa, indices, displ[idispl],
+				siesta.geom.mass)
       end
       
    end

@@ -31,10 +31,10 @@ local flos = require "flos"
 local FIRE = {}
 -- In this example we take a mean of 4 different methods
 local dt_init = 0.5
-FIRE[1] = flos.FIRE:new({dt_init = dt_init, direction="global", correct="local"})
-FIRE[2] = flos.FIRE:new({dt_init = dt_init, direction="global", correct="global"})
-FIRE[3] = flos.FIRE:new({dt_init = dt_init, direction="local", correct="local"})
-FIRE[4] = flos.FIRE:new({dt_init = dt_init, direction="local", correct="global"})
+FIRE[1] = flos.FIRE{dt_init = dt_init, direction="global", correct="local"}
+FIRE[2] = flos.FIRE{dt_init = dt_init, direction="global", correct="global"}
+FIRE[3] = flos.FIRE{dt_init = dt_init, direction="local", correct="local"}
+FIRE[4] = flos.FIRE{dt_init = dt_init, direction="local", correct="global"}
 -- To use more simultaneously simply add a
 -- new line... with a separate FIRE algorithm.
 

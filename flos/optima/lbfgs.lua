@@ -33,7 +33,7 @@ local LBFGS = mc.class("LBFGS", optim.Optimizer)
 --  - "every", scale for every step
 --
 -- @usage
--- lbfgs = LBFGS:new({<field1 = value>, <field2 = value>})
+-- lbfgs = LBFGS{<field1 = value>, <field2 = value>}
 -- while not lbfgs:optimized() do
 --    F = lbfgs:optimize(F, G)
 -- end
@@ -51,6 +51,8 @@ end
 function LBFGS:initialize(tbl)
    -- Initialize from generic optimizer
    optim.Optimizer.initialize(self)
+
+   local tbl = tbl or {}
 
    -- Damping of the BFGS algorithm
    --  damping > 1
@@ -188,10 +190,7 @@ function LBFGS:add_history(F, G)
    -- we should clean-up the history
    if iter > self.history then
 
-      -- Forcing garbage collection
-      table.remove(self.dF, 1)
-      table.remove(self.dG, 1)
-      table.remove(self.rho, 1)
+      self:remove_history()
 	 
    end
 

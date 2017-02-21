@@ -14,7 +14,7 @@ local Optimizer = mc.class('Optimizer')
 -- and all inherited parents should call this function.
 --
 -- @usage
--- Optimizer:new({<field1 = value>, <field2 = value>})
+-- Optimizer{<field1 = value>, <field2 = value>}
 --
 -- @function Optimizer:new
 -- @number[opt=0.1] max_dF the maximum change in parameters allowed
@@ -23,7 +23,8 @@ local function doc_function()
 end
 
 --- Initialization routine for all optimizers
-function Optimizer:initialize()
+function Optimizer:initialize(tbl)
+   local tbl = tbl or {}
 
    -- Currently reached iteration
    self.niter = 0
@@ -33,6 +34,14 @@ function Optimizer:initialize()
    
    -- this is the convergence tolerance of the gradient
    self.tolerance = 0.02
+
+   -- Ensure we update the elements as passed
+   -- by new(...)
+   if type(tbl) == "table" then
+      for k, v in pairs(tbl) do
+	 self[k] = v
+      end
+   end
 
    -- Whether the optimization algorithm has been optimized
    self._optimized = false

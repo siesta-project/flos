@@ -30,12 +30,12 @@ local flos = require "flos"
 -- Create the two LBFGS algorithms with
 -- initial Hessians 1/75 and 1/50
 local geom = {}
-geom[1] = flos.LBFGS:new({H0 = 1. / 75.})
-geom[2] = flos.LBFGS:new({H0 = 1. / 50.})
+geom[1] = flos.LBFGS{H0 = 1. / 75.}
+geom[2] = flos.LBFGS{H0 = 1. / 50.}
 
 local lattice = {}
-lattice[1] = flos.LBFGS:new({H0 = 1. / 75.})
-lattice[2] = flos.LBFGS:new({H0 = 1. / 50.})
+lattice[1] = flos.LBFGS{H0 = 1. / 75.}
+lattice[2] = flos.LBFGS{H0 = 1. / 50.}
 
 -- Grab the unit table of siesta (it is already created
 -- by SIESTA)

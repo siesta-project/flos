@@ -43,11 +43,11 @@ end
 
 -- Now read in the images
 for i = 0, n_images + 1 do
-   images[#images+1] = flos.MDStep:new{R=read_geom(image_label .. i .. ".xyz")}
+   images[#images+1] = flos.MDStep{R=read_geom(image_label .. i .. ".xyz")}
 end
 
 -- Now we have all images...
-local NEB = flos.NEB:new(images)
+local NEB = flos.NEB(images)
 if siesta.IONode then
    NEB:info()
 end
@@ -60,10 +60,10 @@ local relax = {}
 for i = 1, NEB.n_images do
    -- Select the relaxation method
    relax[i] = {}
-   relax[i][1] = flos.LBFGS:new({H0 = 1. / 75})
-   --relax[i][2] = flos.LBFGS:new({H0 = 1. / 50})
-
-   --relax[i][1] = flos.FIRE:new({dt_init = 1., direction="global", correct="global"})
+   relax[i][1] = flos.LBFGS{H0 = 1. / 75}
+   --relax[i][2] = flos.LBFGS{H0 = 1. / 50}
+   
+   --relax[i][1] = flos.FIRE{dt_init = 1., direction="global", correct="global"}
    -- add more relaxation schemes if needed ;)
 end
 
@@ -217,7 +217,9 @@ function siesta_move(siesta)
       -- Get the correct NEB force (note that the relaxation
       -- methods require the negative force)
       local F = NEB:force(img, siesta.IONode)
-      IOprint("NEB: max F on image ".. img .. (" = %10.5f"):format(F:norm():max()) )
+      IOprint("NEB: max F on image ".. img ..
+		 (" = %10.5f, climbing = %s"):format(F:norm():max(),
+						     tostring(NEB:climbing(img))) )
 
       -- Prepare the relaxation for image `img`
       local all_xa, weight = {}, flos.Array( #relax[img] )
