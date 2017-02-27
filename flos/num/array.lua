@@ -29,13 +29,20 @@ local shape = require "flos.num.shape"
 
 local Array = mc.class("Array")
 
---- Check if a variable is a an Array type object.
+--- Check if a variable is an `Array` type object.
 -- @param obj the object/variable to check
--- @return true if the object is an instance, or sub-class, of the Array.
-local function isArray(obj)
+-- @int[opt=0] dim query the exact dimensionality of the `Array` (`0` for _any_ dimensionality)
+-- @return true if the object is an instance, or sub-class, of the Array, and possibly also whether
+--   the dimensionality is as queried.
+local function isArray(obj, dim)
+   local d = dim or 0
    if type(obj) == "table" then
       if obj.class then
-	 return obj:isInstanceOf(Array) or obj:isSubclassOf(Array)
+	 local bool = obj:isInstanceOf(Array) or obj:isSubclassOf(Array)
+	 if bool and dim > 0 then
+	    bool = #obj.shape == dim
+	 end
+	 return bool
       end
    end
    return false
