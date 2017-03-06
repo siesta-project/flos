@@ -39,8 +39,8 @@ local function isArray(obj, dim)
    if type(obj) == "table" then
       if obj.class then
 	 local bool = obj:isInstanceOf(Array) or obj:isSubclassOf(Array)
-	 if bool and dim > 0 then
-	    bool = #obj.shape == dim
+	 if bool and d > 0 then
+	    bool = #obj.shape == d
 	 end
 	 return bool
       end
