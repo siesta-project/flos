@@ -47,7 +47,7 @@ function siesta_comm()
       
       -- In the initialization step we request the
       -- Mesh cutoff (merely to be able to set it
-      siesta_get({"Mesh.Cutoff.Minimum"})
+      siesta.receive({"Mesh.Cutoff.Minimum"})
 
       -- Overwrite to ensure we start from the beginning
       siesta.Mesh.Cutoff.Minimum = cutoff[icutoff]
@@ -60,7 +60,7 @@ function siesta_comm()
 
    if siesta.state == siesta.INIT_MD then
 
-      siesta_get({"Mesh.Cutoff.Used"})
+      siesta.receive({"Mesh.Cutoff.Used"})
       -- Store the used meshcutoff for this iteration
       cutoff[icutoff] = siesta.Mesh.Cutoff.Used
 
@@ -72,8 +72,8 @@ function siesta_comm()
       -- meshcutoff for the next cycle
       -- Notice, we do not move, or change the geometry
       -- or cell-vectors.
-      siesta_get({"E.total",
-		  "MD.Relaxed"})
+      siesta.receive({"E.total",
+		      "MD.Relaxed"})
 
       Etot[icutoff] = siesta.E.total
       
@@ -106,7 +106,7 @@ function siesta_comm()
 
    end
 
-   siesta_return(ret_tbl)
+   siesta.send(ret_tbl)
 end
 
 -- Step the cutoff counter and return

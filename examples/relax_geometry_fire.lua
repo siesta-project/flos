@@ -55,9 +55,9 @@ function siesta_comm()
       --  MD.MaxDispl
       --  MD.MaxForceTol
       -- We also need the mass for scaling the displacments
-      siesta_get({"MD.MaxDispl",
-		  "MD.MaxForceTol",
-		  "geom.mass"})
+      siesta.receive({"MD.MaxDispl",
+		      "MD.MaxForceTol",
+		      "geom.mass"})
 
       -- Print information
       IOprint("\nLUA convergence information for the FIRE algorithms:")
@@ -83,15 +83,15 @@ function siesta_comm()
       -- Here we are doing the actual FIRE algorithm.
       -- We retrieve the current coordinates, the forces
       -- and whether the geometry has relaxed
-      siesta_get({"geom.xa",
-		  "geom.fa",
-		  "MD.Relaxed"})
+      siesta.receive({"geom.xa",
+		      "geom.fa",
+		      "MD.Relaxed"})
 
       ret_tbl = siesta_move(siesta)
       
    end
 
-   siesta_return(ret_tbl)
+   siesta.send(ret_tbl)
 end
 
 function siesta_move(siesta)

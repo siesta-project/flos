@@ -68,11 +68,11 @@ function siesta_comm()
       --  MD.FCFirst
       --  MD.FCLast
       --  MD.FCDispl
-      siesta_get({"geom.xa",
-		  "geom.mass",
-		  "MD.FC.Displ",
-		  "MD.FC.First",
-		  "MD.FC.Last"})
+      siesta.receive({"geom.xa",
+		      "geom.mass",
+		      "MD.FC.Displ",
+		      "MD.FC.First",
+		      "MD.FC.Last"})
 
       -- Print information
       IOprint("\nLUA Using the FC run")
@@ -102,11 +102,11 @@ function siesta_comm()
       
       -- We retrieve the current coordinates, the forces
       -- and whether the geometry has relaxed
-      siesta_get({"geom.xa",
-		  "geom.fa",
-		  "Write.DM",
-		  "Write.EndOfCycle.DM",
-		  "MD.Relaxed"})
+      siesta.receive({"geom.xa",
+		      "geom.fa",
+		      "Write.DM",
+		      "Write.EndOfCycle.DM",
+		      "MD.Relaxed"})
 
       ret_tbl = siesta_move(siesta)
 
@@ -147,7 +147,7 @@ function siesta_comm()
 
    end
 
-   siesta_return(ret_tbl)
+   siesta.send(ret_tbl)
 end
 
 function siesta_move(siesta)

@@ -57,8 +57,8 @@ function siesta_comm()
       -- convergence criteria
       --  MD.MaxDispl
       --  MD.MaxForceTol
-      siesta_get({"MD.MaxDispl",
-		  "MD.MaxForceTol"})
+      siesta.receive({"MD.MaxDispl",
+		      "MD.MaxForceTol"})
 
 
       -- Print information (only on IONode)
@@ -84,14 +84,14 @@ function siesta_comm()
       -- Here we are doing the actual LBFGS algorithm.
       -- We retrieve the current coordinates, the forces
       -- and whether the geometry has relaxed
-      siesta_get({"geom.xa",
-		  "geom.fa",
-		  "MD.Relaxed"})
+      siesta.receive({"geom.xa",
+		      "geom.fa",
+		      "MD.Relaxed"})
       ret_tbl = siesta_move(siesta)
       
    end
 
-   siesta_return(ret_tbl)
+   siesta.send(ret_tbl)
 end
 
 function siesta_move(siesta)

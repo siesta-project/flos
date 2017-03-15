@@ -66,10 +66,10 @@ function siesta_comm()
       -- convergence criteria
       --  MD.MaxDispl
       --  MD.MaxStressTol
-      siesta_get({"geom.cell",
-		  "MD.Relax.Cell",
-		  "MD.MaxDispl",
-		  "MD.MaxStressTol"})
+      siesta.receive({"geom.cell",
+		      "MD.Relax.Cell",
+		      "MD.MaxDispl",
+		      "MD.MaxStressTol"})
 
       -- Check that we are allowed to change the cell parameters
       if not siesta.MD.Relax.Cell then
@@ -105,14 +105,14 @@ function siesta_comm()
       -- We retrieve the current cell vectors, the stress
       -- the atomic coordinates (for rescaling)
       -- and whether the geometry has relaxed
-      siesta_get({"geom.cell",
-		  "geom.xa",
-		  "geom.stress",
-		  "MD.Relaxed"})
+      siesta.receive({"geom.cell",
+		      "geom.xa",
+		      "geom.stress",
+		      "MD.Relaxed"})
       ret_tbl = siesta_move(siesta)
    end
 
-   siesta_return(ret_tbl)
+   siesta.send(ret_tbl)
 end
 
 function siesta_move(siesta)

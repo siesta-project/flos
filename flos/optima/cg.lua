@@ -18,6 +18,7 @@
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
 
+local num = require "flos.num"
 local optim = require "flos.optima.base"
 local Line = require "flos.optima.line"
 local LBFGS = require "flos.optima.lbfgs"
@@ -285,6 +286,69 @@ function CG:conjugate()
 
    -- Now calculate the new steepest descent direction
    return self.G + beta * self.conj0
+
+end
+
+
+--- SIESTA function for performing a complete SIESTA CG optimization.
+--
+-- This function will query these fdf-flags from SIESTA:
+--
+--  - MD.MaxForceTol
+--  - MD.MaxCGDispl
+--
+-- and use those as the tolerance for convergence as well as the
+-- maximum displacement for each optimization step.
+--
+-- Everything else is controlled by the `CG` object.
+--
+-- Note that all internal operations in this function relies on units being in
+--  - Ang
+--  - eV
+--  - eV/Ang
+--
+-- @tparam table siesta the SIESTA global table.
+function CG:SIESTA(siesta)
+
+   -- Retrieve the siesta units
+   local unit = siesta.Units
+
+   if siesta.state == siesta.INITIALIZE then
+
+      -- Setup the convergence criteria
+      siesta.receive({"MD.MaxDispl",
+		      "MD.MaxForceTol"})
+      
+      self.tolerance = siesta.MD.MaxForceTol * unit.Ang / unit.eV
+      self.max_dF = siesta.MD.MaxDispl / unit.Ang
+      -- Propagate the tolerances down to the line-search for reducing
+      -- amount of line-searches
+      self.line.tolerance = self.tolerance
+      self.line.max_dF = self.max_dF -- this is not used
+      self.line.optimizer.tolerance = self.tolerance -- this is not used
+      self.line.optimizer.max_dF = self.max_dF -- this is used
+
+      if siesta.IONode then
+	 self:info()
+      end
+
+   elseif siesta.state == siesta.MOVE then
+      
+      -- Receive information
+      siesta.receive({"geom.xa", "geom.fa", "MD.Relaxed"})
+      
+      -- Now retrieve the coordinates and the forces
+      local xa = num.Array.from(siesta.geom.xa) / unit.Ang
+      local fa = num.Array.from(siesta.geom.fa) * unit.Ang / unit.eV
+      
+      -- Send back new coordinates (convert to Bohr)
+      siesta.geom.xa = self:optimize(xa, fa) * unit.Ang
+      siesta.MD.Relaxed = self:optimized()
+
+      -- return the new coordinates and whether it has relaxed
+      siesta.send({"geom.xa", "MD.Relaxed"})
+
+   end
 
 end
 

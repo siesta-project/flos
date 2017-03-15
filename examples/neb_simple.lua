@@ -87,10 +87,10 @@ function siesta_comm()
       -- convergence criteria
       --  MD.MaxDispl
       --  MD.MaxForceTol
-      siesta_get({"Label",
-		  "geom.xa",
-		  "MD.MaxDispl",
-		  "MD.MaxForceTol"})
+      siesta.receive({"Label",
+		      "geom.xa",
+		      "MD.MaxDispl",
+		      "MD.MaxForceTol"})
 
       -- Store the Label
       label = tostring(siesta.Label)
@@ -131,9 +131,9 @@ function siesta_comm()
       -- Here we are doing the actual LBFGS algorithm.
       -- We retrieve the current coordinates, the forces
       -- and whether the geometry has relaxed
-      siesta_get({"geom.fa",
-		  "E.total",
-		  "MD.Relaxed"})
+      siesta.receive({"geom.fa",
+		      "E.total",
+		      "MD.Relaxed"})
 
       -- Store the old image that has been tested,
       -- in this way we can check whether we have moved to
@@ -148,7 +148,7 @@ function siesta_comm()
 
    end
 
-   siesta_return(ret_tbl)
+   siesta.send(ret_tbl)
 end
 
 function siesta_move(siesta)

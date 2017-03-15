@@ -76,11 +76,11 @@ function siesta_comm()
       -- convergence criteria
       --  MD.MaxDispl
       --  MD.MaxStressTol
-      siesta_get({"geom.cell",
-		  "MD.Relax.Cell",
-		  "MD.MaxDispl",
-		  "MD.MaxForceTol",
-		  "MD.MaxStressTol"})
+      siesta.receive({"geom.cell",
+		      "MD.Relax.Cell",
+		      "MD.MaxDispl",
+		      "MD.MaxForceTol",
+		      "MD.MaxStressTol"})
 
       -- Check that we are allowed to change the cell parameters
       if not siesta.MD.Relax.Cell then
@@ -134,15 +134,15 @@ function siesta_comm()
       -- Regardless of the method we
       -- retrieve everything so that we
       -- can check if both are converged
-      siesta_get({"geom.cell",
-		  "geom.xa",
-		  "geom.fa",
-		  "geom.stress",
-		  "MD.Relaxed"})
+      siesta.receive({"geom.cell",
+		      "geom.xa",
+		      "geom.fa",
+		      "geom.stress",
+		      "MD.Relaxed"})
       ret_tbl = siesta_move(siesta)
    end
 
-   siesta_return(ret_tbl)
+   siesta.send(ret_tbl)
 end
 
 function siesta_move(siesta)

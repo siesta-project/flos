@@ -5,9 +5,10 @@
 -- original method.
 --
 -- 
-
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
+
+local num = require "flos.num"
 local optim = require "flos.optima.base"
 
 -- Create the FIRE class (inheriting the Optimizer construct)
@@ -354,6 +355,63 @@ function FIRE:MD(V, G)
 
    -- If we use what VTST uses it is a direct Euler
    --return V * self.dt + G * (self.dt * self.dt)
+end
+
+
+--- SIESTA function for performing a complete SIESTA FIRE optimization.
+--
+-- This function will query these fdf-flags from SIESTA:
+--
+--  - MD.MaxForceTol
+--  - MD.MaxCGDispl
+--
+-- and use those as the tolerance for convergence as well as the
+-- maximum displacement for each optimization step.
+--
+-- Everything else is controlled by the `FIRE` object.
+--
+-- Note that all internal operations in this function relies on units being in
+--  - Ang
+--  - eV
+--  - eV/Ang
+--
+-- @tparam table siesta the SIESTA global table.
+function FIRE:SIESTA(siesta)
+
+   -- Retrieve the siesta units
+   local unit = siesta.Units
+
+   if siesta.state == siesta.INITIALIZE then
+
+      -- Setup the convergence criteria
+      siesta.receive({"MD.MaxDispl",
+		      "MD.MaxForceTol"})
+      
+      self.tolerance = siesta.MD.MaxForceTol * unit.Ang / unit.eV
+      self.max_dF = siesta.MD.MaxDispl / unit.Ang
+
+      if siesta.IONode then
+	 self:info()
+      end
+
+   elseif siesta.state == siesta.MOVE then
+      
+      -- Receive information
+      siesta.receive({"geom.xa", "geom.fa", "MD.Relaxed"})
+
+      -- Now retrieve the coordinates and the forces
+      local xa = num.Array.from(siesta.geom.xa) / unit.Ang
+      local fa = num.Array.from(siesta.geom.fa) * unit.Ang / unit.eV
+
+      -- Send back new coordinates (convert to Bohr)
+      siesta.geom.xa = self:optimize(xa, fa) * unit.Ang
+      siesta.MD.Relaxed = self:optimized()
+
+      -- return the new coordinates and whether it has relaxed
+      siesta.send({"geom.xa", "MD.Relaxed"})
+
+   end
+
 end
 
 
