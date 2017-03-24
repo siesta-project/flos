@@ -18,8 +18,10 @@ local NEB = mc.class("NEB")
 -- the NEB settings as named arguments in a table.
 --
 -- The `NEB` object implements a generic NEB algorithm as detailed in:
---  1. "Improved tangent estimate in the nudged elastic band method for findingminimum energy paths and saddle points", Henkelman & Jonsson, JCP (113), 2000
---  2. "A climbing image nudged elastic band method for finding saddle pointsand minimum energy paths", Henkelman, Uberuaga, & Jonsson, JCP (113), 2000
+--  1. "Improved tangent estimate in the nudged elastic band method for finding minimum energy paths and saddle points", Henkelman & Jonsson, JCP (113), 2000
+--  2. "A climbing image nudged elastic band method for finding saddle points and minimum energy paths", Henkelman, Uberuaga, & Jonsson, JCP (113), 2000
+--
+-- This particular implementation has been tested and initially developed by Jesper T. Rasmussen, DTU Nanotech, 2016.
 -- 
 --
 -- @usage
