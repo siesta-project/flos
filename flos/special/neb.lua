@@ -22,10 +22,49 @@ local NEB = mc.class("NEB")
 --  2. "A climbing image nudged elastic band method for finding saddle points and minimum energy paths", Henkelman, Uberuaga, & Jonsson, JCP (113), 2000
 --
 -- This particular implementation has been tested and initially developed by Jesper T. Rasmussen, DTU Nanotech, 2016.
--- 
+--
+-- When instantiating a new `NEB` calculator one _must_ populate the initial, all intermediate images and a final image in a a table.
+-- The easiest way to do this can be seen in the below usage field.
+--
+-- To perform the NEB calculation all images (besides the initial and final) are
+-- relaxed by an external relaxation method (see `Optimizer` and its child classes).
+-- Due to the forces being highly non-linear as the NEB algorithm updates the
+-- forces depending on the nearest images, it is adviced to use an MD-like relaxation
+-- method such as `FIRE`. If one uses history based relaxation methods (`LBFGS`, `CG`, etc.) one should
+-- limit the number of history steps used.
 --
 -- @usage
+-- -- Read in the images
+-- -- Note that `read_geom` must be a function that you define to read in the
+-- -- atomic coordinates of a corresponding `.xyz` file.
+-- images = {}
+-- for i = 0, n_images + 1 do
+--    images[#images+1] = flos.MDStep{R=read_geom(image_label .. i .. ".xyz")}
+-- end
 -- neb = NEB(images, {<field1 = value>, <field2 = value>})
+-- relax = {}
+-- for i = 1, neb.n_images do
+--    relax[i] = flos.FIRE()
+-- end
+-- neb[0]:set(F=<initial-forces>, E=<initial-E>)
+-- neb[neb.n_images+1]:set(F=<final-forces>, E=<final-E>)
+-- while true do
+--    -- Calculate all forces and energies of each image
+--    for i = 1, neb.n_images do
+--       neb[i]:set(F=<forces>, E=<energy>)
+--    end
+--    -- Calculate new positions (this must be done after
+--    -- the force calculations because the coordinates depend on the
+--    -- neighbouring image forces)
+--    R = {}
+--    for i = 1, neb.n_images do
+--       f = neb:force(i)
+--       R[i] = relax:optimize(neb[i].R, neb:force(i))
+--    end
+--    for i = 1, neb.n_images do
+--       neb:set(R=R[i])
+--    end
+-- end
 --
 -- @function NEB:new
 -- @tparam table images all images (starting with the initial, and ending with the final)
@@ -92,15 +131,28 @@ function NEB:initialize(images, tbl)
 end
 
 -- Simple wrapper for checking the image number
-function NEB:_check_image(image)
-   if image < 1 or self.n_images < image then
-      error("NEB: requesting a non-existing image!")
+function NEB:_check_image(image, all)
+   local all = all or false
+   if all then
+      if image < 0 or self.n_images + 1 < image then
+	 error("NEB: requesting a non-existing image!")
+      end
+   else
+      if image < 1 or self.n_images < image then
+	 error("NEB: requesting a non-existing image!")
+      end
    end
 end
 
 
--- Return the coordinate difference between two images
+--- Return the coordinate difference between two images
+-- @int img1 the first image
+-- @int img2 the second image
+-- @return `NEB[img2].R - NEB[img1].R`
 function NEB:dR(img1, img2)
+   self:_check_image(img1, true)
+   self:_check_image(img2, true)
+
    -- This function assumes the reference
    -- image is checked in the parent function
 
@@ -108,7 +160,9 @@ function NEB:dR(img1, img2)
 
 end
 
--- Calculate the tangent of a give image (image as an integer, starting from 1)
+--- Calculate the tangent of a given image
+-- @int image the image to calculate the tangent of
+-- @return tangent force
 function NEB:tangent(image)
    self:_check_image(image)
 
@@ -154,7 +208,9 @@ function NEB:tangent(image)
 end
 
 
--- Determine if a given image is an extremum and if we should use climbing image
+--- Determine whether the queried image is climbing
+-- @int image image queried
+-- @return true if the image is climbing
 function NEB:climbing(image)
    self:_check_image(image)
    
@@ -169,7 +225,9 @@ function NEB:climbing(image)
    
 end
 
--- Determine spring force on image (image as an integer, starting from 1)
+--- Calculate the spring force of a given image
+-- @int image the image to calculate the spring force of
+-- @return spring force
 function NEB:spring_force(image)
    self:_check_image(image)
    
@@ -183,7 +241,9 @@ function NEB:spring_force(image)
 end
 
 
--- Determine perpendicular force on image (image as an integer, starting from 1)
+--- Calculate the perpendicular force of a given image
+-- @int image the image to calculate the perpendicular force of
+-- @return perpendicular force
 function NEB:perpendicular_force(image)
    self:_check_image(image)
 
@@ -193,7 +253,9 @@ function NEB:perpendicular_force(image)
 
 end
 
--- Determine image curvature (image as an integer, starting from 1)
+--- Calculate the curvature of the force with regards to the tangent
+-- @int image the image to calculate the curvature of
+-- @return curvature
 function NEB:curvature(image)
    self:_check_image(image)
 
@@ -205,6 +267,9 @@ function NEB:curvature(image)
    
 end
 
+--- Calculate the resulting NEB force of a given image
+-- @int image the image to calculate the NEB force of
+-- @return NEB force
 function NEB:neb_force(image)
    self:_check_image(image)
 
@@ -223,8 +288,18 @@ function NEB:neb_force(image)
 
 end
 
--- Get the actual force acting on image (image as an integer, starting from 1)
--- I.e. this is the force perpendicular to the tangent
+--- Query the current coordinates of an image
+-- @int image the image
+-- @return coordinates
+function NEB:R(image)
+   self:_check_image(image, true)
+
+   return NEB[image].R
+end
+
+--- Query the current force (same as `NEB:force` but with IO included)
+-- @int image the image
+-- @return force
 function NEB:force(image, IO)
    self:_check_image(image)
 
@@ -340,6 +415,7 @@ function NEB:save(IO)
 
 end
 
+--- Initialize all files that will be written to
 function NEB:init_files()
    
    -- We clean all image data for a new run
