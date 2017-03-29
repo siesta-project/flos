@@ -22,7 +22,7 @@ As an example the following bash commands enables the library:
 	cd flos
 	git submodule init
 	git submodule update
-	export LUA_PATH="$HOME/flos/?.lua;$HOME/flos/?/init.lua;$LUA_PATH"
+	export LUA_PATH="$HOME/flos/?.lua;$HOME/flos/?/init.lua;$LUA_PATH;;"
 
 and that is it. Now you can use the `flos` library.
     
