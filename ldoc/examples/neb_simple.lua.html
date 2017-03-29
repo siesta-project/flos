@@ -46,6 +46,7 @@
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/error.html">error</a></li>
+  <li><a href="../modules/Linear.html">Linear</a></li>
 </ul>
 <h2>Classes</h2>
 <ul class="nowrap">
@@ -78,7 +79,7 @@ Example on how to use an NEB method.
 </span><span class="keyword">local</span> flos = <span class="global">require</span> <span class="string">"flos"</span>
 
 <span class="comment">-- The prefix of the files that contain the images
-</span><span class="keyword">local</span> image_label = <span class="string">"Siesta."</span>
+</span><span class="keyword">local</span> image_label = <span class="string">"siesta."</span>
 
 <span class="comment">-- Total number of images (excluding initial[0] and final[n_images+1])
 </span><span class="keyword">local</span> n_images = <span class="number">6</span>
@@ -115,11 +116,11 @@ Example on how to use an NEB method.
 
 <span class="comment">-- Now read in the images
 </span><span class="keyword">for</span> i = <span class="number">0</span>, n_images + <span class="number">1</span> <span class="keyword">do</span>
-   images[#images+<span class="number">1</span>] = flos.MDStep:new{R=read_geom(image_label .. i .. <span class="string">".xyz"</span>)}
+   images[#images+<span class="number">1</span>] = flos.MDStep{R=read_geom(image_label .. i .. <span class="string">".xyz"</span>)}
 <span class="keyword">end</span>
 
 <span class="comment">-- Now we have all images...
-</span><span class="keyword">local</span> NEB = flos.NEB:new(images)
+</span><span class="keyword">local</span> NEB = flos.NEB(images)
 <span class="keyword">if</span> siesta.IONode <span class="keyword">then</span>
    NEB:info()
 <span class="keyword">end</span>
@@ -132,10 +133,10 @@ Example on how to use an NEB method.
 <span class="keyword">for</span> i = <span class="number">1</span>, NEB.n_images <span class="keyword">do</span>
    <span class="comment">-- Select the relaxation method
 </span>   relax[i] = {}
-   relax[i][<span class="number">1</span>] = flos.LBFGS:new({H0 = <span class="number">1.</span> / <span class="number">75</span>})
-   <span class="comment">--relax[i][2] = flos.LBFGS:new({H0 = 1. / 50})
+   relax[i][<span class="number">1</span>] = flos.LBFGS{H0 = <span class="number">1.</span> / <span class="number">75</span>}
+   <span class="comment">--relax[i][2] = flos.LBFGS{H0 = 1. / 50}
 </span>
-   <span class="comment">--relax[i][1] = flos.FIRE:new({dt_init = 1., direction="global", correct="global"})
+   <span class="comment">--relax[i][1] = flos.FIRE{dt_init = 1., direction="global", correct="global"}
 </span>   <span class="comment">-- add more relaxation schemes if needed ;)
 </span><span class="keyword">end</span>
 
@@ -159,10 +160,10 @@ Example on how to use an NEB method.
 </span>      <span class="comment">-- convergence criteria
 </span>      <span class="comment">--  MD.MaxDispl
 </span>      <span class="comment">--  MD.MaxForceTol
-</span>      siesta_get({<span class="string">"Label"</span>,
-		  <span class="string">"geom.xa"</span>,
-		  <span class="string">"MD.MaxDispl"</span>,
-		  <span class="string">"MD.MaxForceTol"</span>})
+</span>      siesta.receive({<span class="string">"Label"</span>,
+		      <span class="string">"geom.xa"</span>,
+		      <span class="string">"MD.MaxDispl"</span>,
+		      <span class="string">"MD.MaxForceTol"</span>})
 
       <span class="comment">-- Store the Label
 </span>      label = <span class="global">tostring</span>(siesta.Label)
@@ -203,9 +204,9 @@ Example on how to use an NEB method.
       <span class="comment">-- Here we are doing the actual LBFGS algorithm.
 </span>      <span class="comment">-- We retrieve the current coordinates, the forces
 </span>      <span class="comment">-- and whether the geometry has relaxed
-</span>      siesta_get({<span class="string">"geom.fa"</span>,
-		  <span class="string">"E.total"</span>,
-		  <span class="string">"MD.Relaxed"</span>})
+</span>      siesta.receive({<span class="string">"geom.fa"</span>,
+		      <span class="string">"E.total"</span>,
+		      <span class="string">"MD.Relaxed"</span>})
 
       <span class="comment">-- Store the old image that has been tested,
 </span>      <span class="comment">-- in this way we can check whether we have moved to
@@ -220,7 +221,7 @@ Example on how to use an NEB method.
 
    <span class="keyword">end</span>
 
-   siesta_return(ret_tbl)
+   siesta.send(ret_tbl)
 <span class="keyword">end</span>
 
 <span class="keyword">function</span> siesta_move(siesta)
@@ -289,7 +290,9 @@ Example on how to use an NEB method.
       <span class="comment">-- Get the correct NEB force (note that the relaxation
 </span>      <span class="comment">-- methods require the negative force)
 </span>      <span class="keyword">local</span> F = NEB:force(img, siesta.IONode)
-      IOprint(<span class="string">"NEB: max F on image "</span>.. img .. (<span class="string">" = %10.5f"</span>):format(F:norm():max()) )
+      IOprint(<span class="string">"NEB: max F on image "</span>.. img ..
+		 (<span class="string">" = %10.5f, climbing = %s"</span>):format(F:norm():max(),
+						     <span class="global">tostring</span>(NEB:climbing(img))) )
 
       <span class="comment">-- Prepare the relaxation for image <code>img</code>
 </span>      <span class="keyword">local</span> all_xa, weight = {}, flos.Array( #relax[img] )
@@ -390,7 +393,7 @@ Example on how to use an NEB method.
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-02-20 11:30:44 </i>
+<i style="float:right;">Last updated 2017-03-29 13:51:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

@@ -46,6 +46,7 @@
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/error.html">error</a></li>
+  <li><a href="../modules/Linear.html">Linear</a></li>
 </ul>
 <h2>Classes</h2>
 <ul class="nowrap">
@@ -107,8 +108,8 @@ which seems adequate in most situations.
 <span class="comment">-- Create the two LBFGS algorithms with
 </span><span class="comment">-- initial Hessians 1/75 and 1/50
 </span><span class="keyword">local</span> LBFGS = {}
-LBFGS[<span class="number">1</span>] = flos.LBFGS:new({H0 = <span class="number">1.</span> / <span class="number">75.</span>})
-LBFGS[<span class="number">2</span>] = flos.LBFGS:new({H0 = <span class="number">1.</span> / <span class="number">50.</span>})
+LBFGS[<span class="number">1</span>] = flos.LBFGS{H0 = <span class="number">1.</span> / <span class="number">75.</span>}
+LBFGS[<span class="number">2</span>] = flos.LBFGS{H0 = <span class="number">1.</span> / <span class="number">50.</span>}
 <span class="comment">-- To use more simultaneously simply add a
 </span><span class="comment">-- new line... with a separate LBFGS algorithm.
 </span>
@@ -129,8 +130,8 @@ LBFGS[<span class="number">2</span>] = flos.LBFGS:new({H0 = <span class="number"
 </span>      <span class="comment">-- convergence criteria
 </span>      <span class="comment">--  MD.MaxDispl
 </span>      <span class="comment">--  MD.MaxForceTol
-</span>      siesta_get({<span class="string">"MD.MaxDispl"</span>,
-		  <span class="string">"MD.MaxForceTol"</span>})
+</span>      siesta.receive({<span class="string">"MD.MaxDispl"</span>,
+		      <span class="string">"MD.MaxForceTol"</span>})
 
 
       <span class="comment">-- Print information (only on IONode)
@@ -156,14 +157,14 @@ LBFGS[<span class="number">2</span>] = flos.LBFGS:new({H0 = <span class="number"
       <span class="comment">-- Here we are doing the actual LBFGS algorithm.
 </span>      <span class="comment">-- We retrieve the current coordinates, the forces
 </span>      <span class="comment">-- and whether the geometry has relaxed
-</span>      siesta_get({<span class="string">"geom.xa"</span>,
-		  <span class="string">"geom.fa"</span>,
-		  <span class="string">"MD.Relaxed"</span>})
+</span>      siesta.receive({<span class="string">"geom.xa"</span>,
+		      <span class="string">"geom.fa"</span>,
+		      <span class="string">"MD.Relaxed"</span>})
       ret_tbl = siesta_move(siesta)
 
    <span class="keyword">end</span>
 
-   siesta_return(ret_tbl)
+   siesta.send(ret_tbl)
 <span class="keyword">end</span>
 
 <span class="keyword">function</span> siesta_move(siesta)
@@ -175,8 +176,7 @@ LBFGS[<span class="number">2</span>] = flos.LBFGS:new({H0 = <span class="number"
    <span class="comment">-- Perform step (initialize arrays to do averaging if more
 </span>   <span class="comment">-- LBFGS algorithms are in use).
 </span>   <span class="keyword">local</span> all_xa = {}
-   <span class="keyword">local</span> weight = {}
-   <span class="keyword">local</span> sum_w = <span class="number">0.</span>
+   <span class="keyword">local</span> weight = flos.Array.empty(#LBFGS)
    <span class="keyword">for</span> i = <span class="number">1</span>, #LBFGS <span class="keyword">do</span>
 
       <span class="comment">-- Calculate the next optimized structure (that
@@ -186,23 +186,13 @@ LBFGS[<span class="number">2</span>] = flos.LBFGS:new({H0 = <span class="number"
       <span class="comment">-- Get the optimization length for calculating
 </span>      <span class="comment">-- the best average.
 </span>      weight[i] = LBFGS[i].weight
-      sum_w = sum_w + weight[i]
 
    <span class="keyword">end</span>
 
-   <span class="comment">-- Normalize according to the weighing scheme.
-</span>   <span class="comment">-- We also print-out the weights for the algorithms
-</span>   <span class="comment">-- if there are more than one of the LBFGS algorithms
-</span>   <span class="comment">-- running simultaneously.
-</span>   <span class="keyword">local</span> s = <span class="string">""</span>
-   <span class="keyword">for</span> i = <span class="number">1</span>, #LBFGS <span class="keyword">do</span>
-
-      weight[i] = weight[i] / sum_w
-      s = s .. <span class="string">", "</span> .. <span class="global">string</span>.format(<span class="string">"%7.4f"</span>, weight[i])
-
-   <span class="keyword">end</span>
+   <span class="comment">-- Normalize weights
+</span>   weight = weight / weight:sum()
    <span class="keyword">if</span> #LBFGS &gt; <span class="number">1</span> <span class="keyword">then</span>
-      IOprint(<span class="string">"\nLBFGS weighted average: "</span>, s:sub(<span class="number">3</span>))
+      IOprint(<span class="string">"\nLBFGS weighted average: "</span>, weight)
    <span class="keyword">end</span>
 
    <span class="comment">-- Calculate the new coordinates and figure out
@@ -231,7 +221,7 @@ LBFGS[<span class="number">2</span>] = flos.LBFGS:new({H0 = <span class="number"
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-02-20 11:30:44 </i>
+<i style="float:right;">Last updated 2017-03-29 13:51:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>

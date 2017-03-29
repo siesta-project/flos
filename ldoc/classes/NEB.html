@@ -51,6 +51,7 @@
 <h2>Modules</h2>
 <ul class="nowrap">
   <li><a href="../modules/error.html">error</a></li>
+  <li><a href="../modules/Linear.html">Linear</a></li>
 </ul>
 <h2>Manual</h2>
 <ul class="nowrap">
@@ -82,8 +83,52 @@
 <h2><a href="#Methods">Methods</a></h2>
 <table class="function_list">
 	<tr>
+	<td class="name" ><a href="#NEB:new">NEB:new (images[, k=5.[, climbing_tol=0.005]])</a></td>
+	<td class="summary">Instantiating a new <a href="../classes/NEB.html#">NEB</a> object.</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#NEB:dR">NEB:dR (img1, img2)</a></td>
+	<td class="summary">Return the coordinate difference between two images</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#NEB:tangent">NEB:tangent (image)</a></td>
+	<td class="summary">Calculate the tangent of a given image</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#NEB:climbing">NEB:climbing (image)</a></td>
+	<td class="summary">Determine whether the queried image is climbing</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#NEB:spring_force">NEB:spring_force (image)</a></td>
+	<td class="summary">Calculate the spring force of a given image</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#NEB:perpendicular_force">NEB:perpendicular_force (image)</a></td>
+	<td class="summary">Calculate the perpendicular force of a given image</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#NEB:curvature">NEB:curvature (image)</a></td>
+	<td class="summary">Calculate the curvature of the force with regards to the tangent</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#NEB:neb_force">NEB:neb_force (image)</a></td>
+	<td class="summary">Calculate the resulting NEB force of a given image</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#NEB:R">NEB:R (image)</a></td>
+	<td class="summary">Query the current coordinates of an image</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#NEB:force">NEB:force (image)</a></td>
+	<td class="summary">Query the current force (same as <a href="../classes/NEB.html#NEB:force">NEB:force</a> but with IO included)</td>
+	</tr>
+	<tr>
 	<td class="name" ><a href="#NEB:save">NEB:save (IO)</a></td>
 	<td class="summary">Store the current step of the NEB iteration with the appropriate results</td>
+	</tr>
+	<tr>
+	<td class="name" ><a href="#NEB:init_files">NEB:init_files ()</a></td>
+	<td class="summary">Initialize all files that will be written to</td>
 	</tr>
 	<tr>
 	<td class="name" ><a href="#NEB:info">NEB:info ()</a></td>
@@ -99,6 +144,328 @@
 
     <dl class="function">
     <dt>
+    <a name = "NEB:new"></a>
+    <strong>NEB:new (images[, k=5.[, climbing_tol=0.005]])</strong>
+    </dt>
+    <dd>
+    Instantiating a new <a href="../classes/NEB.html#">NEB</a> object. </p>
+
+<p> For the <a href="../classes/NEB.html#">NEB</a> object it is important to pass the images, and <em>then</em> all
+ the NEB settings as named arguments in a table.</p>
+
+<p> The <a href="../classes/NEB.html#">NEB</a> object implements a generic NEB algorithm as detailed in:
+  1. "Improved tangent estimate in the nudged elastic band method for finding minimum energy paths and saddle points", Henkelman &amp; Jonsson, JCP (113), 2000
+  2. "A climbing image nudged elastic band method for finding saddle points and minimum energy paths", Henkelman, Uberuaga, &amp; Jonsson, JCP (113), 2000</p>
+
+<p> This particular implementation has been tested and initially developed by Jesper T. Rasmussen, DTU Nanotech, 2016.</p>
+
+<p> When instantiating a new <a href="../classes/NEB.html#">NEB</a> calculator one <em>must</em> populate the initial, all intermediate images and a final image in a a table.
+ The easiest way to do this can be seen in the below usage field.</p>
+
+<p> To perform the NEB calculation all images (besides the initial and final) are
+ relaxed by an external relaxation method (see <a href="../classes/Optimizer.html#">Optimizer</a> and its child classes).
+ Due to the forces being highly non-linear as the NEB algorithm updates the
+ forces depending on the nearest images, it is adviced to use an MD-like relaxation
+ method such as <a href="../classes/FIRE.html#">FIRE</a>. If one uses history based relaxation methods (<a href="../classes/LBFGS.html#">LBFGS</a>, <a href="../classes/CG.html#">CG</a>, etc.) one should
+ limit the number of history steps used.
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">images</span>
+            <span class="types"><a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+         all images (starting with the initial, and ending with the final)
+        </li>
+        <li><span class="parameter">k</span>
+            <span class="types"><span class="type">number</span> or <a class="type" href="https://www.lua.org/manual/5.3/manual.html#6.6">table</a></span>
+         spring constant between the images, a table can be used for individual spring constants
+         (<em>default</em> 5.)
+        </li>
+        <li><span class="parameter">climbing_tol</span>
+            <span class="types"><span class="type">number</span></span>
+         the tolerance for determining whether an image is climbing or not
+         (<em>default</em> 0.005)
+        </li>
+    </ul>
+
+
+
+
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example"><span class="comment">-- Read in the images
+</span><span class="comment">-- Note that <code>read_geom</code> must be a function that you define to read in the
+</span><span class="comment">-- atomic coordinates of a corresponding <code>.xyz</code> file.
+</span>images = {}
+<span class="keyword">for</span> i = <span class="number">0</span>, n_images + <span class="number">1</span> <span class="keyword">do</span>
+   images[#images+<span class="number">1</span>] = flos.MDStep{R=read_geom(image_label .. i .. <span class="string">".xyz"</span>)}
+<span class="keyword">end</span>
+neb = NEB(images, {&lt;field1 = value&gt;, &lt;field2 = value&gt;})
+relax = {}
+<span class="keyword">for</span> i = <span class="number">1</span>, neb.n_images <span class="keyword">do</span>
+   relax[i] = flos.FIRE()
+<span class="keyword">end</span>
+neb[<span class="number">0</span>]:set(F=&lt;initial-forces&gt;, E=&lt;initial-E&gt;)
+neb[neb.n_images+<span class="number">1</span>]:set(F=&lt;final-forces&gt;, E=&lt;final-E&gt;)
+<span class="keyword">while</span> <span class="keyword">true</span> <span class="keyword">do</span>
+   <span class="comment">-- Calculate all forces and energies of each image
+</span>   <span class="keyword">for</span> i = <span class="number">1</span>, neb.n_images <span class="keyword">do</span>
+      neb[i]:set(F=&lt;forces&gt;, E=&lt;energy&gt;)
+   <span class="keyword">end</span>
+   <span class="comment">-- Calculate new positions (this must be done after
+</span>   <span class="comment">-- the force calculations because the coordinates depend on the
+</span>   <span class="comment">-- neighbouring image forces)
+</span>   R = {}
+   <span class="keyword">for</span> i = <span class="number">1</span>, neb.n_images <span class="keyword">do</span>
+      f = neb:force(i)
+      R[i] = relax:optimize(neb[i].R, neb:force(i))
+   <span class="keyword">end</span>
+   <span class="keyword">for</span> i = <span class="number">1</span>, neb.n_images <span class="keyword">do</span>
+      neb:set(R=R[i])
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+    </ul>
+
+</dd>
+    <dt>
+    <a name = "NEB:dR"></a>
+    <strong>NEB:dR (img1, img2)</strong>
+    </dt>
+    <dd>
+    Return the coordinate difference between two images
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">img1</span>
+            <span class="types"><span class="type">int</span></span>
+         the first image
+        </li>
+        <li><span class="parameter">img2</span>
+            <span class="types"><span class="type">int</span></span>
+         the second image
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        <code>NEB[img2].R - NEB[img1].R</code>
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NEB:tangent"></a>
+    <strong>NEB:tangent (image)</strong>
+    </dt>
+    <dd>
+    Calculate the tangent of a given image
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">image</span>
+            <span class="types"><span class="type">int</span></span>
+         the image to calculate the tangent of
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        tangent force
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NEB:climbing"></a>
+    <strong>NEB:climbing (image)</strong>
+    </dt>
+    <dd>
+    Determine whether the queried image is climbing
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">image</span>
+            <span class="types"><span class="type">int</span></span>
+         image queried
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        true if the image is climbing
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NEB:spring_force"></a>
+    <strong>NEB:spring_force (image)</strong>
+    </dt>
+    <dd>
+    Calculate the spring force of a given image
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">image</span>
+            <span class="types"><span class="type">int</span></span>
+         the image to calculate the spring force of
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        spring force
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NEB:perpendicular_force"></a>
+    <strong>NEB:perpendicular_force (image)</strong>
+    </dt>
+    <dd>
+    Calculate the perpendicular force of a given image
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">image</span>
+            <span class="types"><span class="type">int</span></span>
+         the image to calculate the perpendicular force of
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        perpendicular force
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NEB:curvature"></a>
+    <strong>NEB:curvature (image)</strong>
+    </dt>
+    <dd>
+    Calculate the curvature of the force with regards to the tangent
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">image</span>
+            <span class="types"><span class="type">int</span></span>
+         the image to calculate the curvature of
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        curvature
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NEB:neb_force"></a>
+    <strong>NEB:neb_force (image)</strong>
+    </dt>
+    <dd>
+    Calculate the resulting NEB force of a given image
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">image</span>
+            <span class="types"><span class="type">int</span></span>
+         the image to calculate the NEB force of
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        NEB force
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NEB:R"></a>
+    <strong>NEB:R (image)</strong>
+    </dt>
+    <dd>
+    Query the current coordinates of an image
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">image</span>
+            <span class="types"><span class="type">int</span></span>
+         the image
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        coordinates
+    </ol>
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NEB:force"></a>
+    <strong>NEB:force (image)</strong>
+    </dt>
+    <dd>
+    Query the current force (same as <a href="../classes/NEB.html#NEB:force">NEB:force</a> but with IO included)
+
+
+    <h3>Parameters:</h3>
+    <ul>
+        <li><span class="parameter">image</span>
+            <span class="types"><span class="type">int</span></span>
+         the image
+        </li>
+    </ul>
+
+    <h3>Returns:</h3>
+    <ol>
+
+        force
+    </ol>
+
+
+
+
+</dd>
+    <dt>
     <a name = "NEB:save"></a>
     <strong>NEB:save (IO)</strong>
     </dt>
@@ -112,6 +479,20 @@
         If we should not do IO, return immediately
         </li>
     </ul>
+
+
+
+
+
+</dd>
+    <dt>
+    <a name = "NEB:init_files"></a>
+    <strong>NEB:init_files ()</strong>
+    </dt>
+    <dd>
+    Initialize all files that will be written to
+
+
 
 
 
@@ -139,7 +520,7 @@
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-02-20 11:30:44 </i>
+<i style="float:right;">Last updated 2017-03-29 13:51:25 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
