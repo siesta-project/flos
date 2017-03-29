@@ -31,17 +31,12 @@ local flos = require "flos"
 
 -- Create array of cut-offs
 local cutoff = flos.Array.range(cutoff_step, cutoff_end, cutoff_step)
-local Etot = flos.Array.zeros(cutoff.shape)
+local Etot = flos.Array.zeros(#cutoff)
+-- Initial cut-off element
 local icutoff = 1
-
--- Grab the unit table of siesta (it is already created by SIESTA)
-local Unit = siesta.Units
 
 function siesta_comm()
    
-   -- This routine does exchange of data with SIESTA
-   local ret_tbl = {}
-
    -- Do the actual communication with SIESTA
    if siesta.state == siesta.INITIALIZE then
       
@@ -54,7 +49,7 @@ function siesta_comm()
 
       IOprint( ("\nLUA: starting mesh-cutoff: %8.3f Ry\n"):format(cutoff[icutoff]) )
 
-      ret_tbl = {"Mesh.Cutoff.Minimum"}
+      siesta.send({"Mesh.Cutoff.Minimum"})
 
    end
 
@@ -84,14 +79,12 @@ function siesta_comm()
 	 siesta.MD.Relaxed = true
       end
       
-      ret_tbl = {"Mesh.Cutoff.Minimum", "MD.Relaxed"}
+      siesta.send({"Mesh.Cutoff.Minimum", "MD.Relaxed"})
 
    end
 
    if siesta.state == siesta.ANALYSIS then
-      -- Here we simply write the obtained data
-
-      local file = io.open("MeshvsE.dat", "w")
+      local file = io.open("meshcutoff_E.dat", "w")
 
       file:write("# Mesh-cutoff vs. energy\n")
 
@@ -106,7 +99,6 @@ function siesta_comm()
 
    end
 
-   siesta.send(ret_tbl)
 end
 
 -- Step the cutoff counter and return

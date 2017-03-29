@@ -6,7 +6,7 @@ Example on how to use an NEB method.
 local flos = require "flos"
 
 -- The prefix of the files that contain the images
-local image_label = "Siesta."
+local image_label = "siesta."
 
 -- Total number of images (excluding initial[0] and final[n_images+1])
 local n_images = 6
