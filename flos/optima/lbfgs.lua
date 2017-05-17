@@ -21,7 +21,7 @@ local LBFGS = mc.class("LBFGS", optim.Optimizer)
 -- gradient). The default value is rather safe and should enable optimization on most systems.
 --
 -- This optimization method also implements a history-discard strategy, if needed, for possible
--- speeding up the convergence. A field in the argument table, `scaling`, may be passed which
+-- speeding up the convergence. A field in the argument table, `discard`, may be passed which
 -- takes one of
 --  - "none", no discard strategy
 --  - "max-dF", if a displacement is being made beyond the max-displacement we do not store the
