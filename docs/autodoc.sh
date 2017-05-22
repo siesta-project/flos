@@ -61,7 +61,7 @@ git checkout gh-pages
 cur_tag=`head -1 docs/doc.tag`
 
 if [[ "x$doc_tag" == "x$cur_tag" ]]; then
-    echo "The current documented tag is the same as the latest available tag."
+    echo "The current documented tag is the same as the latest available tag. ($doc_tag vs. $cur_tag)"
     echo "Will not update documentation..."
     exit 1
 fi
