@@ -51,7 +51,6 @@ local FIRE = mc.class("FIRE", optim.Optimizer)
 -- @string[opt="global"] correct how the new parameters are rescaled, `"global"` or `"local"`
 -- @string[opt="global"] direction how the velocity pparameter is scaled, `"global"` or `"local"`
 -- @tparam[opt=1] ?number|table mass control individually the masses of each atom
--- @Optimizer[opt] optimizer the optimization method used to minimize along the direction (defaults to the `LBFGS` optimizer)
 -- @param ... any arguments `Optimizer:new` accepts
 local function doc_function()
 end
