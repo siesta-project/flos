@@ -49,6 +49,9 @@ git checkout master
 if [ "$tag" == "_QUERY_" ]; then
     tag=`git describe --abbrev=0`
     doc_tag=$tag
+else
+    git checkout $tag
+    doc_tag=`git describe`
 fi
 head_tag=`git describe`
 
