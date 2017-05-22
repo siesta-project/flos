@@ -24,7 +24,7 @@ local ret = {}
 local function inverse(A)
    -- Check 2D array
    if not num.isArray(A, 2) then
-      error("flos.num.linalg inverse incorrect dimensionality of inverse matrix")
+      error("flos.num.linalg inverse incorrect dimensionality of inverse matrix (dim ~= 2)")
    end
    -- Check sizes of dimensions
    if A.shape[1] ~= A.shape[2] then

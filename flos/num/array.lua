@@ -7,7 +7,7 @@
 --
 -- Due to everything being in Lua there are not _views_ of arrays which
 -- means that many functions creates unnecessary data-duplications.
--- However, this may be leveraged later.
+-- This may be leveraged in later code implementations.
 --
 -- The underlying Array class is implemented as follows:
 --
@@ -19,6 +19,9 @@
 --  of the Array without having to think about the details.
 --  4. The special case is the last dimension which contains the actual
 --  data.
+--
+-- The `Array` class is using the same names as the Python numerical library
+-- `numpy` for clarity.
 
 local m = require "math"
 local mc = require "flos.middleclass.middleclass"
@@ -32,7 +35,7 @@ local Array = mc.class("Array")
 --- Check if a variable is an `Array` type object.
 -- @param obj the object/variable to check
 -- @int[opt=0] dim query the exact dimensionality of the `Array` (`0` for _any_ dimensionality)
--- @return true if the object is an instance, or sub-class, of the Array, and possibly also whether
+-- @return true if the object is an instance, or sub-class, of `Array`, and possibly also whether
 --   the dimensionality is as queried.
 local function isArray(obj, dim)
    local d = dim or 0
@@ -86,8 +89,8 @@ function Array:initialize(...)
 
 end
 
---- Internal function which inserts numerical values if they are not existing.
--- Checks whether the index is within the shape of the Array.
+-- Internal function which inserts numerical values if they are not existing.
+-- Checks whether the index is within the shape of the `Array`.
 -- @param i the index of the value
 -- @param v the value of the index
 function Array:__newindex(i, v)
@@ -104,14 +107,14 @@ end
 
 --- Initialization routines.
 --
--- These functions may be used to instantiate a new `Array` object.
+-- Several routines exists to initialize the `Array` with values.
 --
 -- @usage
+--   Array:empty(2, 3) -- it is the users responsibility to assign values
 --   Array(2, 3) -- same as :empty
---   Array:empty(2, 3)
 --   Array:ones(2, 3) -- filled with 1's all over
 --   Array:zeros(2, 3) -- filled with 0's all over
---   Array:range(2, 3) -- [2, 3]
+--   Array:range(2, 3) -- array with values [2, 3]
 --   Array:ones(2, 3):copy() -- create a copy of another Array
 -- @section init
 
@@ -131,7 +134,8 @@ end
 
 --- Initialize an Array, equivalent to `Array(...)`.
 -- @param ... the shape of the Array
--- @return an Array with no values set
+-- @return an Array with no values set, it is the users responsibility to assign values before
+--   proceeding with other calculations
 function Array.empty(...)
    return Array(...)
 end
@@ -180,9 +184,11 @@ function Array:copy()
 end
 
 --- Initialize a 1D Array with a linear spacing of values starting from `i1`, ending with `i2` and with step size `step` which defaults to 1.
+-- @note this function is not similar to the `numpy.arange` function because it
+--   includes the last value.
 -- @param i1 the initial value of the range
--- @param i2 the last value of the range (will only be present if `(i2-i1+1)/step` is an integer)
--- @param[opt] step the stepsize between consecutive values.
+-- @param i2 the last value of the range (if `(i2-i1+1)/step` is a float the last element is not necessarily in the array)
+-- @param[opt=1] step the stepsize between consecutive values.
 -- @return an Array with equally separated values.
 function Array.range(i1, i2, step)
    -- Get the actual step (default 1)
@@ -302,6 +308,12 @@ end
 
 
 --- Return a deep copy of the Array with a different shape
+--
+-- @usage
+--   a = Array:zeros(4, 4)
+--   b = a:reshape(0) -- Array:zeros(16)
+--   c = a:reshape(2, 0) -- Array:zeros(2, 8)
+--   d = a:reshape(0, 2) -- Array:zeros(8, 2)
 -- @param ... the new shape of the array, any of the provided dimension
 --   sizes may be a 0 (or `nil`) which indicates that the length of said
 --   dimension will be inferred from the total size of the Array
@@ -369,57 +381,57 @@ function Array:map(func)
 end
 
 --- Elementwise absolute operation
--- @return |Array|
+-- @return `math.abs(Array)`
 -- @see math.abs
 function Array:abs()
    return self:map(m.abs)
 end
 
 --- Elementwise ceiling operation
--- @return math.ceil(Array)
+-- @return `math.ceil(Array)`
 -- @see math.ceil
 function Array:ceil()
    return self:map(m.ceil)
 end
 
 --- Elementwise floor operation
--- @return math.floor(Array)
+-- @return `math.floor(Array)`
 -- @see math.floor
 function Array:floor()
    return self:map(m.floor)
 end
 
 --- Elementwise conversion to integer
--- @return all values as integers
+-- @return all values as integers (`math.tointeger(Array)`)
 -- @see math.tointeger
 function Array:tointeger()
    return self:map(m.tointeger)
 end
 
 --- Elementwise exponential operation
--- @return `exp(Array[i])`
+-- @return `math.exp(Array)`
 -- @see math.exp
 function Array:exp()
    return self:map(m.exp)
 end
 
 --- Elementwise cosine operation
--- @return `cos(Array[i])`
+-- @return `math.cos(Array)`
 -- @see math.cos
 function Array:cos()
    return self:map(m.cos)
 end
 
 --- Elementwise sine operation
--- @return `sin(Array[i])`
+-- @return `math.sin(Array)`
 -- @see math.sin
 function Array:sin()
    return self:map(m.sin)
 end
 
 --- Elementwise logarithm operation
--- @param[opt=`e`] base the base of the logarithm
--- @return `log(Array[i], base)`
+-- @param[opt=e] base the base of the logarithm
+-- @return `math.log(Array, base)`
 -- @see math.log
 function Array:log(base)
    if base == nil then
@@ -434,21 +446,21 @@ function Array:log(base)
 end
 
 --- Elementwise tangent operation
--- @return `tan(Array[i])`
+-- @return `math.tan(Array)`
 -- @see math.tan
 function Array:tan()
    return self:map(m.tan)
 end
 
 --- Elementwise square root operation
--- @return `sqrt(Array[i])`
+-- @return `math.sqrt(Array)`
 -- @see math.sqrt
 function Array:sqrt()
    return self:map(m.sqrt)
 end
 
 --- Elementwise cube-root operation
--- @return `Array[i] ^ (1./3)`
+-- @return `Array ^ (1./3)`
 function Array:cbrt()
    return self ^ ( 1. / 3 )
 end
@@ -482,7 +494,7 @@ function Array:prod(axis)
 end
 
 --- Return a the norm of the Array.
--- Example:
+-- @usage
 --    a = Array( 2, 3)
 --    a:fill(1.)
 --    print(a:norm(2)) -- [3 ^ 0.5, 3 ^ 0.5]
@@ -490,16 +502,24 @@ end
 -- @int[opt=#self.shape] axis the axis along which the norm is taken, defaults to the last dimension, currently any axis between 0 and the last dimension is not implemented.
 -- @return a value if the `axis=0` or the Array is 1D, else a new Array with 1 less dimension is returned.
 function Array:norm(axis)
-   local ax = ax_(axis or #self.shape)
-   
+   local ax
+   if #self.shape == 1 then
+      -- Force the linear one
+      -- This is required because of ax == 0 cases for the last dimension.
+      ax = 1
+   else
+      ax = ax_(axis or #self.shape)
+   end
+
    -- Return norm
    local norm
 
    if ax == 0 then
+
       -- we do a 1D norm
       norm = 0.
-      for i = 1, self:size() do
-	 norm = norm + self:get_linear(i) ^ 2
+      for i = 1, #self do
+	 norm = norm + self[i]:norm(0) ^ 2
       end
       norm = m.sqrt(norm)
    
@@ -776,8 +796,8 @@ end
 
 --- Dot-product of two Arrays.
 -- For 1D arrays this returns a single value,
--- for ND arrays the shapes must fulfil self.shape[#self.shape] == other.shape[1],
--- as well as all dimensions self.shape[1:#self.shape-2] == other.shape[3:].reverse().
+-- for ND arrays the shapes must fulfil `self.shape[#self.shape] == other.shape[1]`,
+-- as well as all dimensions `self.shape[1:#self.shape-2] == other.shape[3:].reverse()`.
 -- Note that for 2D Arrays this is equivalent to matrix-multiplication.
 -- @Array lhs the first operand of the dot-product.
 -- @Array rhs the second operand of the dot-product.
