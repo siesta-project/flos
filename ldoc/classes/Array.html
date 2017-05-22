@@ -32,7 +32,6 @@
 
 <h2>Contents</h2>
 <ul>
-<li><a href="#Metamethods">Metamethods</a></li>
 <li><a href="#Initialization_routines">Initialization routines </a></li>
 <li><a href="#Object_information">Object information </a></li>
 <li><a href="#Manipulation_routines">Manipulation routines </a></li>
@@ -78,15 +77,13 @@
 
 <h1>Class <code>Array</code></h1>
 <p>Implementation of ND Arrays in Lua.</p>
-<p>
-
 <p> A generic implementation of ND arrays in pure Lua.
  This module tries to be as similar to the Python numpy package
  as possible.</p>
 
 <p> Due to everything being in Lua there are not <em>views</em> of arrays which
  means that many functions creates unnecessary data-duplications.
- However, this may be leveraged later.</p>
+ This may be leveraged in later code implementations.</p>
 
 <p> The underlying Array class is implemented as follows:</p>
 
@@ -100,16 +97,11 @@
     <li>The special case is the last dimension which contains the actual
     data.</li>
 </ol>
-</p>
+
+<p> The <a href="../classes/Array.html#">Array</a> class is using the same names as the Python numerical library
+ <code>numpy</code> for clarity.</p>
 
 
-<h2><a href="#Metamethods">Metamethods</a></h2>
-<table class="function_list">
-	<tr>
-	<td class="name" ><a href="#Array:__newindex">Array:__newindex (i, v)</a></td>
-	<td class="summary">Internal function which inserts numerical values if they are not existing.</td>
-	</tr>
-</table>
 <h2><a href="#Initialization_routines">Initialization routines </a></h2>
 <table class="function_list">
 	<tr>
@@ -133,7 +125,7 @@
 	<td class="summary">Create a deep copy of the array by copying all elements.</td>
 	</tr>
 	<tr>
-	<td class="name" ><a href="#Array:range">Array:range (i1, i2[, step])</a></td>
+	<td class="name" ><a href="#Array:range">Array:range (i1, i2[, step=1])</a></td>
 	<td class="summary">Initialize a 1D Array with a linear spacing of values starting from <code>i1</code>, ending with <code>i2</code> and with step size <code>step</code> which defaults to 1.</td>
 	</tr>
 </table>
@@ -204,7 +196,7 @@
 	<td class="summary">Elementwise sine operation</td>
 	</tr>
 	<tr>
-	<td class="name" ><a href="#Array:log">Array:log ([base=`e`])</a></td>
+	<td class="name" ><a href="#Array:log">Array:log ([base=e])</a></td>
 	<td class="summary">Elementwise logarithm operation</td>
 	</tr>
 	<tr>
@@ -321,45 +313,17 @@
 <br/>
 
 
-    <h2 class="section-header "><a name="Metamethods"></a>Metamethods</h2>
-
-    <dl class="function">
-    <dt>
-    <a name = "Array:__newindex"></a>
-    <strong>Array:__newindex (i, v)</strong>
-    </dt>
-    <dd>
-    Internal function which inserts numerical values if they are not existing.
- Checks whether the index is within the shape of the Array.
-
-
-    <h3>Parameters:</h3>
-    <ul>
-        <li><span class="parameter">i</span>
-         the index of the value
-        </li>
-        <li><span class="parameter">v</span>
-         the value of the index
-        </li>
-    </ul>
-
-
-
-
-
-</dd>
-</dl>
     <h2 class="section-header has-description"><a name="Initialization_routines"></a>Initialization routines </h2>
 
           <div class="section-description">
-           These functions may be used to instantiate a new <a href="../classes/Array.html#">Array</a> object.
+           Several routines exists to initialize the <a href="../classes/Array.html#">Array</a> with values.
           </div>
             <h3>Usage:</h3>
-            <pre class="example">Array(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- same as :empty
-</span>Array:empty(<span class="number">2</span>, <span class="number">3</span>)
-Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- filled with 1's all over
+            <pre class="example">Array:empty(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- it is the users responsibility to assign values
+</span>Array(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- same as :empty
+</span>Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- filled with 1's all over
 </span>Array:zeros(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- filled with 0's all over
-</span>Array:range(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- [2, 3]
+</span>Array:range(<span class="number">2</span>, <span class="number">3</span>) <span class="comment">-- array with values [2, 3]
 </span>Array:ones(<span class="number">2</span>, <span class="number">3</span>):copy() <span class="comment">-- create a copy of another Array</span></pre>
     <dl class="function">
     <dt>
@@ -401,6 +365,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     </dt>
     <dd>
     Initialize an Array, equivalent to <code>Array(...)</code>.
+   proceeding with other calculations
 
 
     <h3>Parameters:</h3>
@@ -413,7 +378,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <h3>Returns:</h3>
     <ol>
 
-        an Array with no values set
+        an Array with no values set, it is the users responsibility to assign values before
     </ol>
 
 
@@ -491,7 +456,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
 </dd>
     <dt>
     <a name = "Array:range"></a>
-    <strong>Array:range (i1, i2[, step])</strong>
+    <strong>Array:range (i1, i2[, step=1])</strong>
     </dt>
     <dd>
     Initialize a 1D Array with a linear spacing of values starting from <code>i1</code>, ending with <code>i2</code> and with step size <code>step</code> which defaults to 1.
@@ -503,11 +468,11 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
          the initial value of the range
         </li>
         <li><span class="parameter">i2</span>
-         the last value of the range (will only be present if <code>(i2-i1+1)/step</code> is an integer)
+         the last value of the range (if <code>(i2-i1+1)/step</code> is a float the last element is not necessarily in the array)
         </li>
         <li><span class="parameter">step</span>
          the stepsize between consecutive values.
-         (<em>optional</em>)
+         (<em>default</em> 1)
         </li>
     </ul>
 
@@ -678,6 +643,13 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">a = Array:zeros(<span class="number">4</span>, <span class="number">4</span>)
+b = a:reshape(<span class="number">0</span>) <span class="comment">-- Array:zeros(16)
+</span>c = a:reshape(<span class="number">2</span>, <span class="number">0</span>) <span class="comment">-- Array:zeros(2, 8)
+</span>d = a:reshape(<span class="number">0</span>, <span class="number">2</span>) <span class="comment">-- Array:zeros(8, 2)</span></pre>
+    </ul>
 
 </dd>
     <dt>
@@ -737,7 +709,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <h3>Returns:</h3>
     <ol>
 
-        |Array|
+        <code>math.abs(Array)</code>
     </ol>
 
 
@@ -760,7 +732,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <h3>Returns:</h3>
     <ol>
 
-        math.ceil(Array)
+        <code>math.ceil(Array)</code>
     </ol>
 
 
@@ -783,7 +755,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <h3>Returns:</h3>
     <ol>
 
-        math.floor(Array)
+        <code>math.floor(Array)</code>
     </ol>
 
 
@@ -806,7 +778,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <h3>Returns:</h3>
     <ol>
 
-        all values as integers
+        all values as integers (<code>math.tointeger(Array)</code>)
     </ol>
 
 
@@ -829,7 +801,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <h3>Returns:</h3>
     <ol>
 
-        <code>exp(Array[i])</code>
+        <code>math.exp(Array)</code>
     </ol>
 
 
@@ -852,7 +824,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <h3>Returns:</h3>
     <ol>
 
-        <code>cos(Array[i])</code>
+        <code>math.cos(Array)</code>
     </ol>
 
 
@@ -875,7 +847,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <h3>Returns:</h3>
     <ol>
 
-        <code>sin(Array[i])</code>
+        <code>math.sin(Array)</code>
     </ol>
 
 
@@ -888,7 +860,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
 </dd>
     <dt>
     <a name = "Array:log"></a>
-    <strong>Array:log ([base=`e`])</strong>
+    <strong>Array:log ([base=e])</strong>
     </dt>
     <dd>
     Elementwise logarithm operation
@@ -898,14 +870,14 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <ul>
         <li><span class="parameter">base</span>
          the base of the logarithm
-         (<em>default</em> `e`)
+         (<em>default</em> e)
         </li>
     </ul>
 
     <h3>Returns:</h3>
     <ol>
 
-        <code>log(Array[i], base)</code>
+        <code>math.log(Array, base)</code>
     </ol>
 
 
@@ -928,7 +900,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <h3>Returns:</h3>
     <ol>
 
-        <code>tan(Array[i])</code>
+        <code>math.tan(Array)</code>
     </ol>
 
 
@@ -951,7 +923,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <h3>Returns:</h3>
     <ol>
 
-        <code>sqrt(Array[i])</code>
+        <code>math.sqrt(Array)</code>
     </ol>
 
 
@@ -974,7 +946,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <h3>Returns:</h3>
     <ol>
 
-        <code>Array[i] ^ (1./3)</code>
+        <code>Array ^ (1./3)</code>
     </ol>
 
 
@@ -1014,15 +986,7 @@ Array:ones(<span class="number">2</span>, <span class="number">3</span>) <span c
     <strong>Array:norm ([axis=#self.shape])</strong>
     </dt>
     <dd>
-
-<p>Return a the norm of the Array.
- Example:</p>
-<pre><code>a = Array( 2, 3)
-a:fill(1.)
-print(a:norm(2)) -- [3 ^ 0.5, 3 ^ 0.5]
-print(a:norm(0)) -- 6 ^ 0.5
-</code></pre>
-
+    Return a the norm of the Array.
 
 
     <h3>Parameters:</h3>
@@ -1042,6 +1006,13 @@ print(a:norm(0)) -- 6 ^ 0.5
 
 
 
+    <h3>Usage:</h3>
+    <ul>
+        <pre class="example">a = Array( <span class="number">2</span>, <span class="number">3</span>)
+a:fill(<span class="number">1.</span>)
+<span class="global">print</span>(a:norm(<span class="number">2</span>)) <span class="comment">-- [3 ^ 0.5, 3 ^ 0.5]
+</span><span class="global">print</span>(a:norm(<span class="number">0</span>)) <span class="comment">-- 6 ^ 0.5</span></pre>
+    </ul>
 
 </dd>
     <dt>
@@ -1302,8 +1273,8 @@ print(a:project( Array.ones( 2, 3) )
     <dd>
     Dot-product of two Arrays.
  For 1D arrays this returns a single value,
- for ND arrays the shapes must fulfil self.shape[#self.shape] == other.shape[1],
- as well as all dimensions self.shape[1:#self.shape-2] == other.shape[3:].reverse().
+ for ND arrays the shapes must fulfil <code>self.shape[#self.shape] == other.shape[1]</code>,
+ as well as all dimensions <code>self.shape[1:#self.shape-2] == other.shape[3:].reverse()</code>.
  Note that for 2D Arrays this is equivalent to matrix-multiplication.
 
 
@@ -1649,7 +1620,7 @@ print(a:project( Array.ones( 2, 3) )
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-05-21 12:01:33 </i>
+<i style="float:right;">Last updated 2017-05-22 08:52:50 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
