@@ -4,6 +4,7 @@ set -e
 
 # Default options
 skip_commit=0
+skip_pull=0
 
 # Create documentation...
 # Parse options
@@ -16,16 +17,6 @@ pushd $top_dir
 
 # Ensure that the current repo state is saved...
 git stash
-
-# Get latest tag version on master (first we pull)
-git checkout master
-git pull
-tag=`git describe --abbrev=0`
-doc_tag=$tag
-head_tag=`git describe`
-
-git checkout gh-pages
-git pull
 
 while [[ $# -gt 0 ]]; do
     opt=$1
@@ -40,6 +31,9 @@ while [[ $# -gt 0 ]]; do
 	--skip-commit|-sc)
 	    skip_commit=1
 	    ;;
+	--skip-pull|-sp)
+	    skip_pull=1
+	    ;;
 	*)
 	    echo "Unrecognized option: $opt"
 	    exit 1
@@ -47,6 +41,19 @@ while [[ $# -gt 0 ]]; do
     esac
     
 done
+
+
+# Get latest tag version on master (first we pull)
+git checkout master
+[ $skip_pull -eq 0 ] && git pull
+if [ "$tag" == "_QUERY_" ]; then
+    tag=`git describe --abbrev=0`
+    doc_tag=$tag
+fi
+head_tag=`git describe`
+
+git checkout gh-pages
+[ $skip_pull -eq 0 ] && git pull
 
 
 # Check if the current documentation is the same
