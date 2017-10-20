@@ -69,6 +69,7 @@ local NEB = mc.class("NEB")
 -- @function NEB:new
 -- @tparam table images all images (starting with the initial, and ending with the final)
 -- @tparam[opt=5.] ?number|table k spring constant between the images, a table can be used for individual spring constants
+-- @number[opt=5] climbing after this number of iterations the climbing image will be taken into account (to disable climbing, pass `false`)
 -- @number[opt=0.005] climbing_tol the tolerance for determining whether an image is climbing or not
 local function doc_function()
 end
@@ -102,6 +103,9 @@ function NEB:initialize(images, tbl)
    local cl = tbl.climbing or 5
    if cl == false then
       self._climbing = 1000000000000
+   elseif cl == true then
+      -- We use the default value
+      self._climbing = 5
    else
       -- Counter for climbing
       self._climbing = cl
