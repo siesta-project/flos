@@ -61,8 +61,8 @@ In order to use any of these schemes you simply need to follow these steps:
    procedure outlined [here][flook] you should add this to the SIESTA `arch.make`:
 
         FLOOK_PATH  = /path/to/flook/parent
-        FLOOK_LIBS  = -L$(FLOOK_PATH)/src -lflookall -ldl
-        FLOOK_INC   = -I$(FLOOK_PATH)/src
+        FLOOK_LIBS  = -L$(FLOOK_PATH) -lflookall -ldl
+        FLOOK_INC   = -I$(FLOOK_PATH)
         INCFLAGS += $(FLOOK_INC)
         LIBS += $(FLOOK_LIBS)
 	    FPPFLAGS += -DSIESTA__FLOOK
