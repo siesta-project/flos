@@ -62,7 +62,7 @@ end
 
 
 function Array:initialize(...)
-   
+
    local sh = nil
 
    -- One may also initialize an Array by passing a
@@ -75,7 +75,7 @@ function Array:initialize(...)
    if sh == nil then
       sh = shape.Shape(...)
    end
-   
+
    -- Create the shape container
    rawset(self, "shape", sh)
 
@@ -200,7 +200,7 @@ function Array.range(i1, i2, step)
    elseif is < 0 and i1 < i2 then
       error("flos.Array range with negative step-length and i1 < i2 is not allowed.")
    end
-   
+
    local new = Array.empty( 1 )
    local j = 0
    for i = i1, i2, is do
@@ -266,7 +266,7 @@ function Array:set_linear(i, v)
 
    -- If we are at the last dimension, return immediately.
    if #self.shape == 1 then
-      
+
       self[i] = v
 
       return
@@ -278,7 +278,7 @@ function Array:set_linear(i, v)
    local j = m.tointeger( m.ceil(i / n_dim) )
    -- Transform i into the linear index in the underlying array
    self[j]:set_linear( m.tointeger(i - (j-1) * n_dim), v)
-      
+
 end
 
 
@@ -323,7 +323,7 @@ function Array:reshape(...)
    if #arg == 0 then
       arg[1] = 0
    end
-   
+
    -- In case a shape is passed
    local sh
    if shape.isShape(arg[1]) then
@@ -334,7 +334,7 @@ function Array:reshape(...)
    if sh == nil then
       error("flos.Array cannot align shapes, incompatible dimensions")
    end
-   
+
    -- Create the new array
    local new = Array( sh )
 
@@ -522,9 +522,9 @@ function Array:norm(axis)
 	 norm = norm + self[i]:norm(0) ^ 2
       end
       norm = m.sqrt(norm)
-   
+
    elseif #self.shape == 1 then
-      
+
       norm = 0.
       for i = 1, #self do
 	 norm = norm + self[i] * self[i]
@@ -539,9 +539,9 @@ function Array:norm(axis)
       for i = 1, #norm do
 	 norm[i] = self[i]:norm()
       end
-      
+
    end
-   
+
    return norm
 end
 
@@ -560,14 +560,14 @@ function Array:scalar_project(P, axis)
    local ax = ax_(axis)
 
    if ax == 0 then
-      
+
       -- Calculate norm of the projection vector
       return self:flatten():dot( P:flatten() ) / P:norm(0)
-      
+
    else
-      
+
       error("flos.Array could not project on anything but flattened array")
-      
+
    end
 
 end
@@ -587,15 +587,15 @@ function Array:project(P, axis)
    local ax = ax_(axis)
 
    if ax == 0 then
-      
+
       -- Calculate norm of the projection vector
       local dnorm2 = P:norm(0) ^ 2
       return self:flatten():dot( P:flatten() ) / dnorm2 * P
-      
+
    else
-      
+
       error("flos.Array could not project on anything but flattened array")
-      
+
    end
 
 end
@@ -631,7 +631,7 @@ function Array:min(axis)
 
       error("NotimplementedYet")
    end
-   
+
    return min
 end
 
@@ -666,7 +666,7 @@ function Array:max(axis)
 
       error("NotimplementedYet")
    end
-   
+
    return max
 end
 
@@ -679,7 +679,7 @@ function Array:sum(axis)
 
    local sum
    if ax == 0 then
-      
+
       -- Special case for the 1D case
       if #self.shape == 1 then
 	 sum = self[1]
@@ -753,7 +753,7 @@ function Array.cross(lhs, rhs)
    local cross = Array( sh )
 
    if #cross.shape == 1 then
-      
+
       cross[1] = lhs[2] * rhs[3] - lhs[3] * rhs[2]
       cross[2] = lhs[3] * rhs[1] - lhs[1] * rhs[3]
       cross[3] = lhs[1] * rhs[2] - lhs[2] * rhs[1]
@@ -814,7 +814,7 @@ function Array.dot(lhs, rhs)
       if lhs.shape ~= rhs.shape then
 	 error("flos.Array dot dimensions for 1D dot product are not the same")
       end
-      
+
       -- This is a element wise product and sum
       dot = 0.
       for i = 1, #lhs do
@@ -872,11 +872,11 @@ function Array.dot(lhs, rhs)
    else
 
       error("flos.Array dot for arrays with anything but 1 or 2 dimensions is not implemented yet")
-      
+
    end
 
    return dot
-      
+
 end
 
 
@@ -885,24 +885,43 @@ end
 function Array:transpose()
 
    -- Check dimensions, we cannot transpose a 1D array
-   if #self.shape == 1 then
-      error("flos.Array cannot transpose a vector, reshape, then transpose")
-   end
+   local nd = #self.shape
+   local new = nil
 
-   -- First create the reversed shape
-   local sh = self.shape:reverse()
+   if nd == 1 then
+      return self:copy()
 
-   -- Create return array
-   local new = Array( sh )
+   elseif nd == 2 then
 
-   -- Perform transpose
-   local size = self:size()
-   for i = 1, size do
-      new:set_linear(size-i+1, self:get_linear(i))
+      -- Create return array
+      new = Array( self.shape:reverse() )
+
+      for i = 1 , self.shape[1] do
+	 for j = 1 , self.shape[2] do
+	    new[j][i] = self[i][j]
+	 end
+      end
+
+   elseif nd == 3 then
+
+      -- Create return array
+      new = Array( self.shape:reverse() )
+
+      for i = 1 , self.shape[1] do
+	 for j = 1 , self.shape[2] do
+	    for k = 1 , self.shape[3] do
+	       new[k][j][i] = self[i][j][k]
+	    end
+	 end
+      end
+
+   else
+
+      error("flos.Array transpose only works up to 3D arrays")
+
    end
 
    return new
-
 end
 
 
@@ -925,14 +944,14 @@ function Array.__add(lhs, rhs)
       if sh == nil then
 	 error("flos.Array + requires the same shape for two different Arrays")
       end
-      
+
       -- Create the return array
       ret = Array( lhs.shape )
       -- Element-wise additions
       for i = 1, #lhs do
 	 ret[i] = lhs[i] + rhs[i]
       end
-      
+
    elseif isArray(lhs) then
 
       ret = Array( lhs.shape )
@@ -943,7 +962,7 @@ function Array.__add(lhs, rhs)
       end
 
    elseif isArray(rhs) then
-      
+
       -- Add scalar to all RHS
       ret = Array( rhs.shape )
 
@@ -1135,7 +1154,7 @@ function Array.__pow(lhs, rhs)
       if sh == nil then
 	 error("flos.Array ^ requires the same shape for two different Arrays")
       end
-      
+
       ret = Array( lhs.shape )
       for i = 1, #lhs do
 	 ret[i] = lhs[i] ^ rhs[i]
@@ -1145,7 +1164,7 @@ function Array.__pow(lhs, rhs)
       if type(rhs) == "string" and rhs == "T" then
 	 return lhs:transpose()
       end
-      
+
       ret = Array( lhs.shape )
       for i = 1, #lhs do
 	 ret[i] = lhs[i] ^ rhs
@@ -1155,7 +1174,7 @@ function Array.__pow(lhs, rhs)
       if type(lhs) == "string" and lhs == "T" then
 	 return rhs:transpose()
       end
-      
+
       ret = Array( rhs.shape )
       for i = 1, #rhs do
 	 ret[i] = lhs ^ rhs[i]

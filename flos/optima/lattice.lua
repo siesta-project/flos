@@ -67,11 +67,7 @@ function Lattice:update_reciprocal()
    self.rcell[3][3] = c[1][1]*c[2][2] - c[1][2]*c[2][1]
 
    for i = 1, 3 do
-      local n = c[i][1]*self.rcell[i][1] +
-	 c[i][2]*self.rcell[i][2] +
-	 c[i][3]*self.rcell[i][3]
-
-      self.rcell[i] = self.rcell[i] / n
+      self.rcell[i] = self.rcell[i] / c[i]:dot(self.rcell[i])
    end
 
 end
