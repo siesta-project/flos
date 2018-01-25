@@ -30,7 +30,7 @@ local cutoff_step = 50.
 local flos = require "flos"
 
 -- Create array of cut-offs
-local cutoff = flos.Array.range(cutoff_step, cutoff_end, cutoff_step)
+local cutoff = flos.Array.range(cutoff_start, cutoff_end, cutoff_step)
 local Etot = flos.Array.zeros(#cutoff)
 -- Initial cut-off element
 local icutoff = 1
