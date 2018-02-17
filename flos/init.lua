@@ -22,5 +22,7 @@ add_ret(require "flos.md")
 add_ret(require "flos.optima")
 -- ForceHessian MD method and other methods
 add_ret(require "flos.special")
+-- Fast creation of simple tables
+add_ret(require "flos.table")
 
 return ret
