@@ -204,12 +204,15 @@ function Line:SIESTA(siesta)
       local xa = num.Array.from(siesta.geom.xa) / unit.Ang
       local fa = num.Array.from(siesta.geom.fa) * unit.Ang / unit.eV
 
-      -- Send back new coordinates (convert to Bohr)
-      siesta.geom.xa = self:optimize(xa, fa) * unit.Ang
-      siesta.MD.Relaxed = self:optimized()
-
-      -- return the new coordinates and whether it has relaxed
-      siesta.send({"geom.xa", "MD.Relaxed"})
+      -- Only in case that the forces are optimized will we move atoms.
+      if self:optimized(fa) then
+	 siesta.MD.Relaxed = true
+	 siesta.send({"MD.Relaxed"})
+      else
+	 -- Send back new coordinates (convert to Bohr)
+	 siesta.geom.xa = self:optimize(xa, fa) * unit.Ang
+	 siesta.send({"geom.xa"})
+      end
 
    end
 
