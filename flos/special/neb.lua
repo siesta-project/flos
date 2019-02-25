@@ -97,7 +97,11 @@ function NEB:initialize(images, tbl)
    -- the __index function (because it uses it)
    self.initial = images[1]
    self.final = images[#images]
-
+   self.neb_type = "DNEB"
+   self.DM_label="MgO-3x3x1-2V"
+   --self.old_DM_label=""
+   --self.current_DM_label=""
+   
    -- an integer that describes when the climbing image
    -- may be used, make large enough to never set it
    local cl = tbl.climbing or 5
@@ -131,7 +135,9 @@ function NEB:initialize(images, tbl)
    end
    
    self:init_files()
-
+   
+   
+   
 end
 
 -- Simple wrapper for checking the image number
@@ -274,22 +280,37 @@ end
 --- Calculate the resulting NEB force of a given image
 -- @int image the image to calculate the NEB force of
 -- @return NEB force
+
 function NEB:neb_force(image)
    self:_check_image(image)
-
    local NEB_F
-
+   local DNEB_F
    -- Only run Climbing image after a certain amount of steps (robustness)
    -- Typically this number is 5.
-   if self.niter > self._climbing and self:climbing(image) then
-      local F = self[image].F
-      NEB_F = F - 2 * F:project( self:tangent(image) )
-   else
-      NEB_F = self:perpendicular_force(image) + self:spring_force(image)
+   if self.neb_type == "NEB" then
+     if self.niter > self._climbing and self:climbing(image) then
+       local F = self[image].F
+       NEB_F = F - 2 * F:project( self:tangent(image) )
+     else
+       DNEB_F = 0.0
+       --DNEB_F=self:perpendicular_spring_force(image)-self:perpendicular_spring_force(image):project(self:perpendicular_force(image))*(self:perpendicular_force(image))
+       NEB_F = self:perpendicular_force(image) + self:spring_force(image) --+ DNEB_F
+       --print (DNEB_F)
+     end
+     return NEB_F
    end
-
-   return NEB_F
-
+   if self.neb_type == "DNEB" then
+     if self.niter > self._climbing and self:climbing(image) then
+       local F = self[image].F
+       NEB_F = F - 2 * F:project( self:tangent(image) )
+     else
+       DNEB_F = self:perpendicular_spring_force(image)-self:perpendicular_spring_force(image):project(self:perpendicular_force(image))*(self:perpendicular_force(image))
+       NEB_F = self:perpendicular_force(image) + self:spring_force(image) + DNEB_F--+ self:perpendicular_spring_force(image)-self:perpendicular_spring_force(image):project(self:perpendicular_force(image))*(self:perpendicular_force(image))  --+DNEB_F 
+       --print (DNEB_F)
+     end
+     return NEB_F 
+   end
+   --return NEB_F
 end
 
 --- Query the current coordinates of an image
@@ -306,7 +327,8 @@ end
 -- @return force
 function NEB:force(image, IO)
    self:_check_image(image)
-
+   --self.neb_type="NEB"
+   
    if image == 1 then
       -- Increment step-counter
       self.niter = self.niter + 1
@@ -316,8 +338,9 @@ function NEB:force(image, IO)
    local tangent = self:tangent(image)
    local perp_F = self:perpendicular_force(image)
    local spring_F = self:spring_force(image)
+   --local NEB_F = self:neb_force(image)
    local NEB_F = self:neb_force(image)
-
+   --local DNEB_F = self:neb_force(image).DNEB_F
    -- Things I want to output in files as control (all in 3xN format)
    if IO then
 
@@ -451,6 +474,15 @@ end
 
 --- Print to screen some information regarding the NEB algorithm
 function NEB:info()
+  if self.neb_type=="NEB" then
+   print ("============================================") 
+   print ("  The NEB type is : Nudged Elastic Band     ")
+   print ("============================================") 
+  elseif self.neb_type == "DNEB" then
+   print ("============================================") 
+   print ("  The NEB type is : D-Nudged Elastic Band   ")
+   print ("============================================") 
+  end
 
    print("NEB has " .. self.n_images)
    print("NEB uses climbing after " .. self._climbing .. " steps")
@@ -469,5 +501,36 @@ function NEB:info()
    print(tostring(tmp))
 
 end
+
+
+-- Calculatin Perpendicular Spring force
+function NEB:perpendicular_spring_force(image)
+  self:_check_image(image)
+  local PS=self:spring_force(image):project(self:tangent(image))
+  return self:spring_force(image)-PS
+end
+
+function NEB:file_exists(name)--name
+   --local name
+   --DM_name=tostring(name)
+   DM_name=name
+   --print ("DM_name is :" .. DM_name)
+   local check
+   --local DM_name = name
+   local f = io.open(DM_name, "r") --name
+   if f ~= nil then
+      io.close(f)
+      --check=true
+      --print("TRUE: The file ".. DM_name..  " Exist!")
+      return true
+   else
+      --print("False: The file ".. DM_name..  " Doesn't Exist!")
+      return false
+     --check=false      
+   end
+   --return check
+end
+
+
 
 return NEB
