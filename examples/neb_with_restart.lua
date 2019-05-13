@@ -15,7 +15,7 @@ local images = {}
 
 -- The default output label of the DM files
 local label = "MgO-3x3x1-2V"
-local f_label= "images_"
+local f_label_xyz= "images_"
 -- Function for reading a geometry
 local read_geom = function(filename)
    local file = io.open(filename, "r")
@@ -332,7 +332,7 @@ function siesta_update_xyz(current)
       -- only allow the IOnode to perform stuff...
       return
    end
-  local xyz_label = f_label ..tostring(current)..".xyz"
+  local xyz_label = f_label_xyz ..tostring(current)..".xyz"
   --self:_n_images=self.n_images
   --self:_check_image(image)
     
