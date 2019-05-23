@@ -396,12 +396,14 @@ end
 --- Store the current step of the NEB iteration with the appropriate results
 -- Append to the file NEB.results the current NEB image step results.
 -- The stored data consists of the following columns:
+--
 -- 1. Image number
 -- 2. Accummulated reaction coordinate (the 1D-norm of `NEB:dR(i-1, i)`)
 -- 3. Total energy of current iteration
 -- 4. Total energy difference from initial image
 -- 5. Image curvature
 -- 6. Maximum NEB force exerted on any given atom.
+--
 -- @bool IO whether or not the results should be written
 function NEB:save(IO)
 
