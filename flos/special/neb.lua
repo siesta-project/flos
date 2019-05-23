@@ -310,21 +310,21 @@ end
 --
 -- The generated files are:
 --
--- - NEB.<image>.R
---   containing the relaxation steps of image ``<image>``
--- - NEB.<image>.F
---   containing the force of image ``<image>``
--- - NEB.<image>.F.P
---   containing the perpendicular force of image ``<image>``
--- - NEB.<image>.F.S
---   containing the spring force of image ``<image>``
--- - NEB.<image>.F.NEB
---   containing the NEB force of image ``<image>`` (equivalent to the returned force)
--- - NEB.<image>.T
---   containing the tangent of image ``<image>``
--- - NEB.<image>.dR_prev
+-- - `NEB.<image>.R`
+--   containing the relaxation steps of image `<image>`
+-- - `NEB.<image>.F`
+--   containing the force of image `<image>`
+-- - `NEB.<image>.F.P`
+--   containing the perpendicular force of image `<image>`
+-- - `NEB.<image>.F.S`
+--   containing the spring force of image `<image>`
+-- - `NEB.<image>.F.NEB`
+--   containing the NEB force of image `<image>` (equivalent to the returned force)
+-- - `NEB.<image>.T`
+--   containing the tangent of image `<image>`
+-- - `NEB.<image>.dR_prev`
 --   containing the reaction coordinate against the previous image
--- - NEB.<image>.dR_next
+-- - `NEB.<image>.dR_next`
 --   containing the reaction coordinate against the next image
 --
 -- All files contains a consecutive list of the values for each iteration.
@@ -397,7 +397,7 @@ end
 -- Append to the file NEB.results the current NEB image step results.
 -- The stored data consists of the following columns:
 -- 1. Image number
--- 2. Accummulated reaction coordinate (the 1D-norm of ``NEB:dR(i-1, i)``)
+-- 2. Accummulated reaction coordinate (the 1D-norm of `NEB:dR(i-1, i)`)
 -- 3. Total energy of current iteration
 -- 4. Total energy difference from initial image
 -- 5. Image curvature
