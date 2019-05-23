@@ -1,0 +1,163 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<head>
+    <title>flos documentation</title>
+    <link rel="stylesheet" href="../ldoc_fixed.css" type="text/css" />
+</head>
+<body>
+
+<div id="container">
+
+<div id="product">
+	<div id="product_logo"></div>
+	<div id="product_name"><big><b></b></big></div>
+	<div id="product_description"></div>
+</div> <!-- id="product" -->
+
+
+<div id="main">
+
+
+<!-- Menu -->
+
+<div id="navigation">
+<br/>
+<h1>flos</h1>
+
+<ul>
+  <li><a href="../index.html">Index</a></li>
+</ul>
+
+
+
+<h2>Examples</h2>
+<ul class="nowrap">
+  <li><strong>add_force.lua</strong></li>
+  <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
+  <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
+  <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
+  <li><a href="../examples/relax_cell.lua.html">relax_cell.lua</a></li>
+  <li><a href="../examples/relax_cell_geometry.lua.html">relax_cell_geometry.lua</a></li>
+  <li><a href="../examples/relax_geometry_cg.lua.html">relax_geometry_cg.lua</a></li>
+  <li><a href="../examples/relax_geometry_fire.lua.html">relax_geometry_fire.lua</a></li>
+  <li><a href="../examples/relax_geometry_lbfgs.lua.html">relax_geometry_lbfgs.lua</a></li>
+</ul>
+<h2>Modules</h2>
+<ul class="nowrap">
+  <li><a href="../modules/error.html">error</a></li>
+  <li><a href="../modules/Linear.html">Linear</a></li>
+  <li><a href="../modules/Tables.html">Tables</a></li>
+</ul>
+<h2>Classes</h2>
+<ul class="nowrap">
+  <li><a href="../classes/MDStep.html">MDStep</a></li>
+  <li><a href="../classes/Array.html">Array</a></li>
+  <li><a href="../classes/Shape.html">Shape</a></li>
+  <li><a href="../classes/Optimizer.html">Optimizer</a></li>
+  <li><a href="../classes/CG.html">CG</a></li>
+  <li><a href="../classes/FIRE.html">FIRE</a></li>
+  <li><a href="../classes/LBFGS.html">LBFGS</a></li>
+  <li><a href="../classes/Line.html">Line</a></li>
+  <li><a href="../classes/NEB.html">NEB</a></li>
+</ul>
+<h2>Manual</h2>
+<ul class="nowrap">
+  <li><a href="../manual/README.md.html">README</a></li>
+</ul>
+
+</div>
+
+<div id="content">
+
+    <h2>add_force.lua</h2>
+<pre>
+<span class="comment">--[[
+Example on how to add a constant force to a Siesta run using flos.
+
+Here there is only one parameter.
+
+  force_file
+
+which is formatted as the siesta.FA file.
+
+--]]</span>
+
+<span class="comment">-- Set this to the file that contains the additive forces.
+</span><span class="keyword">local</span> force_file = <span class="keyword">nil</span>
+
+
+<span class="comment">-- Everything below this point need (should) not be touched.
+</span>
+<span class="comment">-- Load the FLOS module
+</span><span class="keyword">local</span> flos = <span class="global">require</span> <span class="string">"flos"</span>
+
+<span class="comment">-- Grab the unit table of siesta (it is already created
+</span><span class="comment">-- by SIESTA)
+</span><span class="keyword">local</span> Unit = siesta.Units
+
+<span class="keyword">local</span> add_force = {}
+
+
+<span class="comment">-- Function for reading a geometry
+</span><span class="keyword">local</span> read_fa = <span class="keyword">function</span>(filename)
+   <span class="keyword">local</span> file = <span class="global">io</span>.open(filename, <span class="string">"r"</span>)
+   <span class="keyword">local</span> na = <span class="global">tonumber</span>(file:read())
+   <span class="keyword">local</span> F = flos.Array.zeros(na, <span class="number">3</span>)
+   <span class="keyword">local</span> i = <span class="number">0</span>
+   <span class="keyword">local</span> <span class="keyword">function</span> tovector(s)
+      <span class="keyword">local</span> t = {}
+      s:gsub(<span class="string">'%S+'</span>, <span class="keyword">function</span>(n) t[#t+<span class="number">1</span>] = <span class="global">tonumber</span>(n) <span class="keyword">end</span>)
+      <span class="keyword">return</span> t
+   <span class="keyword">end</span>
+   <span class="keyword">for</span> i = <span class="number">1</span>, na <span class="keyword">do</span>
+      <span class="keyword">local</span> line = file:read()
+      <span class="keyword">if</span> line == <span class="keyword">nil</span> <span class="keyword">then</span> <span class="keyword">break</span> <span class="keyword">end</span>
+      <span class="comment">-- Get stuff into the R
+</span>      <span class="keyword">local</span> v = tovector(line)
+      F[i][<span class="number">1</span>] = v[<span class="number">2</span>]
+      F[i][<span class="number">2</span>] = v[<span class="number">3</span>]
+      F[i][<span class="number">3</span>] = v[<span class="number">4</span>]
+   <span class="keyword">end</span>
+   file:close()
+   <span class="keyword">return</span> flos.Array.from(F)
+<span class="keyword">end</span>
+
+
+<span class="keyword">function</span> siesta_comm()
+
+   <span class="comment">-- Do the actual communication with SIESTA
+</span>   <span class="keyword">if</span> siesta.state == siesta.INITIALIZE <span class="keyword">then</span>
+
+      <span class="comment">-- Readed forces *must* be in eV/Ang, will convert to Ry/Bohr
+</span>      add_force = read_fa(force_file) / Unit.Ang * Unit.eV
+
+      <span class="comment">-- Print information
+</span>      IOprint(<span class="string">"\nLUA Added forces"</span>)
+
+   <span class="keyword">end</span>
+
+   <span class="keyword">if</span> siesta.state == siesta.FORCES <span class="keyword">then</span>
+
+      <span class="comment">-- We retrieve the current coordinates, the forces
+</span>      <span class="comment">-- and whether the geometry has relaxed
+</span>      siesta.receive({<span class="string">"geom.fa"</span>})
+
+      siesta.geom.fa = flos.Array.from(siesta.geom.fa) + add_force
+
+      siesta.send({<span class="string">"geom.fa"</span>})
+
+   <span class="keyword">end</span>
+<span class="keyword">end</span></pre>
+
+
+</div> <!-- id="content" -->
+</div> <!-- id="main" -->
+<div id="about">
+<i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
+<i style="float:right;">Last updated 2019-05-23 08:32:22 </i>
+</div> <!-- id="about" -->
+</div> <!-- id="container" -->
+</body>
+</html>

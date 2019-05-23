@@ -52,6 +52,7 @@
 <ul class="nowrap">
   <li><a href="../modules/error.html">error</a></li>
   <li><a href="../modules/Linear.html">Linear</a></li>
+  <li><a href="../modules/Tables.html">Tables</a></li>
 </ul>
 <h2>Manual</h2>
 <ul class="nowrap">
@@ -59,6 +60,7 @@
 </ul>
 <h2>Examples</h2>
 <ul class="nowrap">
+  <li><a href="../examples/add_force.lua.html">add_force.lua</a></li>
   <li><a href="../examples/conv_meshcutoff.lua.html">conv_meshcutoff.lua</a></li>
   <li><a href="../examples/force_constant.lua.html">force_constant.lua</a></li>
   <li><a href="../examples/neb_simple.lua.html">neb_simple.lua</a></li>
@@ -119,12 +121,15 @@
 	<td class="summary">Query the current coordinates of an image</td>
 	</tr>
 	<tr>
-	<td class="name" ><a href="#NEB:force">NEB:force (image)</a></td>
-	<td class="summary">Query the current force (same as <a href="../classes/NEB.html#NEB:force">NEB:force</a> but with IO included)</td>
+	<td class="name" ><a href="#NEB:force">NEB:force (image, IO)</a></td>
+	<td class="summary">Query the current NEB force and optionally write out the current step information
+ Calculates the NEB force for the current image and optionally store
+ the current image information to the files.</td>
 	</tr>
 	<tr>
 	<td class="name" ><a href="#NEB:save">NEB:save (IO)</a></td>
-	<td class="summary">Store the current step of the NEB iteration with the appropriate results</td>
+	<td class="summary">Store the current step of the NEB iteration with the appropriate results
+ Append to the file NEB.results the current NEB image step results.</td>
 	</tr>
 	<tr>
 	<td class="name" ><a href="#NEB:init_files">NEB:init_files ()</a></td>
@@ -167,7 +172,10 @@
  Due to the forces being highly non-linear as the NEB algorithm updates the
  forces depending on the nearest images, it is adviced to use an MD-like relaxation
  method such as <a href="../classes/FIRE.html#">FIRE</a>. If one uses history based relaxation methods (<a href="../classes/LBFGS.html#">LBFGS</a>, <a href="../classes/CG.html#">CG</a>, etc.) one should
- limit the number of history steps used.
+ limit the number of history steps used.</p>
+
+<p> Running the NEB class will create a huge list of files with corresponding output.
+ Check the <a href="../classes/NEB.html#NEB:save">NEB:save</a> function for details.
 
 
     <h3>Parameters:</h3>
@@ -446,10 +454,35 @@ neb[neb.n_images+<span class="number">1</span>]:set(F=&lt;final-forces&gt;, E=&l
 </dd>
     <dt>
     <a name = "NEB:force"></a>
-    <strong>NEB:force (image)</strong>
+    <strong>NEB:force (image, IO)</strong>
     </dt>
     <dd>
-    Query the current force (same as <a href="../classes/NEB.html#NEB:force">NEB:force</a> but with IO included)
+    Query the current NEB force and optionally write out the current step information
+ Calculates the NEB force for the current image and optionally store
+ the current image information to the files. </p>
+
+<p> The generated files are:</p>
+
+<ul>
+    <li>NEB.<image>.R
+    containing the relaxation steps of image `<code>&lt;image&gt;</code><code></li>
+    <li>NEB.&lt;image&gt;.F
+    containing the force of image </code><code>&lt;image&gt;</code><code></li>
+    <li>NEB.&lt;image&gt;.F.P
+    containing the perpendicular force of image </code><code>&lt;image&gt;</code><code></li>
+    <li>NEB.&lt;image&gt;.F.S
+    containing the spring force of image </code><code>&lt;image&gt;</code><code></li>
+    <li>NEB.&lt;image&gt;.F.NEB
+    containing the NEB force of image </code><code>&lt;image&gt;</code><code> (equivalent to the returned force)</li>
+    <li>NEB.&lt;image&gt;.T
+    containing the tangent of image </code><code>&lt;image&gt;</code>`</li>
+    <li>NEB.<image>.dR_prev
+    containing the reaction coordinate against the previous image</li>
+    <li>NEB.<image>.dR_next
+    containing the reaction coordinate against the next image</li>
+</ul>
+
+<p> All files contains a consecutive list of the values for each iteration.
 
 
     <h3>Parameters:</h3>
@@ -457,6 +490,10 @@ neb[neb.n_images+<span class="number">1</span>]:set(F=&lt;final-forces&gt;, E=&l
         <li><span class="parameter">image</span>
             <span class="types"><span class="type">int</span></span>
          the image
+        </li>
+        <li><span class="parameter">IO</span>
+            <span class="types"><span class="type">bool</span></span>
+         whether or not the current step should be stored
         </li>
     </ul>
 
@@ -476,12 +513,21 @@ neb[neb.n_images+<span class="number">1</span>]:set(F=&lt;final-forces&gt;, E=&l
     </dt>
     <dd>
     Store the current step of the NEB iteration with the appropriate results
+ Append to the file NEB.results the current NEB image step results.
+ The stored data consists of the following columns:
+ 1. Image number
+ 2. Accummulated reaction coordinate (the 1D-norm of <code>&lt;code&gt;NEB:dR(i-1, i)&lt;/code&gt;</code>)
+ 3. Total energy of current iteration
+ 4. Total energy difference from initial image
+ 5. Image curvature
+ 6. Maximum NEB force exerted on any given atom.
 
 
     <h3>Parameters:</h3>
     <ul>
         <li><span class="parameter">IO</span>
-        If we should not do IO, return immediately
+            <span class="types"><span class="type">bool</span></span>
+         whether or not the results should be written
         </li>
     </ul>
 
@@ -525,7 +571,7 @@ neb[neb.n_images+<span class="number">1</span>]:set(F=&lt;final-forces&gt;, E=&l
 </div> <!-- id="main" -->
 <div id="about">
 <i>generated by <a href="http://github.com/stevedonovan/LDoc">LDoc 1.4.6</a></i>
-<i style="float:right;">Last updated 2017-10-22 14:39:53 </i>
+<i style="float:right;">Last updated 2019-05-23 08:32:22 </i>
 </div> <!-- id="about" -->
 </div> <!-- id="container" -->
 </body>
