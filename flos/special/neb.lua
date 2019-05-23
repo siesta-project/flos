@@ -33,6 +33,9 @@ local NEB = mc.class("NEB")
 -- method such as `FIRE`. If one uses history based relaxation methods (`LBFGS`, `CG`, etc.) one should
 -- limit the number of history steps used.
 --
+-- Running the NEB class will create a huge list of files with corresponding output.
+-- Check the `NEB:save` function for details.
+--
 -- @usage
 -- -- Read in the images
 -- -- Note that `read_geom` must be a function that you define to read in the
@@ -301,8 +304,33 @@ function NEB:R(image)
    return NEB[image].R
 end
 
---- Query the current force (same as `NEB:force` but with IO included)
+--- Query the current NEB force and optionally write out the current step information
+-- Calculates the NEB force for the current image and optionally store
+-- the current image information to the files.
+--
+-- The generated files are:
+--
+-- - NEB.<image>.R
+--   containing the relaxation steps of image ``<image>``
+-- - NEB.<image>.F
+--   containing the force of image ``<image>``
+-- - NEB.<image>.F.P
+--   containing the perpendicular force of image ``<image>``
+-- - NEB.<image>.F.S
+--   containing the spring force of image ``<image>``
+-- - NEB.<image>.F.NEB
+--   containing the NEB force of image ``<image>`` (equivalent to the returned force)
+-- - NEB.<image>.T
+--   containing the tangent of image ``<image>``
+-- - NEB.<image>.dR_prev
+--   containing the reaction coordinate against the previous image
+-- - NEB.<image>.dR_next
+--   containing the reaction coordinate against the next image
+--
+-- All files contains a consecutive list of the values for each iteration.
+--
 -- @int image the image
+-- @bool IO whether or not the current step should be stored
 -- @return force
 function NEB:force(image, IO)
    self:_check_image(image)
@@ -312,15 +340,10 @@ function NEB:force(image, IO)
       self.niter = self.niter + 1
    end
 
-   local F = self[image].F
-   local tangent = self:tangent(image)
-   local perp_F = self:perpendicular_force(image)
-   local spring_F = self:spring_force(image)
    local NEB_F = self:neb_force(image)
 
    -- Things I want to output in files as control (all in 3xN format)
    if IO then
-
       local f
 
       -- Current coordinates (ie .R)
@@ -330,17 +353,17 @@ function NEB:force(image, IO)
 
       -- Forces before (ie .F)
       f = io.open( ("NEB.%d.F"):format(image), "a")
-      F:savetxt(f)
+      self[image].F:savetxt(f)
       f:close()
 
       -- Perpendicular force
       f = io.open( ("NEB.%d.F.P"):format(image), "a")
-      perp_F:savetxt(f)
+      self:perpendicular_force(image):savetxt(f)
       f:close()
       
       -- Spring force
       f = io.open( ("NEB.%d.F.S"):format(image), "a")
-      spring_F:savetxt(f)
+      self:spring_force(image):savetxt(f)
       f:close()
 
       -- NEB Force
@@ -350,7 +373,7 @@ function NEB:force(image, IO)
 
       -- Tangent
       f = io.open( ("NEB.%d.T"):format(image), "a")
-      tangent:savetxt(f)
+      self:tangent(image):savetxt(f)
       f:close()
 
       -- dR - previous reaction coordinate
@@ -371,6 +394,15 @@ function NEB:force(image, IO)
 end
 
 --- Store the current step of the NEB iteration with the appropriate results
+-- Append to the file NEB.results the current NEB image step results.
+-- The stored data consists of the following columns:
+-- 1. Image number
+-- 2. Accummulated reaction coordinate (the 1D-norm of ``NEB:dR(i-1, i)``)
+-- 3. Total energy of current iteration
+-- 4. Total energy difference from initial image
+-- 5. Image curvature
+-- 6. Maximum NEB force exerted on any given atom.
+-- @bool IO whether or not the results should be written
 function NEB:save(IO)
 
    -- If we should not do IO, return immediately
