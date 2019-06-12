@@ -18,6 +18,7 @@ local NEB = mc.class("NEB")
 -- the NEB settings as named arguments in a table.
 --
 -- The `NEB` object implements a generic NEB algorithm as detailed in:
+--
 --  1. "Improved tangent estimate in the nudged elastic band method for finding minimum energy paths and saddle points", Henkelman & Jonsson, JCP (113), 2000
 --  2. "A climbing image nudged elastic band method for finding saddle points and minimum energy paths", Henkelman, Uberuaga, & Jonsson, JCP (113), 2000
 --
@@ -40,10 +41,16 @@ local NEB = mc.class("NEB")
 -- -- Read in the images
 -- -- Note that `read_geom` must be a function that you define to read in the
 -- -- atomic coordinates of a corresponding `.xyz` file.
+-- -- Either let the NEB class interpolate, or do it manually.
+-- images = {initial=read_geom("initial.xyz"), final=read_geom("final.xyz")}
+-- images["n_images"] = 6 -- 6 images (between initial and final)
+-- -- or, do it manually:
+-- --[
 -- images = {}
--- for i = 0, n_images + 1 do
+-- for i = 2, n_images do
 --    images[#images+1] = flos.MDStep{R=read_geom(image_label .. i .. ".xyz")}
 -- end
+-- --]
 -- neb = NEB(images, {<field1 = value>, <field2 = value>})
 -- relax = {}
 -- for i = 1, neb.n_images do
@@ -70,7 +77,7 @@ local NEB = mc.class("NEB")
 -- end
 --
 -- @function NEB:new
--- @tparam table images all images (starting with the initial, and ending with the final)
+-- @tparam table images all images (including initial and final) or with 3 keys, "initial", "final" and "n_images" for linear interpolation.
 -- @tparam[opt=5.] ?number|table k spring constant between the images, a table can be used for individual spring constants
 -- @number[opt=5] climbing after this number of iterations the climbing image will be taken into account (to disable climbing, pass `false`)
 -- @number[opt=0.005] climbing_tol the tolerance for determining whether an image is climbing or not
@@ -83,23 +90,59 @@ function NEB:initialize(images, tbl)
    -- Convert the remaining arguments to a table
    local tbl = tbl or {}
 
+   local img = {}
+
+   if #images == 0 or images["initial"] ~= nil then
+      -- We handle 3 different cases:
+      local md = require "flos.md"
+      local initial
+      local final
+
+      if md.MDStep.isInstanceOf(images["initial"], md.MDStep) then
+	 initial = images["initial"].R
+	 final = images["final"].R
+      elseif array.Array.isInstanceOf(images["initial"], array.Array) then
+	 initial = images["initial"]
+	 final = images["final"]
+      else
+	 initial = array.Array(images["initial"])
+	 final = array.Array(images["final"])
+      end
+      local n_images = images["n_images"]
+
+      -- interpolate to the img variable
+      img[1] = md.MDStep{R=initial}
+      img[n_images + 2] = md.MDStep{R=final}
+      dR = (final - initial) / (n_images + 1)
+      for i = 2, n_images + 1 do
+	 img[i] = md.MDStep{R=initial + dR * (i - 1)}
+      end
+
+   else
+
+      -- Copy reference
+      img = images
+
+   end
+
    -- Copy all images over
-   local size_img = #images[1].R
-   for i = 1, #images do
-      self[i-1] = images[i]
-      if #images[i].R ~= size_img then
+   local size_img = #img[1].R
+   for i = 1, #img do
+      self[i-1] = img[i]
+      if #img[i].R ~= size_img then
 	 error("NEB: images does not have same size of geometries!")
       end
    end
 
+
    -- store the number of images (without the initial and final)
-   self.n_images = #images - 2
+   self.n_images = #img - 2
 
    -- This is _bad_ practice, however,
    -- the middleclass system does not easily enable overwriting
    -- the __index function (because it uses it)
-   self.initial = images[1]
-   self.final = images[#images]
+   self.initial = img[1]
+   self.final = img[#img]
 
    -- an integer that describes when the climbing image
    -- may be used, make large enough to never set it
