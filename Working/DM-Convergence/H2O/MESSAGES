@@ -1,0 +1,3 @@
+WARNING: SCF_NOT_CONV: SCF did not converge in maximum number of steps.
+ (info): Geom step, scf iteration, dmax:   0  5    0.022344
+INFO: Job completed

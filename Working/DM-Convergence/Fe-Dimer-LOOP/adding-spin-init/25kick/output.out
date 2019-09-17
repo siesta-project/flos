@@ -1,0 +1,1921 @@
+
+                           ***********************       
+                           *  WELCOME TO SIESTA  *       
+                           ***********************       
+
+reinit: Reading from standard input
+reinit: Dumped input in INPUT_TMP.77390
+************************** Dump of input data file ****************************
+############### Chemical info ###############
+NumberOfSpecies        1
+%block ChemicalSpeciesLabel
+  1  26  Fe
+%endblock ChemicalSpeciesLabel
+PAO.EnergyShift  100 meV
+PAO.SplitNorm      0.15
+%block PAO.Basis
+ Fe   2
+   n=4   0   2   P
+    0.0   0.0
+   n=3   2   2
+    0.0   0.0
+%endblock PAO.Basis
+xc.functional         GGA
+xc.authors            PBE
+############## Geomtrical info ##############
+SystemName   fe2DFM
+SystemLabel  fe2DFM
+LatticeConstant  1.0d0 Ang
+%block LatticeVectors
+  20.000000000   0.000000000    0.000000000
+   0.000000000  20.000000000    0.000000000
+   0.000000000   0.000000000   20.000000000
+%endblock LatticeVectors
+NumberOfAtoms       2
+AtomicCoordinatesFormat   Ang
+%block AtomicCoordinatesAndAtomicSpecies
+    0.00000   0.00000   0.00000  1
+    2.50000   0.00000   0.00000  1
+%endblock AtomicCoordinatesAndAtomicSpecies
+#UseSaveData     T
+#SolutionMethod  diagon
+%block DM.InitSpin
+  1  +3.   0.  0.
+  2  +3.   0.  0.
+%endblock DM.InitSpin
+#%block kgrid_Monkhorst_Pack
+#  11   0   0   0.0
+#   0  11   0   0.0
+#   0   0   1   0.0
+#%endblock kgrid_Monkhorst_Pack
+ ################ SCF options #############
+#ElectronicTemperature   0.010 eV
+MaxSCFIterations        10 #300
+DM.MixingWeight         0.01 #0.001
+MeshCutoff              300.0 Ry
+DM.Tolerance            0.000004
+DM.NumberPulay          7
+DM.UseSaveDM            T
+DM.History.Depth         0
+#DM.MixSCF1              F
+DM.NumberKick           25
+#MixHamiltonian          true
+#SCF.H.Converge          true
+#SCF.H.Tolerance         0.003 eV
+#Diag.DivideAndConquer F
+#Diag.Use2D F
+ ################ MD options #############
+MD.TypeOfRun        LUA
+MD.NumCGsteps       0
+#MD.MaxCGDispl       0.1 Ang
+#MD.MaxForceTol      0.01 eV/Ang
+#WriteCoorStep       true
+#WriteForces         true
+ ################ DOS options #############
+#WriteMullikenPop     1
+#MullikenInSCF T
+Spin                 collinear
+Lua.Script conv_meshcutoff.lua
+************************** End of input data file *****************************
+
+reinit: -----------------------------------------------------------------------
+reinit: System Name: fe2DFM
+reinit: -----------------------------------------------------------------------
+reinit: System Label: fe2DFM
+reinit: -----------------------------------------------------------------------
+Siesta Version: siesta-4.1--736
+Architecture  : unknown
+Compiler flags: mpif90 -O2 -fPIC -ftree-vectorize
+PP flags      : -DFC_HAVE_ABORT -DMPI -DFC_HAVE_FLUSH -DFC_HAVE_ABORT -DGRID_DP -DPHI_GRID_SP -DSIESTA__FLOOK
+Libraries     :  /usr/lib/libscalapack-openmpi.so   libsiestaLAPACK.a libsiestaBLAS.a libfdict.a /usr/lib/libblacsF77init-openmpi.so /usr/lib/libblacsCinit-openmpi.so /usr/lib/libblacs-openmpi.so  -lflookall -ldl
+PARALLEL version
+
+* Running on 8 nodes in parallel
+>> Start of run:  18-JUN-2019  10:45:59
+
+initatom: Reading input for the pseudopotentials and atomic orbitals ----------
+Species number:   1 Atomic number:   26 Label: Fe
+
+Ground state valence configuration:   4s02  3d06
+Reading pseudopotential information in formatted form from Fe.psf
+
+Pseudopotential generated from a relativistic atomic calculation
+There are spin-orbit pseudopotentials available
+Spin-orbit interaction is not included in this calculation
+
+Valence configuration for pseudopotential generation:
+4s( 1.00) rc: 2.47
+4p( 0.00) rc: 2.47
+3d( 7.00) rc: 0.70
+4f( 0.00) rc: 2.00
+For Fe, standard SIESTA heuristics set lmxkb to 3
+ (one more than the basis l, including polarization orbitals).
+Use PS.lmax or PS.KBprojectors blocks to override.
+ Warning: Empty PAO shell. l =           1
+ Will have a KB projector anyway...
+
+<basis_specs>
+===============================================================================
+Fe                   Z=  26    Mass=  55.850        Charge= 0.17977+309
+Lmxo=2 Lmxkb= 3    BasisType=split      Semic=F
+L=0  Nsemic=0  Cnfigmx=4
+          n=1  nzeta=2  polorb=1
+            splnorm:   0.15000    
+               vcte:    0.0000    
+               rinn:    0.0000    
+               qcoe:    0.0000    
+               qyuk:    0.0000    
+               qwid:   0.10000E-01
+                rcs:    0.0000      0.0000    
+            lambdas:    1.0000      1.0000    
+L=1  Nsemic=0  Cnfigmx=4
+L=2  Nsemic=0  Cnfigmx=3
+          n=1  nzeta=2  polorb=0
+            splnorm:   0.15000    
+               vcte:    0.0000    
+               rinn:    0.0000    
+               qcoe:    0.0000    
+               qyuk:    0.0000    
+               qwid:   0.10000E-01
+                rcs:    0.0000      0.0000    
+            lambdas:    1.0000      1.0000    
+-------------------------------------------------------------------------------
+L=0  Nkbl=1  erefs: 0.17977+309
+L=1  Nkbl=1  erefs: 0.17977+309
+L=2  Nkbl=1  erefs: 0.17977+309
+L=3  Nkbl=1  erefs: 0.17977+309
+===============================================================================
+</basis_specs>
+
+atom: Called for Fe                    (Z =  26)
+
+read_vps: Pseudopotential generation method:
+read_vps: ATM3      Troullier-Martins                       
+Total valence charge:    8.00000
+
+read_vps: Pseudopotential includes a core correction:
+read_vps: Pseudo-core for xc-correction
+
+xc_check: Exchange-correlation functional:
+xc_check: GGA Perdew, Burke & Ernzerhof 1996
+V l=0 = -2*Zval/r beyond r=  2.7993
+V l=1 = -2*Zval/r beyond r=  2.7993
+V l=2 = -2*Zval/r beyond r=  2.7993
+V l=3 = -2*Zval/r beyond r=  2.7993
+All V_l potentials equal beyond r=  2.4397
+This should be close to max(r_c) in ps generation
+All pots = -2*Zval/r beyond r=  2.7993
+
+VLOCAL1: 99.0% of the norm of Vloc inside      7.293 Ry
+VLOCAL1: 99.9% of the norm of Vloc inside     16.621 Ry
+atom: Maximum radius for 4*pi*r*r*local-pseudopot. charge    2.94283
+atom: Maximum radius for r*vlocal+2*Zval:    2.59703
+GHOST: No ghost state for L =  0
+GHOST: No ghost state for L =  1
+GHOST: No ghost state for L =  2
+GHOST: No ghost state for L =  3
+
+KBgen: Kleinman-Bylander projectors: 
+   l= 0   rc=  3.055283   el= -0.312062   Ekb=  3.081013   kbcos=  0.258577
+   l= 1   rc=  3.093715   el= -0.063822   Ekb=  1.442603   kbcos=  0.215095
+   l= 2   rc=  2.662772   el= -0.281610   Ekb=-38.369291   kbcos= -0.519064
+   l= 3   rc=  3.252338   el=  0.003178   Ekb= -1.735683   kbcos= -0.007697
+
+KBgen: Total number of  Kleinman-Bylander projectors:   16
+atom: -------------------------------------------------------------------------
+
+atom: SANKEY-TYPE ORBITALS:
+atom: Selected multiple-zeta basis: split     
+
+SPLIT: Orbitals with angular momentum L= 0
+
+SPLIT: Basis orbitals for state 4s
+
+SPLIT: PAO cut-off radius determined from an
+SPLIT: energy shift=  0.007350 Ry
+
+   izeta = 1
+                 lambda =    1.000000
+                     rc =    7.705167
+                 energy =   -0.304849
+                kinetic =    0.268157
+    potential(screened) =   -0.573006
+       potential(ionic) =   -5.725066
+
+   izeta = 2
+                 rmatch =    6.631885
+              splitnorm =    0.150000
+                 energy =   -0.262508
+                kinetic =    0.415325
+    potential(screened) =   -0.677833
+       potential(ionic) =   -6.254676
+
+SPLIT: Orbitals with angular momentum L= 2
+
+SPLIT: Basis orbitals for state 3d
+
+SPLIT: PAO cut-off radius determined from an
+SPLIT: energy shift=  0.007350 Ry
+
+   izeta = 1
+                 lambda =    1.000000
+                     rc =    4.912997
+                 energy =   -0.274710
+                kinetic =   12.893147
+    potential(screened) =  -13.167857
+       potential(ionic) =  -22.671447
+
+   izeta = 2
+                 rmatch =    2.439674
+              splitnorm =    0.150000
+                 energy =   -0.033158
+                kinetic =   17.664333
+    potential(screened) =  -17.697491
+       potential(ionic) =  -28.189775
+
+POLgen: Perturbative polarization orbital with L=  1
+
+POLgen: Polarization orbital for state 4s
+
+   izeta = 1
+                     rc =    7.705167
+                 energy =   -0.020882
+                kinetic =    0.506977
+    potential(screened) =   -0.527859
+       potential(ionic) =   -5.218787
+atom: Total number of Sankey-type orbitals: 15
+
+atm_pop: Valence configuration (for local Pseudopot. screening):
+ 4s( 2.00)                                                            
+ 4p( 0.00)                                                            
+ 3d( 6.00)                                                            
+Vna: chval, zval:    8.00000   8.00000
+
+Vna:  Cut-off radius for the neutral-atom potential:   7.705167
+comcore: Pseudo-core radius Rcore=  3.826224
+
+atom: _________________________________________________________________________
+
+prinput: Basis input ----------------------------------------------------------
+
+PAO.BasisType split     
+
+%block ChemicalSpeciesLabel
+    1   26 Fe                      # Species index, atomic number, species label
+%endblock ChemicalSpeciesLabel
+
+%block PAO.Basis                 # Define Basis set
+Fe                    2                    # Species label, number of l-shells
+ n=4   0   2 P   1                   # n, l, Nzeta, Polarization, NzetaPol
+   7.705      6.632   
+   1.000      1.000   
+ n=3   2   2                         # n, l, Nzeta 
+   4.913      2.440   
+   1.000      1.000   
+%endblock PAO.Basis
+
+prinput: ----------------------------------------------------------------------
+
+coor:   Atomic-coordinates input format  =     Cartesian coordinates
+coor:                                          (in Angstroms)
+
+siesta: Atomic coordinates (Bohr) and species
+siesta:      0.00000   0.00000   0.00000  1        1
+siesta:      4.72432   0.00000   0.00000  1        2
+
+siesta: System type = molecule  
+
+initatomlists: Number of atoms, orbitals, and projectors:      2    30    32
+
+siesta: ******************** Simulation parameters ****************************
+siesta:
+siesta: The following are some of the parameters of the simulation.
+siesta: A complete list of the parameters used, including default values,
+siesta: can be found in file out.fdf
+siesta:
+redata: Spin configuration                          = collinear
+redata: Number of spin components                   = 2
+redata: Time-Reversal Symmetry                      = T
+redata: Spin-spiral                                 = F
+redata: Long output                                 =   F
+redata: Number of Atomic Species                    =        1
+redata: Charge density info will appear in .RHO file
+redata: Write Mulliken Pop.                         = NO
+redata: Mesh Cutoff                                 =   300.0000 Ry
+redata: Net charge of the system                    =     0.0000 |e|
+redata: Min. number of SCF Iter                     =        0
+redata: Max. number of SCF Iter                     =       10
+redata: SCF mix quantity                            = Hamiltonian
+redata: Mix DM or H after convergence               =   F
+redata: Recompute H after scf cycle                 =   F
+redata: Mix DM in first SCF step                    =   T
+redata: Write Pulay info on disk                    =   F
+redata: New DM Mixing Weight                        =     0.0100
+redata: New DM Occupancy tolerance                  = 0.000000000001
+redata: Kick with linear mixing every               =       25 iterations
+redata: DM Mixing Weight for Kicks                  =     0.5000
+redata: Require Harris convergence for SCF          =   F
+redata: Harris energy tolerance for SCF             =     0.000100 eV
+redata: Require DM convergence for SCF              =   T
+redata: DM tolerance for SCF                        =     0.0000
+redata: Require EDM convergence for SCF             =   F
+redata: EDM tolerance for SCF                       =     0.001000 eV
+redata: Require H convergence for SCF               =   T
+redata: Hamiltonian tolerance for SCF               =     0.001000 eV
+redata: Require (free) Energy convergence for SCF   =   F
+redata: (free) Energy tolerance for SCF             =     0.000100 eV
+redata: Antiferro initial spin density              =   F
+redata: Using Saved Data (generic)                  =   F
+redata: Use continuation files for DM               =   T
+redata: Neglect nonoverlap interactions             =   F
+redata: Method of Calculation                       = Diagonalization
+redata: Divide and Conquer                          =   T
+redata: Electronic Temperature                      =   299.9869 K
+redata: Fix the spin of the system                  =   F
+redata: Dynamics option                             = LUA
+mix.SCF: Pulay mixing                            = Pulay
+mix.SCF:    Variant                              = stable
+mix.SCF:    History steps                        = 7
+mix.SCF:    Linear mixing weight                 =     0.010000
+mix.SCF:    Mixing weight                        =     0.010000
+mix.SCF:    SVD condition                        = 0.1000E-07
+mix.SCF:    Restart steps                        = 24
+mix.SCF:    Restart save steps                   = 1
+mix.SCF:    Number of mixing iterations          = 24
+mix.SCF:    Following mixer                      = Linear-Kick
+mix.SCF: Linear mixing                           = Linear-Kick
+mix.SCF:    Mixing weight                        =     0.500000
+mix.SCF:    Number of mixing iterations          = 1
+mix.SCF:    Following mixer                      = Pulay
+mix.SCF: Spin-component mixing                   all
+redata: ***********************************************************************
+
+%block SCF.Mixers
+  Pulay
+  Linear-Kick
+%endblock SCF.Mixers
+
+%block SCF.Mixer.Pulay
+  # Mixing method
+  method pulay
+  variant stable
+
+  # Mixing options
+  weight 0.0100
+  weight.linear 0.0100
+  history 7
+  restart 24
+  restart.save 1
+
+  # Continuation options
+  iterations 24
+  next Linear-Kick
+%endblock SCF.Mixer.Pulay
+
+%block SCF.Mixer.Linear-Kick
+  # Mixing method
+  method linear
+
+  # Mixing options
+  weight 0.5000
+
+  # Continuation options
+  iterations 1
+  next Pulay
+%endblock SCF.Mixer.Linear-Kick
+
+Size of DM history Fstack: 0
+Total number of electrons:    16.000000
+Total ionic charge:    16.000000
+
+* ProcessorY, Blocksize:    2   4
+
+
+* Orbital distribution balance (max,min):     4     2
+
+ Kpoints in:            1 . Kpoints trimmed:            1
+
+siesta: k-grid: Number of k-points =     1
+siesta: k-grid: Cutoff (effective) =    10.000 Ang
+siesta: k-grid: Supercell and displacements
+siesta: k-grid:    1   0   0      0.000
+siesta: k-grid:    0   1   0      0.000
+siesta: k-grid:    0   0   1      0.000
+
+==============================================================================
+------------------------------------------------------------------------------
+              This Part Generated By LUA for INITALIZE Stage                          
+------------------------------------------------------------------------------
+LUA: The Starting Mesh-cutoff is   :  150.000 Ry
+LUA: The Max Iterations is         :  10 
+LUA: The Mixing Weight is          : 0.010000 Ry
+LUA: The DM Tolerance is           : 0.000004 Ry
+LUA: The Electronic Temperature is :    0.002 Ry
+LUA: The Mixer Weight is           :    0.010 Ry
+LUA: The Number of Pulay is        :   7 
+LUA: The Number of Kick is         :  25 
+==============================================================================
+
+
+                     ====================================
+                        LUA coord. step =      0
+                     ====================================
+
+outcell: Unit cell vectors (Ang):
+       20.000000    0.000000    0.000000
+        0.000000   20.000000    0.000000
+        0.000000    0.000000   20.000000
+
+outcell: Cell vector modules (Ang)   :   20.000000   20.000000   20.000000
+outcell: Cell angles (23,13,12) (deg):     90.0000     90.0000     90.0000
+outcell: Cell volume (Ang**3)        :   8000.0000
+<dSpData1D:S at geom step 0
+  <sparsity:sparsity for geom step 0
+    nrows_g=30 nrows=4 sparsity=.1333 nnzs=120, refcount: 7>
+  <dData1D:(new from dSpData1D) n=120, refcount: 1>
+refcount: 1>
+new_DM -- step:     1
+Initializing Density Matrix...
+
+Attempting to read DM from file... Failed...
+DM filled with atomic data (user-defined):
+<dSpData2D:DM initialized from atoms
+  <sparsity:sparsity for geom step 0
+    nrows_g=30 nrows=4 sparsity=.1333 nnzs=120, refcount: 8>
+  <dData2D:DM n=120 m=2, refcount: 1>
+refcount: 1>
+
+initDM: Initial spin polarization (Qup-Qdown) =    6.000000
+
+No. of atoms with KB's overlaping orbs in proc 0. Max # of overlaps:       2      30
+New grid distribution:   1
+           1       1:   75    1:   38    1:   19
+           2       1:   75    1:   38   20:   38
+           3       1:   75    1:   38   39:   57
+           4       1:   75    1:   38   58:   75
+           5       1:   75   39:   75    1:   19
+           6       1:   75   39:   75   20:   38
+           7       1:   75   39:   75   39:   57
+           8       1:   75   39:   75   58:   75
+
+InitMesh: MESH =   150 x   150 x   150 =     3375000
+InitMesh: (bp) =    75 x    75 x    75 =      421875
+InitMesh: Mesh cutoff (required, used) =   150.000   155.462 Ry
+ExtMesh (bp) on 0 =   139 x   102 x    83 =     1176774
+New grid distribution:   2
+           1      11:   75   29:   75    1:   30
+           2       1:   10   29:   75    1:   30
+           3      11:   75    1:   31   31:   75
+           4       1:   10    1:   31   31:   75
+           5      11:   75    1:   28    1:   30
+           6       1:   10    1:   28    1:   30
+           7      12:   75   32:   75   31:   75
+           8       1:   11   32:   75   31:   75
+New grid distribution:   3
+           1      17:   75    1:   15    1:   20
+           2       1:   16   26:   75   21:   75
+           3      17:   75    1:   25   21:   75
+           4       1:   16    1:   25   21:   75
+           5      17:   75   16:   75    1:   20
+           6       1:   16   16:   75    1:   20
+           7      17:   75   26:   75   21:   75
+           8       1:   16    1:   15    1:   20
+Setting up quadratic distribution...
+ExtMesh (bp) on 0 =   129 x   111 x    94 =     1345986
+PhiOnMesh: Number of (b)points on node 0 =                91650
+PhiOnMesh: nlist on node 0 =                27376
+
+stepf: Fermi-Dirac step function
+
+siesta: Program's energy decomposition (eV):
+siesta: Ebs     =       334.326848
+siesta: Eions   =      1276.209793
+siesta: Ena     =        38.825380
+siesta: Ekin    =      3142.738417
+siesta: Enl     =     -2625.422854
+siesta: Eso     =         0.000000
+siesta: Eldau   =         0.000000
+siesta: DEna    =       -44.117270
+siesta: DUscf   =        74.707044
+siesta: DUext   =         0.000000
+siesta: Exc     =      -896.564565
+siesta: eta*DQ  =         0.000000
+siesta: Emadel  =         0.000000
+siesta: Emeta   =         0.000000
+siesta: Emolmec =         0.000000
+siesta: Ekinion =         0.000000
+siesta: Eharris =     -1479.047863
+siesta: Etot    =     -1586.043640
+siesta: FreeEng =     -1586.067230
+
+        iscf     Eharris(eV)        E_KS(eV)     FreeEng(eV)     dDmax    Ef(eV) dHmax(eV)
+   scf:    1    -1479.047863    -1586.043640    -1586.067230  0.999871-10.744836 39.504531
+timer: Routine,Calls,Time,% = IterSCF        1       1.023  46.28
+LUA: scf count        :   0 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    2    -1588.940021    -1587.505689    -1587.528396  0.019712-10.412273 38.605271
+LUA: scf count        :   1 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:    3     -471.148543    -1259.655434    -1259.655502  1.206191 -0.698259115.925473
+LUA: scf count        :   2 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    4    -1647.241415    -1593.384064    -1593.398249  1.285691 -0.132141 40.929874
+LUA: scf count        :   3 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    5    -1609.704274    -1624.010067    -1624.013236  1.049117 -3.312172 19.512716
+LUA: scf count        :   4 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    6    -1617.167491    -1620.709988    -1620.710142  0.039295 -3.516859 22.824023
+LUA: scf count        :   5 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:    7    -1627.127827    -1624.074894    -1624.075133  0.048361 -3.598077 20.622538
+LUA: scf count        :   6 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:    8    -1635.685063    -1633.349889    -1633.371012  0.583678 -3.112770  6.666083
+LUA: scf count        :   7 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    9    -1620.468381    -1628.760223    -1628.761900  0.523752 -3.552851 15.893572
+LUA: scf count        :   8 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   10    -1632.634236    -1633.684050    -1633.702294  0.568032 -2.951805  4.769158
+LUA: scf count        :   9 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+SCF_NOT_CONV: SCF did not converge in maximum number of steps.
+Geom step, scf iteration, dmax:   0 10    0.350524
+
+Using DM_out to compute the final energy and forces
+No. of atoms with KB's overlaping orbs in proc 0. Max # of overlaps:       2      30
+
+siesta: E_KS(eV) =            -1633.6841
+
+siesta: E_KS - E_eggbox =     -1633.6841
+
+siesta: Total spin polarization (Qup-Qdown) =    7.999982
+
+siesta: Atomic forces (eV/Ang):
+----------------------------------------
+   Tot    2.281608   -0.000000   -0.000000
+----------------------------------------
+   Max    2.614295
+   Res    1.075889    sqrt( Sum f_i^2 / 3N )
+----------------------------------------
+   Max    2.614295    constrained
+
+Stress-tensor-Voigt (kbar):        0.99       -0.44       -0.44       -0.00       -0.00        0.00
+(Free)E + p*V (eV/cell)    -1633.8919
+Target enthalpy (eV/cell)    -1633.7023
+==============================================================================
+------------------------------------------------------------------------------
+              This Part Generated By LUA for MOVE Stage                          
+------------------------------------------------------------------------------
+Is It Converged Last Time          : false
+Last Time dDmax was                : 0.568032
+LUA: The Starting Mesh-cutoff is   :  155.462 Ry
+LUA: The Max Iterations is         :  10 
+LUA: The Mixing Weight is          : 0.150000 Ry
+LUA: The DM Tolerance is           : 0.000004 Ry
+LUA: The Electronic Temperature is :    0.002 Ry
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+==============================================================================
+
+false
+LUA: The Max Iterations Changed to :  50 
+LUA: The Mixer Weight Changed to    :    0.100 Ry
+LUA: The Number of Pulay Changed to :  45 
+LUA: The Number of Kick Changed to  :  25 
+
+                     ====================================
+                        LUA coord. step =      1
+                     ====================================
+
+outcell: Unit cell vectors (Ang):
+       20.000000    0.000000    0.000000
+        0.000000   20.000000    0.000000
+        0.000000    0.000000   20.000000
+
+outcell: Cell vector modules (Ang)   :   20.000000   20.000000   20.000000
+outcell: Cell angles (23,13,12) (deg):     90.0000     90.0000     90.0000
+outcell: Cell volume (Ang**3)        :   8000.0000
+<dSpData1D:S at geom step 1
+  <sparsity:sparsity for geom step 1
+    nrows_g=30 nrows=4 sparsity=.1333 nnzs=120, refcount: 7>
+  <dData1D:(new from dSpData1D) n=120, refcount: 1>
+refcount: 1>
+new_DM -- step:     2
+Initializing Density Matrix...
+
+Attempting to read DM from file... Succeeded...
+DM from file:
+<dSpData2D:IO-DM: fe2DFM.DM
+  <sparsity:IO-DM: fe2DFM.DM
+    nrows_g=30 nrows=4 sparsity=.1333 nnzs=120, refcount: 1>
+  <dData2D:(new from dSpData2D) n=120 m=2, refcount: 1>
+refcount: 1>
+
+initDM: Initial spin polarization (Qup-Qdown) =    7.999982
+
+No. of atoms with KB's overlaping orbs in proc 0. Max # of overlaps:       2      30
+New grid distribution:   1
+           1       1:   75    1:   38    1:   19
+           2       1:   75    1:   38   20:   38
+           3       1:   75    1:   38   39:   57
+           4       1:   75    1:   38   58:   75
+           5       1:   75   39:   75    1:   19
+           6       1:   75   39:   75   20:   38
+           7       1:   75   39:   75   39:   57
+           8       1:   75   39:   75   58:   75
+
+InitMesh: MESH =   150 x   150 x   150 =     3375000
+InitMesh: (bp) =    75 x    75 x    75 =      421875
+InitMesh: Mesh cutoff (required, used) =   150.000   155.462 Ry
+ExtMesh (bp) on 0 =   139 x   102 x    83 =     1176774
+New grid distribution:   2
+           1      11:   75   29:   75    1:   30
+           2       1:   10   29:   75    1:   30
+           3      11:   75    1:   31   31:   75
+           4       1:   10    1:   31   31:   75
+           5      11:   75    1:   28    1:   30
+           6       1:   10    1:   28    1:   30
+           7      12:   75   32:   75   31:   75
+           8       1:   11   32:   75   31:   75
+New grid distribution:   3
+           1      17:   75    1:   15    1:   20
+           2       1:   16   26:   75   21:   75
+           3      17:   75    1:   25   21:   75
+           4       1:   16    1:   25   21:   75
+           5      17:   75   16:   75    1:   20
+           6       1:   16   16:   75    1:   20
+           7      17:   75   26:   75   21:   75
+           8       1:   16    1:   15    1:   20
+Setting up quadratic distribution...
+ExtMesh (bp) on 0 =   129 x   111 x    94 =     1345986
+PhiOnMesh: Number of (b)points on node 0 =                91650
+PhiOnMesh: nlist on node 0 =                27376
+
+        iscf     Eharris(eV)        E_KS(eV)     FreeEng(eV)     dDmax    Ef(eV) dHmax(eV)
+   scf:    1    -1423.217623    -1564.990046    -1564.990071  0.812457 -5.245628 54.690242
+LUA: scf count        :  10 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    2      868.230876     -923.870825     -923.870825  1.054288 -4.145888182.735800
+LUA: scf count        :  11 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    3    -1313.677431    -1129.199331    -1129.199331  1.053299 -1.317460129.410229
+LUA: scf count        :  12 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    4     1505.696142     -931.076484     -931.112322  1.272765 -6.198453144.251278
+LUA: scf count        :  13 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    5    -1459.367508    -1619.647313    -1619.678811  1.275437 -4.429610 27.123775
+LUA: scf count        :  14 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    6    -1052.605027    -1463.628026    -1463.639530  0.742175 -5.302948 76.874760
+LUA: scf count        :  15 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    7    -1579.368435    -1525.219766    -1525.244091  0.448613 -5.463781 64.822345
+LUA: scf count        :  16 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    8     -503.985487    -1105.359548    -1105.359548  0.811826 -2.642071123.974221
+LUA: scf count        :  17 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    9     1014.823213    -1071.132293    -1071.133046  0.935023 -1.304111140.154152
+LUA: scf count        :  18 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   10    -1449.795502    -1271.440083    -1271.454602  0.610056 -1.755591104.901850
+LUA: scf count        :  19 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   11    -1570.085908    -1435.095201    -1435.146034  1.069019 -2.867882 68.986997
+LUA: scf count        :  20 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   12    -1696.687258    -1600.064838    -1600.068013  0.859274 -4.053949 35.032139
+LUA: scf count        :  21 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   13    -1579.275148    -1590.011757    -1590.014098  0.076316 -4.047052 38.613660
+LUA: scf count        :  22 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   14    -1589.110513    -1589.561855    -1589.562607  0.010987 -4.014137 38.626369
+LUA: scf count        :  23 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   15    -1551.401100    -1571.278761    -1571.282101  0.163816 -4.075691 44.651395
+LUA: scf count        :  24 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   16    -1359.295758    -1577.436611    -1577.472458  0.871330 -4.665268 44.234493
+LUA: scf count        :  25 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   17    -1649.425999    -1622.178778    -1622.226144  0.501783 -4.221698 22.126329
+LUA: scf count        :  26 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   18    -1574.024873    -1600.710151    -1600.752287  0.512473 -4.034770 31.501439
+LUA: scf count        :  27 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   19     -397.973359    -1286.756544    -1286.792459  0.948763 -1.186285107.155583
+LUA: scf count        :  28 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   20    -1595.826486    -1630.595403    -1630.624376  0.913140 -3.571269  8.450077
+LUA: scf count        :  29 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   21    -1595.372620    -1617.056074    -1617.069977  0.191335 -3.683013 22.949825
+LUA: scf count        :  30 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   22    -1603.022462    -1610.224891    -1610.261456  0.438008 -3.619931 26.576342
+LUA: scf count        :  31 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   23    -1585.608187    -1624.558849    -1624.604711  0.678180 -3.169363 17.564080
+LUA: scf count        :  32 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   24    -1514.272557    -1579.128204    -1579.161933  0.635767 -3.154293 39.592643
+mix: Pulay -- resetting history
+mix: switching mixer --> Linear-Kick
+LUA: scf count        :  33 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   25    -1380.756315    -1490.810751    -1490.816854  0.898689 -2.827147 60.582271
+mix: switching mixer --> Pulay
+LUA: scf count        :  34 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   26     1048.942912     -923.654555     -923.654555  1.043268 -5.131110159.143179
+LUA: scf count        :  35 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   27    -1608.513164    -1298.170646    -1298.178705  1.047924 -2.014939 98.576921
+LUA: scf count        :  36 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   28    -1744.796853    -1584.934945    -1584.965763  0.889509 -3.499189 37.477957
+LUA: scf count        :  37 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   29     -249.162071    -1256.418753    -1256.423226  0.912676 -1.559228107.686636
+LUA: scf count        :  38 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   30    -1401.909929    -1611.468460    -1611.501784  0.937021 -3.131994 25.127071
+LUA: scf count        :  39 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   31    -1637.433433    -1626.939781    -1626.990368  0.315261 -3.112382 13.964284
+LUA: scf count        :  40 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   32    -1266.823785    -1525.553936    -1525.600191  0.896862 -3.183611 54.043663
+LUA: scf count        :  41 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   33    -1667.536197    -1614.615587    -1614.619895  0.876866 -3.135361 24.794248
+LUA: scf count        :  42 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   34    -1558.113114    -1617.838702    -1617.883777  0.814792 -3.123470 21.588342
+LUA: scf count        :  43 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   35    -1525.185628    -1608.511349    -1608.520428  0.808048 -3.124437 27.969822
+LUA: scf count        :  44 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   36    -1574.908151    -1592.650537    -1592.673993  0.127965 -3.135248 34.710455
+LUA: scf count        :  45 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   37    -1631.006800    -1614.257906    -1614.311470  0.660335 -3.064767 22.149198
+LUA: scf count        :  46 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   38    -1636.814760    -1628.713156    -1628.759491  0.627141 -3.082988 13.634370
+LUA: scf count        :  47 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   39    -1629.068155    -1628.891586    -1628.940315  0.014533 -3.077479 13.330819
+LUA: scf count        :  48 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   40    -1624.315874    -1631.133066    -1631.179786  0.643877 -3.034763  6.620257
+LUA: scf count        :  49 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   41    -1631.181023    -1631.165189    -1631.206661  0.063161 -3.042843  7.101980
+LUA: scf count        :  50 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   42    -1633.281062    -1632.571537    -1632.613044  0.418286 -3.072636  1.836572
+LUA: scf count        :  51 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   43    -1620.996633    -1629.006401    -1629.051293  0.379318 -3.088837 11.898045
+LUA: scf count        :  52 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   44    -1632.201836    -1630.928676    -1630.983072  0.288209 -3.072669  7.446028
+LUA: scf count        :  53 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   45    -1632.531945    -1632.080274    -1632.118635  0.276723 -3.055972  5.399933
+LUA: scf count        :  54 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   46    -1631.822283    -1631.961071    -1631.999721  0.028194 -3.061316  5.954483
+LUA: scf count        :  55 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   47    -1632.300052    -1632.241174    -1632.284358  0.125153 -3.010963  4.058798
+LUA: scf count        :  56 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   48    -1631.874304    -1632.168753    -1632.206595  0.125016 -2.992521  5.781864
+LUA: scf count        :  57 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   49    -1632.513263    -1632.569775    -1632.594269  0.124629 -2.962092  2.786104
+mix: Pulay -- resetting history
+mix: switching mixer --> Linear-Kick
+LUA: scf count        :  58 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   50    -1632.538546    -1632.562751    -1632.590403  0.041651 -2.971239  3.454754
+mix: switching mixer --> Pulay
+LUA: scf count        :  59 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+SCF_NOT_CONV: SCF did not converge in maximum number of steps.
+Geom step, scf iteration, dmax:   1 50    0.253918
+
+Using DM_out to compute the final energy and forces
+No. of atoms with KB's overlaping orbs in proc 0. Max # of overlaps:       2      30
+
+siesta: E_KS(eV) =            -1632.5628
+
+siesta: Total spin polarization (Qup-Qdown) =    3.593492
+
+siesta: Atomic forces (eV/Ang):
+----------------------------------------
+   Tot    3.503226   -0.000000   -0.000000
+----------------------------------------
+   Max    2.165053
+   Res    1.039083    sqrt( Sum f_i^2 / 3N )
+----------------------------------------
+   Max    2.165053    constrained
+
+Stress-tensor-Voigt (kbar):        0.93       -0.58       -0.58       -0.00        0.00        0.00
+(Free)E + p*V (eV/cell)    -1632.2097
+Target enthalpy (eV/cell)    -1632.5904
+==============================================================================
+------------------------------------------------------------------------------
+              This Part Generated By LUA for MOVE Stage                          
+------------------------------------------------------------------------------
+Is It Converged Last Time          : false
+Last Time dDmax was                : 0.041651
+LUA: The Starting Mesh-cutoff is   :  155.462 Ry
+LUA: The Max Iterations is         :  50 
+LUA: The Mixing Weight is          : 0.250000 Ry
+LUA: The DM Tolerance is           : 0.000004 Ry
+LUA: The Electronic Temperature is :    0.002 Ry
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+==============================================================================
+
+false
+LUA: The Max Iterations Changed to :  50 
+LUA: The Mixer Weight Changed to    :    0.100 Ry
+LUA: The Number of Pulay Changed to :  45 
+LUA: The Number of Kick Changed to  :  25 
+
+                     ====================================
+                        LUA coord. step =      2
+                     ====================================
+
+outcell: Unit cell vectors (Ang):
+       20.000000    0.000000    0.000000
+        0.000000   20.000000    0.000000
+        0.000000    0.000000   20.000000
+
+outcell: Cell vector modules (Ang)   :   20.000000   20.000000   20.000000
+outcell: Cell angles (23,13,12) (deg):     90.0000     90.0000     90.0000
+outcell: Cell volume (Ang**3)        :   8000.0000
+<dSpData1D:S at geom step 2
+  <sparsity:sparsity for geom step 2
+    nrows_g=30 nrows=4 sparsity=.1333 nnzs=120, refcount: 7>
+  <dData1D:(new from dSpData1D) n=120, refcount: 1>
+refcount: 1>
+new_DM -- step:     3
+Initializing Density Matrix...
+
+Attempting to read DM from file... Succeeded...
+DM from file:
+<dSpData2D:IO-DM: fe2DFM.DM
+  <sparsity:IO-DM: fe2DFM.DM
+    nrows_g=30 nrows=4 sparsity=.1333 nnzs=120, refcount: 1>
+  <dData2D:(new from dSpData2D) n=120 m=2, refcount: 1>
+refcount: 1>
+
+initDM: Initial spin polarization (Qup-Qdown) =    3.593492
+
+No. of atoms with KB's overlaping orbs in proc 0. Max # of overlaps:       2      30
+New grid distribution:   1
+           1       1:   75    1:   38    1:   19
+           2       1:   75    1:   38   20:   38
+           3       1:   75    1:   38   39:   57
+           4       1:   75    1:   38   58:   75
+           5       1:   75   39:   75    1:   19
+           6       1:   75   39:   75   20:   38
+           7       1:   75   39:   75   39:   57
+           8       1:   75   39:   75   58:   75
+
+InitMesh: MESH =   150 x   150 x   150 =     3375000
+InitMesh: (bp) =    75 x    75 x    75 =      421875
+InitMesh: Mesh cutoff (required, used) =   150.000   155.462 Ry
+ExtMesh (bp) on 0 =   139 x   102 x    83 =     1176774
+New grid distribution:   2
+           1      11:   75   29:   75    1:   30
+           2       1:   10   29:   75    1:   30
+           3      11:   75    1:   31   31:   75
+           4       1:   10    1:   31   31:   75
+           5      11:   75    1:   28    1:   30
+           6       1:   10    1:   28    1:   30
+           7      12:   75   32:   75   31:   75
+           8       1:   11   32:   75   31:   75
+New grid distribution:   3
+           1      17:   75    1:   15    1:   20
+           2       1:   16   26:   75   21:   75
+           3      17:   75    1:   25   21:   75
+           4       1:   16    1:   25   21:   75
+           5      17:   75   16:   75    1:   20
+           6       1:   16   16:   75    1:   20
+           7      17:   75   26:   75   21:   75
+           8       1:   16    1:   15    1:   20
+Setting up quadratic distribution...
+ExtMesh (bp) on 0 =   129 x   111 x    94 =     1345986
+PhiOnMesh: Number of (b)points on node 0 =                91650
+PhiOnMesh: nlist on node 0 =                27376
+
+        iscf     Eharris(eV)        E_KS(eV)     FreeEng(eV)     dDmax    Ef(eV) dHmax(eV)
+   scf:    1    -1273.523312    -1514.294689    -1514.328904  0.832552 -4.758696 63.812441
+LUA: scf count        :  60 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    2     1131.446861     -881.841988     -881.841988  1.086566 -7.728166192.209698
+LUA: scf count        :  61 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    3    -1247.369786    -1073.337571    -1073.340620  1.038927 -1.898085136.320024
+LUA: scf count        :  62 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    4      -29.680658    -1343.725765    -1343.776220  0.925105 -2.824261 85.939773
+LUA: scf count        :  63 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    5      600.815557    -1122.833756    -1122.854321  0.768549 -1.544245127.870685
+LUA: scf count        :  64 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    6    -1615.356355    -1399.557586    -1399.561099  1.044811 -2.762245 77.431629
+LUA: scf count        :  65 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    7       51.411699    -1256.697795    -1256.743906  0.739305 -2.652117101.186556
+LUA: scf count        :  66 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    8    -1419.306319    -1341.161777    -1341.212184  0.820754 -2.765530 83.992288
+LUA: scf count        :  67 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    9     -177.784778    -1332.235583    -1332.285321  0.820747 -2.234121 91.802380
+LUA: scf count        :  68 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   10    -1603.269517    -1484.130934    -1484.166954  1.012781 -3.734126 64.938200
+LUA: scf count        :  69 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   11    -1668.615068    -1592.982917    -1592.986449  0.875067 -4.124581 36.903984
+LUA: scf count        :  70 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   12    -1621.542113    -1629.962950    -1629.966122  0.670015 -4.364625 12.665509
+LUA: scf count        :  71 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   13    -1622.257663    -1628.155110    -1628.169411  0.190271 -4.340454 16.868147
+LUA: scf count        :  72 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   14    -1598.049124    -1622.204883    -1622.223428  0.368924 -4.290520 22.380269
+LUA: scf count        :  73 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   15    -1633.933975    -1629.388001    -1629.388542  0.130190 -4.148477 14.241449
+LUA: scf count        :  74 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   16    -1440.659921    -1573.265613    -1573.295092  0.710070 -4.110008 42.557348
+LUA: scf count        :  75 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   17    -1103.263272    -1376.038306    -1376.075245  0.916875 -2.091391 90.694727
+LUA: scf count        :  76 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   18    -1636.706289    -1631.613014    -1631.613089  1.039798 -3.779309  7.422669
+LUA: scf count        :  77 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   19    -1614.468130    -1625.994864    -1626.015642  0.230933 -3.514783 17.433645
+LUA: scf count        :  78 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   20    -1633.581379    -1630.712711    -1630.713462  0.091925 -3.373107 10.844319
+LUA: scf count        :  79 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   21    -1627.542390    -1629.308174    -1629.310066  0.093657 -3.080907 12.347740
+LUA: scf count        :  80 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   22    -1631.945321    -1630.769526    -1630.771182  0.057897 -3.102861  9.863202
+LUA: scf count        :  81 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   23    -1632.395822    -1632.119198    -1632.122567  0.123668 -2.876654  4.060057
+LUA: scf count        :  82 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   24    -1631.114852    -1631.675499    -1631.677015  0.056960 -3.327247  6.941821
+mix: Pulay -- resetting history
+mix: switching mixer --> Linear-Kick
+LUA: scf count        :  83 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   25    -1597.730884    -1622.714544    -1622.714562  0.907619 -1.913279 23.983908
+mix: switching mixer --> Pulay
+LUA: scf count        :  84 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   26    -1005.103458    -1440.623644    -1440.659484  0.983179 -5.357644 87.129390
+LUA: scf count        :  85 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   27    -1650.725780    -1632.318237    -1632.342479  0.927915 -2.770946  3.691849
+LUA: scf count        :  86 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   28    -1610.793509    -1626.133668    -1626.145367  0.632654 -2.549216 19.348193
+LUA: scf count        :  87 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   29    -1627.121468    -1632.080176    -1632.096317  0.632886 -2.854501  5.806215
+LUA: scf count        :  88 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   30    -1608.844724    -1625.929671    -1625.944002  0.877711 -2.152565 18.866316
+LUA: scf count        :  89 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   31    -1626.457939    -1626.480901    -1626.515072  0.254279 -2.232036 19.261861
+LUA: scf count        :  90 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   32    -1628.694865    -1628.698016    -1628.728033  0.245408 -2.253964 12.000268
+LUA: scf count        :  91 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   33    -1631.543382    -1631.704749    -1631.707502  0.754761 -2.737372  9.998651
+LUA: scf count        :  92 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   34    -1629.260170    -1630.562817    -1630.564694  0.046334 -2.732472 12.074470
+LUA: scf count        :  93 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   35    -1629.811486    -1630.193196    -1630.195200  0.013986 -2.729464 12.626622
+LUA: scf count        :  94 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   36    -1631.885186    -1631.074931    -1631.076653  0.036362 -2.825215 11.035741
+LUA: scf count        :  95 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   37    -1607.963093    -1621.606161    -1621.661228  0.529740 -3.263530 17.234368
+LUA: scf count        :  96 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   38    -1635.549346    -1632.750527    -1632.751468  0.532242 -2.831272  7.037027
+LUA: scf count        :  97 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   39    -1612.866407    -1625.117527    -1625.153472  0.578088 -2.921170 18.078480
+LUA: scf count        :  98 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   40    -1529.729755    -1585.281703    -1585.320048  0.525119 -2.629838 39.658106
+LUA: scf count        :  99 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   41    -1642.156656    -1631.987457    -1632.013032  0.947307 -3.409109  9.852441
+LUA: scf count        : 100 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   42    -1630.400867    -1633.082322    -1633.106585  0.525883 -2.915731  5.034236
+LUA: scf count        : 101 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   43    -1631.343782    -1633.143358    -1633.177379  0.405820 -3.081558  5.486313
+LUA: scf count        : 102 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   44    -1633.627304    -1633.418113    -1633.454657  0.070719 -3.034450  3.520030
+LUA: scf count        : 103 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   45    -1632.691113    -1633.247747    -1633.303984  0.182965 -2.790266  4.402800
+LUA: scf count        : 104 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   46    -1628.687383    -1631.396321    -1631.454377  0.172794 -2.891914  9.598290
+LUA: scf count        : 105 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   47    -1631.945272    -1631.674100    -1631.731657  0.069382 -2.810986  9.054253
+LUA: scf count        : 106 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   48    -1634.009130    -1633.525693    -1633.568189  0.208035 -2.770198  1.708826
+LUA: scf count        : 107 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   49    -1629.492533    -1632.036740    -1632.095393  0.240770 -3.149550  7.330883
+mix: Pulay -- resetting history
+mix: switching mixer --> Linear-Kick
+LUA: scf count        : 108 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   50    -1633.081057    -1633.550676    -1633.595930  0.254163 -2.819670  1.640087
+mix: switching mixer --> Pulay
+LUA: scf count        : 109 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+SCF_NOT_CONV: SCF did not converge in maximum number of steps.
+Geom step, scf iteration, dmax:   2 50    0.120543
+
+Using DM_out to compute the final energy and forces
+No. of atoms with KB's overlaping orbs in proc 0. Max # of overlaps:       2      30
+
+siesta: E_KS(eV) =            -1633.5507
+
+siesta: Total spin polarization (Qup-Qdown) =    1.086126
+
+siesta: Atomic forces (eV/Ang):
+----------------------------------------
+   Tot    1.683137   -0.000000    0.000000
+----------------------------------------
+   Max    0.961764
+   Res    0.490810    sqrt( Sum f_i^2 / 3N )
+----------------------------------------
+   Max    0.961764    constrained
+
+Stress-tensor-Voigt (kbar):        0.15       -0.57       -0.57       -0.00       -0.00        0.00
+(Free)E + p*V (eV/cell)    -1631.9487
+Target enthalpy (eV/cell)    -1633.5959
+==============================================================================
+------------------------------------------------------------------------------
+              This Part Generated By LUA for MOVE Stage                          
+------------------------------------------------------------------------------
+Is It Converged Last Time          : false
+Last Time dDmax was                : 0.254163
+LUA: The Starting Mesh-cutoff is   :  155.462 Ry
+LUA: The Max Iterations is         :  50 
+LUA: The Mixing Weight is          : 0.150000 Ry
+LUA: The DM Tolerance is           : 0.000004 Ry
+LUA: The Electronic Temperature is :    0.002 Ry
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+==============================================================================
+
+false
+LUA: The Max Iterations Changed to :  50 
+LUA: The Mixer Weight Changed to    :    0.100 Ry
+LUA: The Number of Pulay Changed to :  45 
+LUA: The Number of Kick Changed to  :  25 
+
+                     ====================================
+                        LUA coord. step =      3
+                     ====================================
+
+outcell: Unit cell vectors (Ang):
+       20.000000    0.000000    0.000000
+        0.000000   20.000000    0.000000
+        0.000000    0.000000   20.000000
+
+outcell: Cell vector modules (Ang)   :   20.000000   20.000000   20.000000
+outcell: Cell angles (23,13,12) (deg):     90.0000     90.0000     90.0000
+outcell: Cell volume (Ang**3)        :   8000.0000
+<dSpData1D:S at geom step 3
+  <sparsity:sparsity for geom step 3
+    nrows_g=30 nrows=4 sparsity=.1333 nnzs=120, refcount: 7>
+  <dData1D:(new from dSpData1D) n=120, refcount: 1>
+refcount: 1>
+new_DM -- step:     4
+Initializing Density Matrix...
+
+Attempting to read DM from file... Succeeded...
+DM from file:
+<dSpData2D:IO-DM: fe2DFM.DM
+  <sparsity:IO-DM: fe2DFM.DM
+    nrows_g=30 nrows=4 sparsity=.1333 nnzs=120, refcount: 1>
+  <dData2D:(new from dSpData2D) n=120 m=2, refcount: 1>
+refcount: 1>
+
+initDM: Initial spin polarization (Qup-Qdown) =    1.086126
+
+No. of atoms with KB's overlaping orbs in proc 0. Max # of overlaps:       2      30
+New grid distribution:   1
+           1       1:   75    1:   38    1:   19
+           2       1:   75    1:   38   20:   38
+           3       1:   75    1:   38   39:   57
+           4       1:   75    1:   38   58:   75
+           5       1:   75   39:   75    1:   19
+           6       1:   75   39:   75   20:   38
+           7       1:   75   39:   75   39:   57
+           8       1:   75   39:   75   58:   75
+
+InitMesh: MESH =   150 x   150 x   150 =     3375000
+InitMesh: (bp) =    75 x    75 x    75 =      421875
+InitMesh: Mesh cutoff (required, used) =   150.000   155.462 Ry
+ExtMesh (bp) on 0 =   139 x   102 x    83 =     1176774
+New grid distribution:   2
+           1      11:   75   29:   75    1:   30
+           2       1:   10   29:   75    1:   30
+           3      11:   75    1:   31   31:   75
+           4       1:   10    1:   31   31:   75
+           5      11:   75    1:   28    1:   30
+           6       1:   10    1:   28    1:   30
+           7      12:   75   32:   75   31:   75
+           8       1:   11   32:   75   31:   75
+New grid distribution:   3
+           1      17:   75    1:   15    1:   20
+           2       1:   16   26:   75   21:   75
+           3      17:   75    1:   25   21:   75
+           4       1:   16    1:   25   21:   75
+           5      17:   75   16:   75    1:   20
+           6       1:   16   16:   75    1:   20
+           7      17:   75   26:   75   21:   75
+           8       1:   16    1:   15    1:   20
+Setting up quadratic distribution...
+ExtMesh (bp) on 0 =   129 x   111 x    94 =     1345986
+PhiOnMesh: Number of (b)points on node 0 =                91650
+PhiOnMesh: nlist on node 0 =                27376
+
+        iscf     Eharris(eV)        E_KS(eV)     FreeEng(eV)     dDmax    Ef(eV) dHmax(eV)
+   scf:    1    -1495.816677    -1587.955797    -1587.998835  0.983877 -2.918471 35.356288
+LUA: scf count        : 110 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    2      836.362594     -909.288166     -909.288166  1.047480 -6.277752162.815928
+LUA: scf count        : 111 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    3    -1640.943637    -1312.346047    -1312.357449  1.055014 -2.473616 94.206270
+LUA: scf count        : 112 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    4      993.684678    -1022.844276    -1022.886397  0.988454 -2.289925141.042937
+LUA: scf count        : 113 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    5    -1756.304540    -1451.996513    -1452.041449  0.990948 -2.866640 67.507173
+LUA: scf count        : 114 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    6    -1569.875648    -1514.331341    -1514.368288  0.388063 -3.370791 59.290754
+LUA: scf count        : 115 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    7    -1672.614139    -1616.218799    -1616.292300  0.956699 -3.123076 25.285678
+LUA: scf count        : 116 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    8    -1046.733991    -1468.711555    -1468.713104  0.914530 -3.418526 69.871148
+LUA: scf count        : 117 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:    9    -1471.114812    -1469.915016    -1469.918225  0.014729 -3.493474 69.788371
+LUA: scf count        : 118 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   10    -1261.219089    -1570.427494    -1570.463332  0.877521 -4.914603 47.332921
+LUA: scf count        : 119 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   11    -1323.503883    -1567.950320    -1567.950556  0.954079 -3.562898 47.699290
+LUA: scf count        : 120 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   12    -1552.871148    -1560.517315    -1560.517353  0.038703 -3.602205 49.858644
+LUA: scf count        : 121 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   13    -1645.075790    -1632.362425    -1632.384141  0.940979 -2.731861  7.913334
+LUA: scf count        : 122 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   14    -1617.434279    -1629.055799    -1629.096397  0.470790 -2.700974 14.443745
+LUA: scf count        : 123 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   15    -1630.160500    -1632.661982    -1632.664989  0.784940 -3.162528  6.469681
+LUA: scf count        : 124 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   16    -1633.669753    -1633.248693    -1633.282596  0.172105 -3.053015  4.591476
+LUA: scf count        : 125 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   17    -1630.077963    -1632.751493    -1632.782294  0.574547 -2.929743  6.686574
+LUA: scf count        : 126 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   18    -1620.921302    -1630.178990    -1630.224097  0.452764 -2.900635 12.087543
+LUA: scf count        : 127 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   19    -1633.496048    -1633.283664    -1633.336910  0.335781 -2.907958  3.781099
+LUA: scf count        : 128 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   20    -1626.351595    -1630.898876    -1630.945803  0.278803 -2.877986 11.202888
+LUA: scf count        : 129 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   21    -1633.421961    -1632.318217    -1632.375044  0.193176 -2.958396  6.997363
+LUA: scf count        : 130 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   22    -1633.899947    -1633.567814    -1633.622682  0.204707 -3.007002  2.022891
+LUA: scf count        : 131 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   23    -1621.599787    -1630.028905    -1630.037638  0.619794 -2.885981 13.546312
+LUA: scf count        : 132 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   24    -1633.077460    -1631.676528    -1631.711987  0.131779 -2.960602 10.068292
+mix: Pulay -- resetting history
+mix: switching mixer --> Linear-Kick
+LUA: scf count        : 133 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   25    -1634.251704    -1633.257400    -1633.309150  0.196220 -3.014906  4.551632
+mix: switching mixer --> Pulay
+LUA: scf count        : 134 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   26    -1345.429271    -1540.715518    -1540.751427  0.953258 -3.310560 54.115175
+LUA: scf count        : 135 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   27    -1648.507909    -1632.659565    -1632.685761  0.953213 -3.122595  7.658796
+LUA: scf count        : 136 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   28    -1630.583893    -1632.058361    -1632.110587  0.355399 -3.029548  6.538533
+LUA: scf count        : 137 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   29    -1627.839063    -1632.608035    -1632.647054  0.465521 -3.029164  6.427133
+LUA: scf count        : 138 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   30    -1631.554585    -1632.106016    -1632.137796  0.042335 -3.058016  7.332459
+LUA: scf count        : 139 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   31    -1633.918393    -1633.395043    -1633.435454  0.230802 -3.091339  3.918561
+LUA: scf count        : 140 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   32    -1633.703891    -1633.594630    -1633.644573  0.120290 -3.059936  1.677004
+LUA: scf count        : 141 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   33    -1633.016269    -1633.543820    -1633.598306  0.149597 -3.066921  2.536321
+LUA: scf count        : 142 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   34    -1633.587162    -1633.680162    -1633.734292  0.121049 -3.050167  0.810050
+LUA: scf count        : 143 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.150 Ry
+LUA: The Mixing Weight is          : 0.150000 Ry
+   scf:   35    -1633.694031    -1633.688217    -1633.742179  0.019494 -3.054906  0.447580
+LUA: scf count        : 144 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   36    -1633.689099    -1633.691621    -1633.745712  0.021585 -3.058711  0.108571
+LUA: scf count        : 145 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   37    -1633.685708    -1633.690634    -1633.743931  0.010583 -3.059747  0.299212
+LUA: scf count        : 146 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   38    -1633.689784    -1633.691866    -1633.745857  0.009157 -3.057792  0.090350
+LUA: scf count        : 147 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   39    -1633.691062    -1633.691978    -1633.745679  0.005873 -3.056572  0.106631
+LUA: scf count        : 148 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   40    -1633.692033    -1633.692163    -1633.746041  0.003100 -3.056242  0.013031
+LUA: scf count        : 149 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   41    -1633.692159    -1633.692161    -1633.746041  0.000188 -3.055721  0.010087
+LUA: scf count        : 150 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   42    -1633.692158    -1633.692160    -1633.746042  0.000093 -3.055345  0.006398
+LUA: scf count        : 151 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   43    -1633.692156    -1633.692158    -1633.746043  0.000109 -3.055280  0.003307
+LUA: scf count        : 152 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   44    -1633.692156    -1633.692157    -1633.746043  0.000085 -3.055286  0.001728
+LUA: scf count        : 153 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   45    -1633.692154    -1633.692156    -1633.746043  0.000052 -3.055139  0.000535
+LUA: scf count        : 154 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   46    -1633.692156    -1633.692156    -1633.746043  0.000020 -3.055184  0.000179
+LUA: scf count        : 155 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   47    -1633.692156    -1633.692156    -1633.746043  0.000009 -3.055195  0.000112
+LUA: scf count        : 156 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+   scf:   48    -1633.692156    -1633.692156    -1633.746043  0.000004 -3.055192  0.000004
+
+SCF Convergence by DM+H criterion
+max |DM_out - DM_in|         :     0.0000038231
+max |H_out - H_in|      (eV) :     0.0000039750
+SCF cycle converged after 48 iterations
+LUA: scf count        : 157 
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Mixing Weight is          : 0.250000 Ry
+
+Using DM_out to compute the final energy and forces
+No. of atoms with KB's overlaping orbs in proc 0. Max # of overlaps:       2      30
+
+siesta: E_KS(eV) =            -1633.6922
+
+siesta: Total spin polarization (Qup-Qdown) =    0.703527
+
+siesta: Atomic forces (eV/Ang):
+----------------------------------------
+   Tot    1.537702   -0.000000    0.000000
+----------------------------------------
+   Max    1.105996
+   Res    0.484699    sqrt( Sum f_i^2 / 3N )
+----------------------------------------
+   Max    1.105996    constrained
+
+Stress-tensor-Voigt (kbar):       -0.20       -0.55       -0.55       -0.00       -0.00        0.00
+(Free)E + p*V (eV/cell)    -1631.5734
+Target enthalpy (eV/cell)    -1633.7460
+==============================================================================
+------------------------------------------------------------------------------
+              This Part Generated By LUA for MOVE Stage                          
+------------------------------------------------------------------------------
+Is It Converged Last Time          : true
+Last Time dDmax was                : 0.000004
+LUA: The Starting Mesh-cutoff is   :  155.462 Ry
+LUA: The Max Iterations is         :  50 
+LUA: The Mixing Weight is          : 0.250000 Ry
+LUA: The DM Tolerance is           : 0.000004 Ry
+LUA: The Electronic Temperature is :    0.002 Ry
+LUA: The Mixer Weight is           :    0.250 Ry
+LUA: The Number of Pulay is        :  45 
+LUA: The Number of Kick is         :  25 
+==============================================================================
+
+true
+
+siesta: Program's energy decomposition (eV):
+siesta: Ebs     =       -79.819254
+siesta: Eions   =      1276.209793
+siesta: Ena     =        38.825380
+siesta: Ekin    =      2349.693649
+siesta: Enl     =     -1930.552788
+siesta: Eso     =         0.000000
+siesta: Eldau   =         0.000000
+siesta: DEna    =       -11.739299
+siesta: DUscf   =         5.088412
+siesta: DUext   =         0.000000
+siesta: Exc     =      -808.797717
+siesta: eta*DQ  =         0.000000
+siesta: Emadel  =         0.000000
+siesta: Emeta   =         0.000000
+siesta: Emolmec =         0.000000
+siesta: Ekinion =         0.000000
+siesta: Eharris =     -1633.692156
+siesta: Etot    =     -1633.692156
+siesta: FreeEng =     -1633.746043
+
+siesta: Final energy (eV):
+siesta:  Band Struct. =     -79.819254
+siesta:       Kinetic =    2349.693649
+siesta:       Hartree =    1261.338625
+siesta:       Eldau   =       0.000000
+siesta:       Eso     =       0.000000
+siesta:    Ext. field =       0.000000
+siesta:   Exch.-corr. =    -808.797717
+siesta:  Ion-electron =   -4547.770700
+siesta:       Ion-ion =     111.843988
+siesta:       Ekinion =       0.000000
+siesta:         Total =   -1633.692156
+siesta:         Fermi =      -3.055192
+
+siesta: Atomic forces (eV/Ang):
+siesta:      1    0.431706    0.000000   -0.000000
+siesta:      2    1.105996   -0.000000    0.000000
+siesta: ----------------------------------------
+siesta:    Tot    1.537702   -0.000000    0.000000
+
+siesta: Stress tensor (static) (eV/Ang**3):
+siesta:    -0.000126   -0.000000    0.000000
+siesta:    -0.000000   -0.000344   -0.000000
+siesta:     0.000000   -0.000000   -0.000344
+
+siesta: Cell volume =       8000.000000 Ang**3
+
+siesta: Pressure (static):
+siesta:                Solid            Molecule  Units
+siesta:           0.00000296          0.00000258  Ry/Bohr**3
+siesta:           0.00027158          0.00023646  eV/Ang**3
+siesta:           0.43512825          0.37886040  kBar
+(Free)E+ p_basis*V_orbitals  =       -1631.669969
+(Free)Eharris+ p_basis*V_orbitals  =       -1631.669969
+
+siesta: Total spin polarization (Qup-Qdown) =    0.703527
+
+siesta: Electric dipole (a.u.)  =    0.076137   -0.000000    0.000000
+siesta: Electric dipole (Debye) =    0.193522   -0.000000    0.000000
+>> End of run:  18-JUN-2019  10:47:24
+Job completed
