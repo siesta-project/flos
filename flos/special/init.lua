@@ -8,5 +8,6 @@ local ret = {}
 
 ret.ForceHessian = require "flos.special.forcehessian"
 ret.NEB = require "flos.special.neb"
+ret.DNEB = require "flos.special.dneb"
 
 return ret
