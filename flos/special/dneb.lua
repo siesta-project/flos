@@ -39,7 +39,7 @@ function DNEB:neb_force(image)
    local P_F = self:perpendicular_force(image)
    
    -- This is equivalent to:
-   --   flatdot(PS_F, P_F) / norm(P_F) * P_F .* P_F
+   --   flatdot(PS_F, P_F) / norm(P_F)^2 * P_F .* P_F
    -- with .* being the elementwise multiplication
    return NEB_F + PS_F - PS_F:project( P_F ) * P_F
 end
