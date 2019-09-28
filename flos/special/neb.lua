@@ -100,12 +100,12 @@ function NEB:initialize(images,tbl)
    -- the __index function (because it uses it)
    self.initial = images[1]
    self.final = images[#images]
-   self.neb_type = "TDNEB"
+   self.neb_type = "TDCINEB"
    self.DM_label="MgO-3x3x1-2V"
    -- For Adding Temperature Dependet
-   self.neb_temp=10.0
+   self.neb_temp=650.0
    self.boltzman=8.617333262*10^(-5)
-   self.beta=1/self.neb_temp*self.boltzman
+   self.beta=1.0/(self.neb_temp*self.boltzman)
    --self.old_DM_label=""
    --self.current_DM_label=""
       -- an integer that describes when the climbing image
@@ -125,7 +125,7 @@ function NEB:initialize(images,tbl)
    self.niter = 0
    -- One should also attach the spring-constant
    -- It currently defaults to 5
-   local kl = tbl.k or 5.
+   local kl = tbl.k or 0.001
    if type(kl) == "table" then
       self.k = kl
    else
@@ -282,12 +282,23 @@ function NEB:curvature(image)
    -- tangent is already normalized so no need to no a normalization)
    return self[image].F:flatdot(tangent)   
 end
+-- Calculation of Curvature_k for Temperature Dependent 
+--function NEB:curvature_k(image)
+--	self:_check_image(image)
+--	local k=acos(dot(self:tangent(image-1),self:tangent(image+1)))/(self:dR(image,image-1)+self:dR(image+1,image))
+--	return k
+--end
+
+
+
 -- Calculation of Normal n for Temperature Dependent 
-function NEB:normal(image)
-     self:_check_image(image)
-     local N=self[image].R:project(self:tangent(image)) -- -self:tangant(image):project(self:tangent(image))
-     return self[image].R - N
-end
+--function NEB:normal(image)
+--     self:_check_image(image)
+--     local N=self[image].R:project(self:tangent(image)) -- -self:tangant(image):project(self:tangent(image))
+--     return self[image].R - N
+--	local N=self:dR(image+1,image-1):project(self:tangent(image))
+--	return self:dR(image+1,image-1)-N/self:dR(image+1,image-1)-N:norm(0)
+--end
 
 --- Calculate the resulting NEB force of a given image
 -- @int image the image to calculate the NEB force of
@@ -326,9 +337,9 @@ function NEB:neb_force(image)
      return NEB_F 
    end
    --===================================================================
-   --Adding Temperature Dependent NEB
+   --Adding Temperature Dependent CI-NEB
    --===================================================================
-   if self.neb_type == "TDNEB" then
+   if self.neb_type == "TDCINEB" then
      if self.niter > self._climbing and self:climbing(image) then
           local F = self[image].F
           if self:tangent(image):norm(0)==0.0 then
@@ -337,12 +348,21 @@ function NEB:neb_force(image)
                NEB_F = F - 2 * F:project( self:tangent(image) )
           end
      else
-          TDNEB_F = (self:curvature(image)/ self.beta) * self:normal(image) 
-          NEB_F = self:perpendicular_force(image)+self:spring_force(image)- TDNEB_F 
+          TDNEB_F = self:perpendicular_force(image)-(self:curvature(image)/self.beta) 
+          NEB_F = TDNEB_F + self:spring_force(image) 
      end
      return NEB_F
    end
+   --===================================================================
+   --Adding Temperature Dependent NEB
+   --===================================================================
    
+   if self.neb_type == "TDNEB" then
+		TDNEB_F = self:perpendicular_force(image)-(self:curvature(image)/self.beta) 
+		NEB_F = TDNEB_F + self:spring_force(image) --self:curvature(image) - TDNEB_F 
+
+		return NEB_F
+   end
 end
 
 --- Query the current coordinates of an image
