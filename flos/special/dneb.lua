@@ -43,3 +43,5 @@ function DNEB:neb_force(image)
    -- with .* being the elementwise multiplication
    return NEB_F + PS_F - PS_F:project( P_F ) * P_F
 end
+
+return DNEB
