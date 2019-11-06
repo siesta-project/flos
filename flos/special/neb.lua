@@ -547,4 +547,27 @@ function NEB:info()
 
 end
 
+
+function NEB:file_exists(name)--name
+   --local name
+   --DM_name=tostring(name)
+   DM_name=name
+   --print ("DM_name is :" .. DM_name)
+   local check
+   --local DM_name = name
+   local f = io.open(DM_name, "r") --name
+   if f ~= nil then
+      io.close(f)
+      --check=true
+      --print("TRUE: The file ".. DM_name..  " Exist!")
+      return true
+   else
+      --print("False: The file ".. DM_name..  " Doesn't Exist!")
+      return false
+     --check=false      
+   end
+   --return check
+end
+
+
 return NEB
