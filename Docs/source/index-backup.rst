@@ -18,3 +18,6 @@ SIESTA (Spanish Initiative for Electronic Simulations with Thousands of Atoms) i
 Indices and tables
 ==================
 
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
