@@ -18,7 +18,7 @@ At each **intermediate point** one wishes to communicate with a scripting langua
 SIESTA Intermediate Points
 ..........................
 
-When you run SIESTA with FLOOK enabled you have 6 intermediate point to communicate: 
+When you run SIESTA with FLOOK enabled you have 6 **intermediate point** to communicate: 
   (1) Right after reading initial options 
   (2) Right before SCF step starts, but at each MD step
   (3) At the start of each SCF step
