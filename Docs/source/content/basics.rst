@@ -53,6 +53,7 @@ How to prepare the LUA script for SIESTA
 ........................................
 
 The SIESTA LUA scripts contains two Parts:
+
   (1) The Main Siesta Communicator function.
   (2) The user defined specific function.
 
@@ -98,9 +99,35 @@ The Main function contains the **intermediate points** states : ::
        end
   end
 
-in each part of ``siesta.state`` we could either send or recieve data. we will discuss that in () section.
+in each part of ``siesta.state`` we could either send or receive data. we will discuss that in () section.
 
+The user defined function which is a normal function defined by user for specific task. For instance the above function is counter with a return : ::
+  
+  -- Step the cutoff counter and return
+  -- true if successfull (i.e. if there are
+  -- any more to check left).
+  -- This function will also step past values 
+  function step_cutoff(cur_cutoff)
 
+      if icutoff < #cutoff then
+         icutoff = icutoff + 1
+      else
+         return false
+      end
+
+      if cutoff[icutoff] <= cur_cutoff then
+         cutoff[icutoff] = cutoff[icutoff-1]
+         Etot[icutoff] = Etot[icutoff-1]
+         return step_cutoff(cur_cutoff)
+      end
+
+      return true
+  end
+
+SIESTA LUA Dictionary
+.....................
+
+In each **intermediate points** states we could send or receive data via special name we call them SIESTA LUA dictionary. Here we categorized them:
 
 
 
