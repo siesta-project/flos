@@ -1,1 +1,1 @@
-.. include:: ./content/installation.rst
+.. include:: ./content/setting-up-flos.rst
