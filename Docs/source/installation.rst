@@ -1,1 +1,1 @@
-.. include:: content/installation.rst
+.. include:: ./content/installation.rst
