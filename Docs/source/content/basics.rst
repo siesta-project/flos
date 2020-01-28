@@ -130,6 +130,25 @@ SIESTA LUA Dictionary
 In each **intermediate points** states we could send or receive data via special name we call them SIESTA LUA dictionary. Here we categorized them:
 
 
+.. LUA::
+        -- any more to check left).
+  -- This function will also step past values 
+  function step_cutoff(cur_cutoff)
+
+      if icutoff < #cutoff then
+         icutoff = icutoff + 1
+      else
+         return false
+      end
+
+      if cutoff[icutoff] <= cur_cutoff then
+         cutoff[icutoff] = cutoff[icutoff-1]
+         Etot[icutoff] = Etot[icutoff-1]
+         return step_cutoff(cur_cutoff)
+      end
+
+      return true
+  end
 
 
 
