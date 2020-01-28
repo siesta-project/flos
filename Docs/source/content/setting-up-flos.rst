@@ -1,7 +1,11 @@
 Setting Up FLOS for SIESTA
 ==========================
+Installation of flos
+--------------------
+
 Requirements
-------------
+............
+
 The only requirement is the Lua language.
 The require Lua version is 5.3. However, if you are stuck with Lua 5.2 you can apply this patch ::
 
@@ -12,8 +16,9 @@ The require Lua version is 5.3. However, if you are stuck with Lua 5.2 you can a
   For sure running siesta with lua needs the compilation of siesta with flook library, which enabling the fortran lua hook (flook) that we will discusse () section. 
 
 
-Installation of flos
---------------------
+Downloading and Installation of FLOS
+....................................
+
 This Lua library may be used out of the box. To enable the use of this library you only require the LUA_PATH to contain the path to the library. 
 Importantly this library requires an explicit <path>/?/init.lua definition. As an example the following bash commands enables the library ::
 
