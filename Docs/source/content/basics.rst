@@ -49,9 +49,56 @@ For Communicate with siesta with it consist of two step :
 
   The ``{NAME OF YOUR SCRIPT}.lua`` should be in same folder of ``psf`` & ``fdf`` files.
 
+How to prepare the LUA script for SIESTA
+........................................
 
+The SIESTA LUA scripts contains two Parts:
+  (1) The Main Siesta Communicator function.
+  (2) The user defined specific function.
 
+The Main function contains the **intermediate points** states : ::
+  
+  function siesta_comm()
+    -- Do the actual communication with SIESTA
+    
+       if siesta.state == siesta.INITIALIZE then
+       .
+       .
+       .
+       end
 
+       if siesta.satte == siesta.INIT_MD then
+       .
+       .
+       .
+       end
+
+       if siesta.satte == siesta.SCF_LOOP then
+       .
+       .
+       .
+       end 
+       
+       if siesta.satte == siesta.FORCES then   
+       .
+       .
+       .
+       end
+
+       if siesta.satte == siesta.MOVE then
+       .
+       .
+       .
+       end
+
+       if siesta.satte == siesta.ANALYSIS then
+       .
+       .
+       .
+       end
+  end
+
+in each part of ``siesta.state`` we could either send or recieve data. we will discuss that in () section.
 
 
 
