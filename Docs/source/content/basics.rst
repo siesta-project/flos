@@ -36,8 +36,18 @@ We call above **intermediate points** state in lua script you could communicate 
   if siesta.satte == siesta.ANALYSIS
 
 
+How to Communicate with SIESTA
+..............................
 
+For Communicate with siesta with it consist of two step :
+  (1) set these input SIESTA flags in fdf file:
+     * set ``MD.TypeOfRun LUA``
+     * set ``LUA.Script {NAME OF YOUR SCRIPT}.lua``
+  (2) Provide the script ``{NAME OF YOUR SCRIPT}.lua`` 
 
+.. NOTE::
+
+  The ``{NAME OF YOUR SCRIPT}.lua`` should be in same folder of ``psf`` & ``fdf`` files.
 
 
 
