@@ -12,7 +12,7 @@ SIESTA (Spanish Initiative for Electronic Simulations with Thousands of Atoms) i
    :maxdepth: 2
    :caption: Contents:
 
-   installation
+   0-setting-up-flos
 
 Indices and tables
 ==================
