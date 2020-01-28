@@ -31,8 +31,8 @@ Enabling SIESTA LUA interface (FLOOK)
 -------------------------------------
 As we mentioned we have to compile siesta with flook library. 
 
-Downloading and installation
-............................
+Downloading and installation FLOOK
+..................................
 Installing flook requires you to first fetch the library which is currently hosted at github at flook.
 To fetch all required files do this: ::
 
@@ -41,7 +41,7 @@ To fetch all required files do this: ::
   git submodule init
   git submodule update
 
-now depending of compiler Vendor you have to options: ::
+Now depending of compiler Vendor you have two options: ::
 
 * gfortran
 * ifort
@@ -62,4 +62,29 @@ After compiling you we have above libs which needed for compiling siesta: ::
  libflook.a
  libflookall.a
  
+Downloading and Compiling SIESTA with FLOOK
+...........................................
 
+To Get the latest version of SIESTA from gitlab: ::
+
+  git clone git@gitlab.com:siesta-project/siesta.git
+
+Go to siesta folder: ::
+
+  cd siesta
+
+Now make folder Obj-* and go to the folder: ::
+
+  ~/siesta$ mkdir Obj-lua
+  ~/siesta$ cd Obj-lua
+
+.. NOTE::
+
+  Here Obj-* = Obj-lua
+
+Now setup up your Obj-lua folder like this: ::
+  
+  ~/siesta/Obj-lua$ sh ../Src/obj_setup.sh
+
+In this step we have to make our arch.make file, here we use the (``gfortran.make``) file in (``Obj``) Folder. 
+  
