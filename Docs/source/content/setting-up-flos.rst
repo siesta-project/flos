@@ -1,6 +1,6 @@
 Setting Up FLOS for SIESTA
 ==========================
-Installation of flos
+Installation of FLOS
 --------------------
 
 Requirements
@@ -91,5 +91,18 @@ Now setup up your Obj-lua folder like this: ::
   
   ~/siesta/Obj-lua$ sh ../Src/obj_setup.sh
 
-In this step we have to make our arch.make file, here we use the (``gfortran.make``) file in (``Obj``) Folder. 
+In this step we have to make our arch.make file, here we use the (``gfortran.make``) file in (``Obj``) Folder. We need to append the following lines to our arch.make: ::
   
+  INCFLAGS += -I/{PUT YOUR FLOOK ROOT PATH}
+  LDFLAGS +=-L/{PUT YOUR FLOOK ROOT PATH} -Wl,-rpath={PUT YOUR FLOOK ROOT PATH}
+  LIBS+= -lflookall -ldl
+  COMP_LIBS += libfdict.a 
+  FPPFLAGS += -DSIESTA__FLOOK 
+
+Now everthing ready to compile siesta : ::
+
+  ~/siesta/Obj-lua$ make
+
+After Compilation you should have siesta binary.
+
+
