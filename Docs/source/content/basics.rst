@@ -13,7 +13,7 @@ Imagine you have a program which has 3 distinct places where interaction might o
   call finalize()
   end program 
 
-At each intermediate point one wishes to communicate with a scripting language. flook lets you communicate fortran and Lua hence it called Flook=fortran+Lua+hook.
+At each **intermediate point** one wishes to communicate with a scripting language. flook lets you communicate fortran and Lua hence it called Flook=fortran+Lua+hook.
 
 SIESTA Intermediate Points
 ..........................
@@ -26,7 +26,7 @@ When you run SIESTA with FLOOK enabled you have 6 intermediate point to communic
   (5) When moving the atoms, right after the FORCES step
   (6) When SIESTA is complete, just before it exists
 
-We call above intermediate points state in lua script you could communicate with SIESTA viastate defination like this: ::
+We call above **intermediate points** state in lua script you could communicate with SIESTA viastate defination like this: ::
 
   if siesta.state == siesta.INITIALIZE 
   if siesta.satte == siesta.INIT_MD
