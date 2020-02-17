@@ -89,7 +89,7 @@ Now we are ready to write our main siesta communicator function: ::
           siesta.Mesh.Cutoff.Minimum = cutoff[icutoff]
       else
           siesta.MD.Relaxed = true
-   end    
+      end    
       siesta.send({"Mesh.Cutoff.Minimum","MD.Relaxed"})
    end
    if siesta.state == siesta.ANALYSIS then
@@ -102,11 +102,11 @@ Now we are ready to write our main siesta communicator function: ::
       file:write( ("%8.3e  %17.10e  %17.10e\n"):format(cutoff[1], 0., Etot[1]) )
       for i = 2, #cutoff do
       file:write( ("%8.3e  %17.10e  %17.10e\n"):format(cutoff[i], Etot[i]-Etot[i-1], Etot[i]) )
-      end
+   end
       file:close()
    end
 
-   end   
+      
 
 k points
 ........
