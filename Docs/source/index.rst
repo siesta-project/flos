@@ -15,6 +15,8 @@ SIESTA (Spanish Initiative for Electronic Simulations with Thousands of Atoms) i
 
    0-setting-up-flos
    1-some-basics
+   2-tutorials
+
 
 Indices and tables
 ==================
