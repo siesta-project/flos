@@ -133,7 +133,7 @@ In each **intermediate points** states we could send or receive data via special
          SystemLabel
  
   :DM_history_depth:
-                    DM.HistoryDepth
+                   DM.HistoryDepth
 
   Output Options:
 
