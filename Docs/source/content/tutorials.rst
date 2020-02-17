@@ -104,7 +104,8 @@ Now we are ready to write our main siesta communicator function: ::
       file:close()
    end
 
- .. NOTE::
+
+.. NOTE::
          The important thing to take away is that, siesta in ``siesta.MOVE`` remains to that state unless we ``siesta.MD.Relaxed = true`` .
 
 k points
