@@ -115,8 +115,12 @@ k points
 Relaxations
 -----------
 
+Geometry Relaxation
+...................
+
 Geometry and Cell Relaxation
-.............................
+............................
+
 
 Relaxation with CG
 ..................

@@ -99,7 +99,7 @@ The Main function contains the **intermediate points** states : ::
        end
   end
 
-in each part of ``siesta.state`` we could either send or receive data. we will discuss that in () section.
+in each part of ``siesta.state`` we could either send or receive data with siesta dictionary. we will discuss that in () section.
 
 The user defined function which is a normal function defined by user for specific task. For instance the above function is counter with a return : ::
   
@@ -254,7 +254,7 @@ In each **intermediate points** states we could send or receive data via special
   :RelaxCellOnly:
                 MD.Relax.CellOnly
 
-  :varcel:
+  :varcel:MD.MaxDispl
          MD.Relax.Cell
 
   :inicoor:
@@ -392,7 +392,7 @@ In each **intermediate points** states we could send or receive data via special
 
   :cstress:
           geom.stress_constrained
-
+siesta.receive({"E.total"})
   :DEna:
        E.neutral_atom
 
@@ -463,31 +463,16 @@ In each **intermediate points** states we could send or receive data via special
   :kpoint_scf%k_displ:
                      BZ.k.Displacement
 
-  
+Now for example if we want to recieve the information of Total Energy we could communicate like this: ::
+  siesta.receive({"E.total"})
+
+If we want to send some information to siesta we could communicate like this: ::
+   siesta.receive({"MD.MaxDispl"})
 
 
 
 
 
-.. LUA::
-        -- any more to check left).
-  -- This function will also step past values 
-  function step_cutoff(cur_cutoff)
-
-      if icutoff < #cutoff then
-         icutoff = icutoff + 1
-      else
-         return false
-      end
-
-      if cutoff[icutoff] <= cur_cutoff then
-         cutoff[icutoff] = cutoff[icutoff-1]
-         Etot[icutoff] = Etot[icutoff-1]
-         return step_cutoff(cur_cutoff)
-      end
-
-      return true
-  end
 
 
 
