@@ -33,18 +33,18 @@ local CG = mc.class("CG", optim.Optimizer)
 -- The `CG` optimizer implements several variations of the algorithms:
 -- The beta-parameter calculation may be performed using either (`beta` field in argument table):
 --
---  - Polak-Ribiere (default)
---  - Fletcher-Reeves
---  - Hestenes-Stiefel
---  - Dai-Yuan
+--  - Polak-Ribiere [`PR`] (default)
+--  - Fletcher-Reeves [`FR`]
+--  - Hestenes-Stiefel [`HS`]
+--  - Dai-Yuan [`DY`]
 --
 -- CG algorithms also implements a restart method based on different criteria
 -- in this algorithm there is a default smooth restart by damping the `beta`
 -- parameter (default to `0.8`). In addition to this there are schemes for
 -- explicit restart (`restart` field in argument table):
 --
---  - negative, when `beta < 0` CG restarts the conjugate gradient
---  - Powel, when the scalar-projection of the two previous gradients is above 0.2
+--  - `negative`, when `beta < 0`, CG restarts the conjugate gradient
+--  - `Powell`, when the scalar-projection of the two previous gradients is above 0.2
 --  
 -- @usage
 -- cg = CG{<field1 = value>, <field2 = value>}
