@@ -94,9 +94,7 @@ Now we are ready to write our main siesta communicator function: ::
    end
    if siesta.state == siesta.ANALYSIS then
       local file = io.open("meshcutoff_E.dat", "w")
-
       file:write("# Mesh-cutoff vs. energy\n")
-
       -- We write out a table with mesh-cutoff, the difference between
       -- the last iteration, and the actual value
       file:write( ("%8.3e  %17.10e  %17.10e\n"):format(cutoff[1], 0., Etot[1]) )
@@ -106,7 +104,8 @@ Now we are ready to write our main siesta communicator function: ::
       file:close()
    end
 
-      
+ .. NOTE::
+         The important thing to take away is that, siesta in ``siesta.MOVE`` remains to that state unless we ``siesta.MD.Relaxed = true`` .
 
 k points
 ........
