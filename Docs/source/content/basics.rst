@@ -129,14 +129,13 @@ SIESTA LUA Dictionary
 
 In each **intermediate points** states we could send or receive data via special name we call them SIESTA LUA dictionary. Here we categorized them:
 
-+------------------------+----------------+---------------------+-------------------+
-| Dictionary Name        | Siesta         | Type                | Default           |
-|                        | Equivalent     |                     |  Value            |
-+========================+================+=====================+===================+
-| slabel                 | SystemLabel    |      Charecture     |                   |
-+------------------------+----------------+---------------------+-------------------+
-| DM_history_depth       | DM.HistoryDepth|     Integer         |                   |
-+------------------------+----------------+---------------------+-------------------+
++------------------------+--------------------+---------------------+-------------------+
+| Dictionary Name        | Siesta Equivalent  |         Type        | Default Value     |
++========================+====================+=====================+===================+
+| slabel                 | SystemLabel        |      Charecture     |                   |
++------------------------+--------------------+---------------------+-------------------+
+| DM_history_depth       | DM.HistoryDepth    |     Integer         |                   |
++------------------------+--------------------+---------------------+-------------------+
 
 
 
