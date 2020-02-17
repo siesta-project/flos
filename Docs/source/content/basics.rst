@@ -151,131 +151,317 @@ In each **intermediate points** states we could send or receive data via special
                      
   SCF Options:
 
-  :min_nscf:SCF.MinIterations
-  :nscf:SCF.MaxIterations
-  :mixH:SCF.MixHamiltonian
-  :mix_charge:SCF.MixCharge
-  :maxsav:SCF.NumberPulay
-  :broyden_maxit:SCF.NumberBroyden
-  :wmix:SCF.MixingWeight
-  :nkick:SCF.NumberKick
-  :wmixkick:SCF.KickMixingWeight
+  :min_nscf:
+          SCF.MinIterations
+  
+  :nscf:
+       SCF.MaxIterations
+
+  :mixH:
+       SCF.MixHamiltonian
+
+  :mix_charge:
+             SCF.MixCharge
+
+  :maxsav:
+         SCF.NumberPulay
+
+  :broyden_maxit:
+                SCF.NumberBroyden
+
+  :wmix:
+       SCF.MixingWeight
+
+  :nkick:
+        SCF.NumberKick
+
+  :wmixkick:
+           SCF.KickMixingWeight
   
   SCF Mixing Options (NEW):
 
-  :scf_mixs(1)%w:SCF.Mixer.Weight
-  :scf_mixs(1)%restart:SCF.Mixer.Restart
-  :scf_mixs(1)%n_itt:SCF.Mixer.Iterations
-  :monitor_forces_in_scf:SCF.MonitorForces
-  :temp:lectronicTemperature
+  :scf_mixs(1)%w:
+               SCF.Mixer.Weight
+
+  :scf_mixs(1)%restart:
+                      SCF.Mixer.Restart
+
+  :scf_mixs(1)%n_itt:
+                    SCF.Mixer.Iterations
+
+  :monitor_forces_in_scf:
+                        SCF.MonitorForces
+
+  :temp:
+       electronicTemperature
 
   SCF Convergence Criteria:
  
-  :converge_Eharr:SCF.Harris.Converge
-  :tolerance_Eharr:SCF.Harris.Tolerance
-  :converge_DM:SCF.DM.Converge
-  :dDtol:SCF.DM.Tolerance
-  :converge_EDM:SCF.EDM.Converge
-  :tolerance_EDM:SCF.EDM.Tolerance
-  :converge_H:SCF.H.Converge
-  :dHtol:SCF.H.Tolerance
-  :converge_FreeE:SCF.FreeE.Converge
-  :tolerance_FreeE:SCF.FreeE.Tolerance
-  :dxmax:MD.MaxDispl
-  :ftol:MD.MaxForceTol
-  :strtol:MD.MaxStressTol
-  :ifinal:MD.FinalTimeStep
-  :dx:MD.FC.Displ
-  :ia1:MD.FC.First
-  :ia2:MD.FC.Last
-  :tt:MD.Temperature.Target
-  :RelaxCellOnly:MD.Relax.CellOnly
-  :varcel:MD.Relax.Cell
-  :inicoor:MD.Steps.First
-  :fincoor:MD.Steps.Last
-  :DM_history_depth:MD.DM.History.Depth
+  :converge_Eharr:
+                 SCF.Harris.Converge
+
+  :tolerance_Eharr:
+                  SCF.Harris.Tolerance
+
+  :converge_DM:
+              SCF.DM.Converge
+
+  :dDtol:
+        SCF.DM.Tolerance
+
+  :converge_EDM:
+               SCF.EDM.Converge
+
+  :tolerance_EDM:
+                SCF.EDM.Tolerance
+
+  :converge_H:
+             SCF.H.Converge
+
+  :dHtol:
+        SCF.H.Tolerance
+
+  :converge_FreeE:
+                 SCF.FreeE.Converge
+
+  :tolerance_FreeE:
+                  SCF.FreeE.Tolerance
+
+  :dxmax:
+        MD.MaxDispl
+
+  :ftol:
+       MD.MaxForceTol
+
+  :strtol:
+         MD.MaxStressTol
+
+  :ifinal:
+         MD.FinalTimeStep
+
+  :dx:
+     MD.FC.Displ
+
+  :ia1:
+      MD.FC.First
+
+  :ia2:
+      MD.FC.Last
+
+  :tt:
+     MD.Temperature.Target
+
+  :RelaxCellOnly:
+                MD.Relax.CellOnly
+
+  :varcel:
+         MD.Relax.Cell
+
+  :inicoor:
+          MD.Steps.First
+
+  :fincoor:
+          MD.Steps.Last
+
+  :DM_history_depth:
+                   MD.DM.History.Depth
 
   Write Options:
 
-  :saveHS:Write.HS
-  :writeDM:Write.DM
-  :write_DM_at_end_of_cycle:Write.EndOfCycle.DM
-  :writeH:Write.H
-  :write_H_at_end_of_cycle:Write.EndOfCycle.H
-  :writeF:Write.Forces
-  :UseSaveDM:Use.DM
-  :hirshpop:Write.Hirshfeld
-  :voropop:Write.Voronoi
+  :saveHS:
+         Write.HS
+
+  :writeDM:
+          Write.DM
+           
+  :write_DM_at_end_of_cycle:
+                           Write.EndOfCycle.DM
+
+  :writeH:
+         Write.H
+
+  :write_H_at_end_of_cycle:
+                          Write.EndOfCycle.H
+
+  :writeF:
+         Write.Forces
+
+  :UseSaveDM:
+            Use.DM
+
+  :hirshpop:
+           Write.Hirshfeld
+
+  :voropop:
+          Write.Voronoi
 
   Mesh Options:
 
-  :g2cut:Mesh.Cutoff.Minimum
-  :saverho:Mesh.Write.Rho
-  :savedrho:Mesh.Write.DeltaRho
-  :saverhoxc:Mesh.Write.RhoXC
-  :savevh:Mesh.Write.HartreePotential
-  :savevna:Mesh.Write.NeutralAtomPotential
-  :savevt:Mesh.Write.TotalPotential
-  :savepsch:Mesh.Write.IonicRho
-  :savebader:Mesh.Write.BaderRho
-  :savetoch:Mesh.Write.TotalRho
+  :g2cut:
+        Mesh.Cutoff.Minimum
+
+  :saverho:
+          Mesh.Write.Rho
+
+  :savedrho:
+           Mesh.Write.DeltaRho
+
+  :saverhoxc:
+            Mesh.Write.RhoXC
+
+  :savevh:
+         Mesh.Write.HartreePotential
+
+  :savevna:
+          Mesh.Write.NeutralAtomPotential
+
+  :savevt:
+         Mesh.Write.TotalPotential
+
+  :savepsch:
+           Mesh.Write.IonicRho
+
+  :savebader:
+            Mesh.Write.BaderRho
+
+  :savetoch:
+           Mesh.Write.TotalRho
 
   Geometry Options:
 
-  :na_u:geom.na_u
-  :ucell:geom.cell
-  :ucell_last:geom.cell_last
-  :vcell:geom.vcell
-  :nsc:geom.nsc
-  :r2:geom.xa
-  :r2:geom.xa_last
-  :va:geom.va
+  :na_u:
+       geom.na_u
+
+  :ucell:
+        geom.cell
+
+  :ucell_last:
+             geom.cell_last
+
+  :vcell:
+        geom.vcell
+
+  :nsc:
+      geom.nsc
+
+  :r2:
+     geom.xa
+
+  :r2:
+     geom.xa_last
+
+  :va:
+     geom.va
   
   Species Options:
 
-  :isa(1:na_u):geom.species
-  :iza(1:na_u):geom.z
-  :lasto(1:na_u):geom.last_orbital
-  :amass:geom.mass
-  :qa(1:na_u):geom.neutral_charge
-  :Datm(1:no_u):geom.orbital_charge
+  :isa(1:na_u):
+              geom.species
+
+  :iza(1:na_u):
+              geom.z
+
+  :lasto(1:na_u):
+                geom.last_orbital
+
+  :amass:
+         geom.mass
+
+  :qa(1:na_u):
+             geom.neutral_charge
+
+  :Datm(1:no_u):
+               geom.orbital_charge
 
   Force & Stress Options
 
-  :cfa:geom.fa
-  :fa:geom.fa_pristine
-  :cfa:geom.fa_constrained
-  :cstress:geom.stress
-  :stress:geom.stress_pristine
-  :cstress:geom.stress_constrained
-  :DEna:E.neutral_atom
-  :DUscf:E.electrostatic
-  :Ef:E.fermi
-  :Eharrs:E.harris
-  :Ekin:E.kinetic
-  :Etot:E.total
-  :Exc:E.exchange_correlation
-  :FreeE:E.free
-  :Ekinion:E.ions_kinetic
-  :Eions:E.ions
-  :Ebs:E.band_structure
-  :Eso:E.spin_orbit
-  :Eldau:E.ldau
-  :NEGF_DE:E.negf.dN
-  :NEGF_Eharrs:E.negf.harris
-  :NEGF_Etot:E.negf.total
-  :NEGF_Ekin:E.negf.kinetic
-  :NEGF_Ebs:E.negf.band_structure
+  :cfa:
+      geom.fa
+       
+  :fa:
+     geom.fa_pristine
+
+  :cfa:
+      geom.fa_constrained
+
+  :cstress:
+          geom.stress
+
+  :stress:
+         geom.stress_pristine
+
+  :cstress:
+          geom.stress_constrained
+
+  :DEna:
+       E.neutral_atom
+
+  :DUscf:
+        E.electrostatic
+
+  :Ef:
+     E.fermi
+
+  :Eharrs:
+         E.harris
+
+  :Ekin:
+        E.kinetic
+
+  :Etot:
+       E.total
+
+  :Exc:
+      E.exchange_correlation
+
+  :FreeE:
+        E.free
+
+  :Ekinion:
+          E.ions_kinetic
+
+  :Eions:
+        E.ions
+
+  :Ebs:
+      E.band_structure
+
+  :Eso:
+      E.spin_orbit
+
+  :Eldau:
+        E.ldau
+
+  :NEGF_DE:
+          E.negf.dN
+
+  :NEGF_Eharrs:
+              E.negf.harris
+
+  :NEGF_Etot:
+            E.negf.total
+
+  :NEGF_Ekin:
+            E.negf.kinetic
+
+  :NEGF_Ebs:
+           E.negf.band_structure
 
   Charges Options:
 
-  :qtot:charge.electrons
-  :zvaltot:charge.protons
+  :qtot:
+       charge.electrons
+
+  :zvaltot:
+          charge.protons
 
   k-point Options
 
-  :kpoint_scf%k_cell:BZ.k.Matrix
-  :kpoint_scf%k_displ:BZ.k.Displacement
+  :kpoint_scf%k_cell:
+                    BZ.k.Matrix
+
+  :kpoint_scf%k_displ:
+                     BZ.k.Displacement
 
   
 
