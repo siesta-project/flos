@@ -463,11 +463,14 @@ siesta.receive({"E.total"})
   :kpoint_scf%k_displ:
                      BZ.k.Displacement
 
+
 Now for example if we want to recieve the information of Total Energy we could communicate like this: ::
+
   siesta.receive({"E.total"})
 
 If we want to send some information to siesta we could communicate like this: ::
-   siesta.receive({"MD.MaxDispl"})
+  
+  siesta.receive({"MD.MaxDispl"})
 
 
 
