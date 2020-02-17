@@ -11,10 +11,10 @@ This tutorial can take any system and will perform a series of calculations with
 Mesh.Cutoff and it will write-out a table file to be plotted which contains the Mesh.Cutoff vs Energu.
 
 The task steps is the following:
-  (1) Read Starting Mesh cutoff (siesta.state= siesta.INITIALIZE )
-  (2) Run siesta with the Starting Mesh (siesta.state= siesta.INI_MD )
-  (3) Save the Mesh and Enegy then increase the Mesh cutoff and Run siesta with new mesh (siesta.state == siesta.MOVE) and (user defined function)
-  (4) If reach to last mesh write Mesh cutoff vs Energy in file (siesta.state == siesta.ANALYSIS)
+  (1) Read Starting Mesh cutoff (``siesta.state= siesta.INITIALIZE`` )
+  (2) Run siesta with the Starting Mesh (``siesta.state= siesta.INI_MD`` )
+  (3) Save the Mesh and Enegy then increase the Mesh cutoff and Run siesta with new mesh (``siesta.state == siesta.MOVE``) and (user defined function)
+  (4) If reach to last mesh write Mesh cutoff vs Energy in file (``siesta.state == siesta.ANALYSIS``)
 
 
 For optimizing our mesh We may need 3 values:
