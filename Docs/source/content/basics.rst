@@ -29,11 +29,11 @@ When you run SIESTA with FLOOK enabled you have 6 **intermediate point** to comm
 We call above **intermediate points** state in lua script you could communicate with SIESTA viastate defination like this: ::
 
   if siesta.state == siesta.INITIALIZE 
-  if siesta.satte == siesta.INIT_MD
-  if siesta.satte == siesta.SCF_LOOP
-  if siesta.satte == siesta.FORCES
-  if siesta.satte == siesta.MOVE
-  if siesta.satte == siesta.ANALYSIS
+  if siesta.state == siesta.INIT_MD
+  if siesta.state == siesta.SCF_LOOP
+  if siesta.state == siesta.FORCES
+  if siesta.state == siesta.MOVE
+  if siesta.state == siesta.ANALYSIS
 
 
 How to Communicate with SIESTA
