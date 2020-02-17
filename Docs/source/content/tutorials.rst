@@ -16,20 +16,20 @@ The task steps is the following:
   (3) Save the Mesh and Enegy then increase the Mesh cutoff and Run siesta with new mesh (``siesta.state == siesta.MOVE``) and (user defined function)
   (4) If reach to last mesh write Mesh cutoff vs Energy in file (``siesta.state == siesta.ANALYSIS``)
 
+For optimizing our mesh we may need 3 values:
 
-For optimizing our mesh We may need 3 values:
  (1) cutoff_start
  (2) cutoff_end
  (3) cutoff_step
 
 To do so we have these lines in our script: ::
-   
-   local cutoff_start = 150.
-   local cutoff_end = 650.
-   local cutoff_step = 50.
 
    -- Load the FLOS module
    local flos = require "flos"
+
+   local cutoff_start = 150.
+   local cutoff_end = 650.
+   local cutoff_step = 50.
 
    -- Create array of cut-offs
    local cutoff = flos.Array.range(cutoff_start, cutoff_end, cutoff_step)
@@ -44,7 +44,7 @@ To do so we have these lines in our script: ::
 For user defined function we have: ::
 
   function step_cutoff(cur_cutoff)
-   if icutoff < #cutoff then
+   if icutoff < cutoff then
       icutoff = icutoff + 1
    else
       return false
@@ -57,6 +57,7 @@ For user defined function we have: ::
    return true
    end
 
+Which only increase the value of mesh with step value cur_cutoff.
 
 Now we are ready to write our main siesta communicator function: ::
   
@@ -88,7 +89,7 @@ Now we are ready to write our main siesta communicator function: ::
           siesta.Mesh.Cutoff.Minimum = cutoff[icutoff]
       else
           siesta.MD.Relaxed = true
-      end    
+   end    
       siesta.send({"Mesh.Cutoff.Minimum","MD.Relaxed"})
    end
   
