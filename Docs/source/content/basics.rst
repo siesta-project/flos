@@ -131,7 +131,20 @@ In each **intermediate points** states we could send or receive data via special
 
   :slabel:
 
-         Siesta LABEL
+         SystemLabel
+ 
+  :DM_history_depth:
+   
+                    DM.HistoryDepth
+
+  Some output options
+
+  :dumpcharge:
+             Write.DenChar
+
+  :kvp.mullipop:
+                Write.MullikenPop 
+                
 
 .. LUA::
         -- any more to check left).
