@@ -92,7 +92,22 @@ Now we are ready to write our main siesta communicator function: ::
    end    
       siesta.send({"Mesh.Cutoff.Minimum","MD.Relaxed"})
    end
-  
+   if siesta.state == siesta.ANALYSIS then
+      local file = io.open("meshcutoff_E.dat", "w")
+
+      file:write("# Mesh-cutoff vs. energy\n")
+
+      -- We write out a table with mesh-cutoff, the difference between
+      -- the last iteration, and the actual value
+      file:write( ("%8.3e  %17.10e  %17.10e\n"):format(cutoff[1], 0., Etot[1]) )
+      for i = 2, #cutoff do
+      file:write( ("%8.3e  %17.10e  %17.10e\n"):format(cutoff[i], Etot[i]-Etot[i-1], Etot[i]) )
+      end
+      file:close()
+   end
+
+   end   
+
 k points
 ........
 
