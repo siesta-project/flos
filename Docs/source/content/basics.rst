@@ -34,7 +34,7 @@ We call above **intermediate points** state in lua script you could communicate 
   if siesta.state == siesta.FORCES
   if siesta.state == siesta.MOVE
   if siesta.state == siesta.ANALYSIS
-
+  if siesta.state == siesta.FINALIZE
 
 How to Communicate with SIESTA
 ..............................
@@ -502,6 +502,15 @@ Classes
 
 MDStep
 ......
+
+The MDStep class retains information on a single MD step.
+-- Such a step may be represented by numerous quantities.
+-- One may always add new information, but it may for instance
+-- be used to retain information such as:
+--  `R`, the atomic coordinates
+--  `V`, the velocities
+--  `F`, the forces
+--  `E`, an energy associated with the current step.
 
 Array
 .....
