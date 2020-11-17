@@ -586,6 +586,19 @@ This class conatins implementation of a line minimizer algorithm. The `Line` cla
 NEB
 ...
 
+NEB class Instantiating a new `NEB` object. For the `NEB` object it is important to pass the images, and _then_ all the NEB settings as named arguments in a table.
+
+-- The `NEB` object implements a generic NEB algorithm as detailed in:
+
+(1) "Improved tangent estimate in the nudged elastic band method for finding minimum energy paths and saddle points", Henkelman & Jonsson, JCP (113), 2000
+(2)  "A climbing image nudged elastic band method for finding saddle points and minimum energy paths", Henkelman, Uberuaga, & Jonsson, JCP (113), 2000 
+
+.. NOTE::
+
+This particular implementation has been tested and initially developed by Jesper T. Rasmussen, DTU Nanotech, 2016.
+
+When instantiating a new `NEB` calculator one _must_ populate the initial, all intermediate images and a final image in a a table. The easiest way to do this can be seen in the below usage field. To perform the NEB calculation all images (besides the initial and final) are relaxed by an external relaxation method (see `Optimizer` and its child classes). Due to the forces being highly non-linear as the NEB algorithm updates the forces depending on the nearest images, it is adviced to use an MD-like relaxation method such as `FIRE`. If one uses history based relaxation methods (`LBFGS`, `CG`, etc.) one should limit the number of history steps used. Running the NEB class will create a huge list of files with corresponding output. Check the `NEB:save` function for details.
+
 VCNEB
 .....
 
