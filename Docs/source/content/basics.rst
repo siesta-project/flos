@@ -40,10 +40,11 @@ How to Communicate with SIESTA
 ..............................
 
 For Communicate with siesta with it consist of two step :
-  (1) set these input SIESTA flags in fdf file:
+
+(1) set these input SIESTA flags in fdf file:
      * set ``MD.TypeOfRun LUA``
      * set ``LUA.Script {NAME OF YOUR SCRIPT}.lua``
-  (2) Provide the script ``{NAME OF YOUR SCRIPT}.lua`` 
+(2) Provide the script ``{NAME OF YOUR SCRIPT}.lua`` 
 
 .. NOTE::
 
@@ -129,18 +130,18 @@ SIESTA LUA Dictionary
 
 In each **intermediate points** states we could send or receive data via special name we call them SIESTA LUA dictionary. Here we categorized them:
 
-+------------------------+--------------------+---------------------+-------------------+
-| Dictionary Name        | Siesta Equivalent  |         Type        | Default Value     |
-+========================+====================+=====================+===================+
-| slabel                 | SystemLabel        |      Charecture     |                   |
-+------------------------+--------------------+---------------------+-------------------+
-| DM_history_depth       | DM.HistoryDepth    |     Integer         |                   |
-+------------------------+--------------------+---------------------+-------------------+
-| Output Options                                                                        |
-+========================+====================+=====================+===================+
-| slabel                 | SystemLabel        |      Charecture     |                   |
-| dumpcharge             | Write.DenChar      |                     |                   |
-+------------------------+--------------------+---------------------+-------------------+
+.. +------------------------+--------------------+---------------------+-------------------+
+.. | Dictionary Name        | Siesta Equivalent  |         Type        | Default Value     |
+.. +========================+====================+=====================+===================+
+.. | slabel                 | SystemLabel        |      Charecture     |                   |
+.. +------------------------+--------------------+---------------------+-------------------+
+.. | DM_history_depth       | DM.HistoryDepth    |     Integer         |                   |
+.. +------------------------+--------------------+---------------------+-------------------+
+.. | Output Options                                                                        |
+.. +========================+====================+=====================+===================+
+.. | slabel                 | SystemLabel        |      Charecture     |                   |
+.. | dumpcharge             | Write.DenChar      |                     |                   |
+.. +------------------------+--------------------+---------------------+-------------------+
 
   :slabel:
          SystemLabel
@@ -512,23 +513,75 @@ The MDStep class retains information on a single MD step. Such a step may be rep
 Array
 .....
 
+Array Class is a generic implementation of ND arrays in pure Lua. This module tries to be as similar to the Python numpy package as possible. Due to everything being in Lua there are not *views* of arrays which means that many functions creates unnecessary data-duplications. This may be leveraged in later code implementat ons. The underlying Array class is implemented as follows:
+
+  (1) Every Array gets associated a `Shape` which determines the size of the current Array.
+  (2) If the Array is > 1D all elements `Array[i]` is an array with sub-Arrays of one less dimension.
+  (3) This enables one to call any Array function on sub-partitions of the Array without having to think about the details.
+  (4) The special case is the last dimension which contains the actual data. The `Array` class is using the same names as the Python numerical library `numpy` for clarity.
+
+  
 Shape
 .....
+
+Implementation of Shape to control the size of arrays (@see Array) @classmod Shape A helper class for managing the size of `Array's`. 
+
+Having the Shape of an array in a separate class makes it much easier to implement a flexible interface for interacting with Arrays. A Shape is basically a table which defines the size of the Array 
+the dimensions of the Array is `#Shape` while each axis size may be queried by `Shape[axis]`.
+Additionally a Shape may have a single dimension with size `0` which may only be used to align two shapes, i.e. the `0` axis is inferred from the total size of the aligning Shape.
 
 Optimizer
 .........
 
+Basic optimization class that is to be inherited by all the optimization classes.
+
 CG
 ..
+
+An implementation of the conjugate gradient optimization algorithm. This class implements 4 different variations of CG defined by the so-called beta-parameter:
+
+   (1) Polak-Ribiere
+   (2) Fletcher-Reeves
+   (3) Hestenes-Stiefel
+   (4)  Dai-Yuan
+
+ Additionally this CG implementation defaults to a beta-damping factor to achieve a smooth restart method, instead of abrupt CG restarts when `beta < 0`, for instance.
 
 FIRE
 ....
 
+The implementation has several options related to the original method.
+
+The `FIRE` optimizer implements several variations of the original FIRE algorithm.
+
+Here we allow to differentiate on how to normalize the displacements:
+
+ (1) `correct` (argument for `FIRE:new`)
+ (2) "global" perform a global normalization of the coordinates (maintain displacement direction)
+ (3) "local" perform a local normalization (for each direction of each atom) (displacement direction is not maintained)
+ (4) `direction` (argument for `FIRE:new`)
+ (5) "global" perform a global normalization of the velocities (maintain gradient direction)
+ (6)  "local" perform a local normalization of the velocity (for each atom) (gradient direction is not maintained) This `FIRE` optimizer allows two variations of the scaling of the velocities and the resulting displacement.
+
 LBFGS
 .....
 
+This class contains implementation of the limited memory BFGS algorithm.
+The LBFGS algorithm is a straight-forward optimization algorithm which requires very few arguments for a succesful optimization. The most important parameter is the initial Hessian value, which for large values (close to 1) may have difficulties in converging because it is more aggressive (keeps more of the initial gradient). The default value is rather safe and should enable optimization on most systems. This optimization method also implements a history-discard strategy, if needed, for possible speeding up the convergence. A field in the argument table, `discard`, may be passed which takes one of:
+
+(1) "none", no discard strategy
+(2) "max-dF", if a displacement is being made beyond the max-displacement we do not store the   step in the history
+
+This optimization method also implements a scaling strategy, if needed, for possible speeding up the convergence. A field in the argument table, `scaling`, may be passed which takes one of:
+
+(1) "none", no scaling strategy used
+(2) "initial", only the initial inverse Hessian and use that in all subsequent iterations
+(3) "every", scale for every step
+
 LINE
 ....
+
+This class conatins implementation of a line minimizer algorithm. The `Line` class optimizes a set of parameters for a function such that the gradient projected onto a gradient-direction will be minimized. I.e. it finds the minimum of a function on a gradient line such that the true gradient is orthogonal to the direction. A simple implementation of a line minimizer. This line-minimization algorithm may use any (default to `LBFGS`) optimizer and will optimize a given direction by projecting the gradient onto an initial gradient direction. 
 
 NEB
 ...
