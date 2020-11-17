@@ -503,14 +503,11 @@ Classes
 MDStep
 ......
 
-The MDStep class retains information on a single MD step.
--- Such a step may be represented by numerous quantities.
--- One may always add new information, but it may for instance
--- be used to retain information such as:
---  `R`, the atomic coordinates
---  `V`, the velocities
---  `F`, the forces
---  `E`, an energy associated with the current step.
+The MDStep class retains information on a single MD step. Such a step may be represented by numerous quantities. One may always add new information, but it may for instance be used to retain information such as:
+        (1) **R** , the atomic coordinates
+        (2) **V** , the velocities
+        (3) **F** , the forces
+        (4) **E** , an energy associated with the current step.
 
 Array
 .....
