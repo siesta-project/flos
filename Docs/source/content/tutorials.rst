@@ -6,7 +6,18 @@ Tutorials of FLOS
 
   What Flos Could Do...!
 
+Basics
+------
 
+To Run Siesta with LUA functionality, has threefold steps:
+ (1) providing lua script in the same run folder (alongside fdf and pseudos) for a particular task.
+ (2) Set the MD.TypeOfRun  to LUA
+ (3) add the lua script in fdf file using this flag : Lua.Script <lua_file_name.lua>
+
+.. NOTE::
+
+  Following Examples are only the content and structure of lua script files. All the examples could be found in the tutorial folder.
+ 
 Optimizations
 -------------
 
