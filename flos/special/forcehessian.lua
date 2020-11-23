@@ -17,6 +17,7 @@ function ForceHessian:initialize(xa, indices, displacement, mass)
 
    -- Performing an FC run requires
    -- a few things
+   --
    -- 1. the initial atomic coordinates (from where the initial force constants are runned)
    -- 2. the indices of the atoms that should be displaced
    -- 3. the maximum displacement of the lightest atom (defaults to 0.02 Ang)

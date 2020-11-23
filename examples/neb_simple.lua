@@ -46,6 +46,32 @@ for i = 0, n_images + 1 do
    images[#images+1] = flos.MDStep{R=read_geom(image_label .. i .. ".xyz")}
 end
 
+-- Check whether the images have the correct size!
+function is_correct_size(images)
+   local na = #images[1].R
+
+   IOprint("\nLUA NEB images has " .. na .. " atoms.")
+
+   for i = 2, #images do
+      if na ~= #images[i].R then
+	 print("\nLUA NEB error in initialized images")
+	 print("LUA NEB error images does not have the same number of atoms!")
+	 return false
+      end
+   end
+   return true
+end
+
+-- Check whether the initial data is correct, and if not
+-- install a communicator which aborts the moment it enters Siesta-Lua
+if not is_correct_size(images) then
+   function siesta_comm()
+      siesta.Stop = true
+      siesta.send({'Stop'})
+   end
+   os.exit(1)
+end
+
 -- Now we have all images...
 local NEB = flos.NEB(images)
 if siesta.IONode then
@@ -111,6 +137,16 @@ function siesta_comm()
 	       relax[img][i]:info()
 	    end
 	 end
+      end
+
+      -- Check whether there is the correct number of atoms in the geometry
+      if #NEB.initial.R ~= #siesta.geom.xa then
+	 siesta.Stop = true
+	 print("\nLUA NEB error in images vs. Siesta atomic structure!")
+	 print("LUA NEB error images does not have the same number of atoms as the Siesta calculation!")
+	 siesta.send({'Stop'})
+	 return
+	 os.exit(1)
       end
 
       -- This is only reached one time, and that it as the beginning...
