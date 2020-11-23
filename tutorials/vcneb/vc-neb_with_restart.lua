@@ -12,34 +12,9 @@ local n_images = 5
 local images = {}
 local images_vectors={}
 -- The default output label of the DM files
-local label = "MgO-3x3x1-2V"
-local f_label_xyz = "image_coordinates_"
-local f_label_xyz_vec = "image_vectors_"
--- Function for reading a geometry of vector
-local read_geom_vec = function(filename)
-   local file = io.open(filename, "r")
-   local na = tonumber(file:read())
-   local R = flos.Array.zeros(na, 3)
-   file:read()
-   local i = 0
-   local function tovector(s)
-      local t = {}
-      s:gsub('%S+', function(n) t[#t+1] = tonumber(n) end)
-      return t
-   end
-   for i = 1, na do
-      local line = file:read()
-      if line == nil then break end
-      -- Get stuff into the R
-      local v = tovector(line)
-      R[i][1] = v[1]
-      R[i][2] = v[2]
-      R[i][3] = v[3]
-   end
-   file:close()
-   return R
-end
--- Function for reading a geometry
+local f_label_xyz =  image_label -- "image_coordinates_"
+local f_label_xyz_vec = image_vector_label --"image_vectors_"
+-- Function for reading a geometry and vector
 local read_geom = function(filename)
    local file = io.open(filename, "r")
    local na = tonumber(file:read())
@@ -66,12 +41,12 @@ end
 -- Now read in the images
 for i = 0, n_images + 1 do
    images[#images+1] = flos.MDStep{R=read_geom(image_label .. i .. ".xyz")}
-   images_vectors[#images_vectors+1]= flos.MDStep{R=read_geom_vec(image_vector_label .. i .. ".xyz")}
+   images_vectors[#images_vectors+1]= flos.MDStep{R=read_geom(image_vector_label .. i .. ".xyz")}
 end
 -- Now we have all images...
-local NEB = flos.VCNEB(images)
-local VCNEB = flos.VCNEB(images_vectors)
-NEB.DM_label=labe --"MgO-3x3x1-2V"
+local NEB = flos.VCNEB(images,{k=1.0})
+local VCNEB = flos.VCNEB(images_vectors,{k=1.0})
+
 if siesta.IONode then
    NEB:info()
    VCNEB:info()
@@ -86,7 +61,7 @@ for i=1, NEB.n_images do
    relax[i]={}
    vcrelax[i]={}
    relax[i][1] = flos.CG{beta='PR', line=flos.Line{optimizer = flos.LBFGS{H0 = 1. / 25.} } }
-   vcrelax[i][1] = flos.CG{beta='PR', line=flos.Line{optimizer = flos.LBFGS{H0 = 1. / 75.} } }
+   vcrelax[i][1] = flos.CG{beta='PR', line=flos.Line{optimizer = flos.LBFGS{H0 = 1. / 25.} } }
    if siesta.IONode then
       NEB:info()
       VCNEB:info()
@@ -100,7 +75,6 @@ local current_image = 1
 -- Grab the unit table of siesta (it is already created
 -- by SIESTA)
 local Unit = siesta.Units
-
 function siesta_comm() 
    -- This routine does exchange of data with SIESTA
    local ret_tbl = {}
@@ -134,7 +108,7 @@ function siesta_comm()
 	    -- Print information for this relaxation method
 	    if siesta.IONode then
 	       relax[img][i]:info()
-         vcrelax[img][i]:info()
+               vcrelax[img][i]:info()
 	    end
 	 end
       end
@@ -150,13 +124,13 @@ function siesta_comm()
       --Write xyz File
       siesta_update_xyz(current_image)
       siesta_update_xyz_vec(current_image)
-      IOprint("============================================")
-      IOprint("Lattice Vector")
+      --IOprint("============================================")
+      IOprint("Lattice Vector for image : ".. current_image)
       IOprint(VCNEB[current_image].R)
-      IOprint("============================================")
-      IOprint("Atomic Coordinates")
+     -- IOprint("============================================")
+      IOprint("Atomic Coordinates for image : ".. current_image)
       IOprint(NEB[current_image].R)
-      IOprint("============================================")
+     -- IOprint("============================================")
       ret_tbl = {'geom.xa',"geom.stress","geom.cell"}
    end
    if siesta.state == siesta.MOVE then      
@@ -183,7 +157,6 @@ function siesta_comm()
    end
    siesta.send(ret_tbl)
 end
-
 function siesta_move(siesta)
    -- Retrieve the atomic coordinates, forces and the energy
    local fa = flos.Array.from(siesta.geom.fa) * Unit.Ang / Unit.eV
@@ -209,10 +182,10 @@ function siesta_move(siesta)
       siesta.geom.xa = NEB[current_image].R * Unit.Ang
       siesta.geom.cell = VCNEB[current_image].R * Unit.Ang
       IOprint("\nLUA/NEB final state\n")
-      IOprint("Lattice Vectors")
+      IOprint("Lattice Vectors for Final Image")
       IOprint(VCNEB[current_image].R)
-      IOprint("Stresss")
-      IOprint(VCNEB[current_image].F)
+      --IOprint("Stresss")
+      --IOprint(VCNEB[current_image].F)
       --IOprint(stress)
       -- The siesta relaxation is already not set
       return {'geom.xa',"geom.stress","geom.cell"}    
@@ -297,10 +270,10 @@ function siesta_move(siesta)
       local stress=-stress_to_voigt(siesta.geom.stress)--* Unit.Ang ^ 3 / Unit.eV
       stress = stress * stress_mask
       local VF = VCNEB:force(img, siesta.IONode)
-     IOprint("VCNEB: max Strain F on image ".. img ..
+      IOprint("VCNEB: max Strain F on image ".. img ..
 		 (" = %10.5f, climbing = %s"):format(VF:norm():max(),
       			     tostring(VCNEB:climbing(img))) )
-     IOprint(VCNEB[img].F)        
+      IOprint(VCNEB[img].F)        
       local all_vcxa, vcweight = {}, flos.Array( #vcrelax[img] )
       for i = 1, #vcrelax[img] do
 	 all_vcxa[i] = vcrelax[img][i]:optimize(strain, stress )--* ivol

@@ -48,15 +48,15 @@ end
 
 --- Print to screen some information regarding the NEB algorithm
 function DNEB:info()
-   print("DNEB has " .. self.n_images)
-   print("DNEB uses climbing after " .. self._climbing .. " steps")
+   print("DNEB Number of Images :  " .. self.n_images)
+   print("DNEB Use Climbing After : " .. self._climbing .. " Steps")
    local tmp = array.Array( self.n_images + 1 )
    --tmp[1] = self:dR(0, 1):norm(0)
    tmp[1] = self:dR(0, 1):norm(0)
    for i = 2, self.n_images + 1 do
       tmp[i] = tmp[i-1] + self:dR(i-1, i):norm(0)
    end
-   print("DNEB reaction coordinates: ")
+   print("DNEB Reaction Coordinates: ")
    print(tostring(tmp))
    local tmp = array.Array( self.n_images )
    for i = 1, self.n_images do
