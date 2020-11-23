@@ -76,6 +76,12 @@ function Shape:copy()
    return Shape( table.unpack(self) )
 end
 
+--- Create a new shape with all dimensions flattened
+-- @return a Shape with 1 dimension equal to the total size
+function Shape:flatten()
+   return Shape( self:size() )
+end
+
 
 --- Reverse the dimension sizes, `Shape( 2, 3, 4):reverse() == Shape( 4, 3, 2)`
 -- @return a new Shape

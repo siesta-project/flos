@@ -553,7 +553,7 @@ end
 --
 -- The scalar projection is this formula:
 --    $\frac{a \cdot b}{|b|}$
--- @Array P the projection array
+-- @Array P the projection array (if 0, the returned projection will be 0)
 -- @int[opt=0] axis the axis along the projection, currently only a full projection is available
 -- @return a value if the `axis=0` or the Array is 1D, else a new Array with 1 less dimension is returned.
 function Array:scalar_project(P, axis)
@@ -561,8 +561,16 @@ function Array:scalar_project(P, axis)
 
    if ax == 0 then
 
+      local norm = P:norm(0)
+
+      if norm == 0. then
+	 -- This means that P is the 0 vector so we can't project to it
+	 -- We return 0
+	 return 0.
+      end
+
       -- Calculate norm of the projection vector
-      return self:flatten():dot( P:flatten() ) / P:norm(0)
+      return self:flatten():dot( P:flatten() ) / norm
 
    else
 
@@ -580,7 +588,7 @@ end
 --
 -- The scalar projection is this formula:
 --    $\frac{a \cdot b}{|b|^2} b$
--- @Array P the projection array
+-- @Array P the projection array (if 0, the returned projection will be 0)
 -- @int[opt=0] axis the axis along the projection, currently only a full projection is available
 -- @return a value if the `axis=0` or the Array is 1D, else a new Array with 1 less dimension is returned.
 function Array:project(P, axis)
@@ -590,6 +598,12 @@ function Array:project(P, axis)
 
       -- Calculate norm of the projection vector
       local dnorm2 = P:norm(0) ^ 2
+      if dnorm2 == 0. then
+	 -- This means that P is the 0 vector so we can't project to it
+	 -- We return 0
+	 return Array.zeros( self.shape:flatten() )
+      end
+
       return self:flatten():dot( P:flatten() ) / dnorm2 * P
 
    else
