@@ -1,0 +1,90 @@
+# Created by GDIS version 0.90.0
+SystemLabel      MgO-3x3x1-2V
+
+#----------------------------------------------------------
+#                       Crystal flags
+#----------------------------------------------------------
+NumberOfAtoms   2
+
+NumberOfSpecies  2
+
+%block ChemicalSpeciesLabel
+    1   12  Mg
+    2    8  O
+#    3   -8  VO
+%endblock ChemicalSpeciesLabel
+
+LatticeConstant 1.0 Ang
+%block LatticeVectors
+  1.68629  -2.92074   0.000 
+  1.68629   2.92074   0.000
+  0.00000   0.00000  20.606 
+%endblock LatticeVectors
+
+AtomicCoordinatesFormat Ang
+%block AtomicCoordinatesAndAtomicSpecies
+  1.6862899831371  0.9735799902642  10.303 1  1 Mg
+  1.6862899831371  -0.9735799902642  10.303 2  1 O
+%endblock AtomicCoordinatesAndAtomicSpecies
+#----------------------------------------------------------
+#                       Basis flags
+#----------------------------------------------------------
+%block PAO.BasisSizes
+Mg  DZP
+%endblock PAO.BasisSizes
+%block PAO.Basis
+O     3   -0.4158308
+ n=2   0   2   E  25.2217485   -0.7787941
+   4.1893036           -0.5955594
+   1.00000             1.00000
+ n=2   1   2   E  13.2644853   -0.7950761
+   6.0475603           -0.6742187
+   1.00000             1.00000
+ n=3   2   2   E  45.9587470   -0.7957318
+   3.2675257   0.0
+   1.00000     1.0
+%endblock PAO.Basis
+%block kgrid_Monkhorst_Pack
+5   0    0     0.0
+0    5   0     0.0
+0    0    1     0.0
+%endblock kgrid_Monkhorst_Pack  
+MeshCutoff 		300  Ry
+XC.functional 		GGA
+XC.authors 		revPBE
+SpinPolarized           .true.
+#----------------------------------------------------------
+#                       DM flags
+#----------------------------------------------------------
+DM.MixingWeight 	0.20
+DM.NumberPulay          4 
+DM.UseSaveDM            .true.
+DM.Tolerance 		1.0d-4
+DM.History.Depth        0
+MaxSCFIterations 	500
+#----------------------------------------------------------
+#                       MD flags
+#----------------------------------------------------------
+MD.MaxCGDispl           0.5 Bohr
+MD.TypeOfRun            LUA
+MD.VariableCell         .True.
+#MD.NumCGsteps           200
+MD.MaxForceTol          0.04000 eV/Ang
+#MD.UseSaveXV            .true.
+MD.MaxStressTol         0.5 GPa
+#----------------------------------------------------------
+#                       Electronic flags
+#----------------------------------------------------------
+ElectronicTemperature   5 K
+#NumberOfEigenStates     800
+#UseNewDiagk            .false.
+#Diag.ParallelOverK     .false.
+#LongOutput              .true.          
+#WriteMDHistory         .true.
+#WriteMDXmol            .true.
+#COOP.Write .true.
+#WriteMullikenPop  3
+#WriteHirshfeldPop T
+#WriteVoronoiPop  T
+Lua.Script vc-neb_with_restart.lua
+

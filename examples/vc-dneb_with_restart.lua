@@ -12,9 +12,9 @@ local n_images = 5
 local images = {}
 local images_vectors={}
 -- The default output label of the DM files
-local label = "MgO-3x3x1-2V"
-local f_label_xyz = "image_coordinates_"
-local f_label_xyz_vec = "image_vectors_"
+--local label = "MgO-3x3x1-2V"
+local f_label_xyz =  image_label --"image_coordinates_"
+local f_label_xyz_vec = image_vector_label --"image_vectors_"
 -- Function for reading a geometry of vector
 local read_geom_vec = function(filename)
    local file = io.open(filename, "r")
@@ -69,9 +69,9 @@ for i = 0, n_images + 1 do
    images_vectors[#images_vectors+1]= flos.MDStep{R=read_geom_vec(image_vector_label .. i .. ".xyz")}
 end
 -- Now we have all images...
-local NEB = flos.VCNEB(images)
-local VCNEB = flos.VCNEB(images_vectors)
-NEB.DM_label=labe --"MgO-3x3x1-2V"
+local NEB = flos.VCDNEB(images,{k=0.01})
+local VCNEB = flos.VCDNEB(images_vectors,{k=0.01})
+--NEB.DM_label=labe --"MgO-3x3x1-2V"
 if siesta.IONode then
    NEB:info()
    VCNEB:info()
@@ -100,7 +100,6 @@ local current_image = 1
 -- Grab the unit table of siesta (it is already created
 -- by SIESTA)
 local Unit = siesta.Units
-
 function siesta_comm() 
    -- This routine does exchange of data with SIESTA
    local ret_tbl = {}
@@ -183,7 +182,6 @@ function siesta_comm()
    end
    siesta.send(ret_tbl)
 end
-
 function siesta_move(siesta)
    -- Retrieve the atomic coordinates, forces and the energy
    local fa = flos.Array.from(siesta.geom.fa) * Unit.Ang / Unit.eV

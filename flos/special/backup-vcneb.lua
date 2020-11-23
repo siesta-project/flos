@@ -32,6 +32,38 @@ function VCNEB:initialize(images,tbl)
    -- the __index function (because it uses it)
    self.initial = images[1]
    self.final = images[#images]
+   --self.neb_type = "TDCINEB" --working
+   --==============================================
+   -- Defining NEB Type
+   --==============================================
+   local nt= tbl.neb_type
+   if nt == nil then
+      self.neb_type="VCCINEB"
+   else
+    self.neb_type = nt
+   end
+   --self.neb_type = "VCCINEB"
+   --==============================================
+   -- Defining VCNEB Label
+   --==============================================
+   self.DM_label="MgO-3x3x1-2V"
+   --==============================================
+   -- Defining VCNEB Temperature
+   --==============================================   
+   -- For Adding Temperature Dependet
+   local nk =tbl.neb_temp
+   if nk == nil then
+     self.neb_temp = 0.0
+   else
+     self.neb_temp= nk
+   end
+   self.boltzman=8.617333262*10^(-5)
+   self.beta=1.0/(self.neb_temp*self.boltzman)
+   --==============================================
+   -- Defining Number of Climing Image
+   --==============================================    
+   --self.old_DM_label=""
+   --self.current_DM_label=""
       -- an integer that describes when the climbing image
    -- may be used, make large enough to never set it
    local cl = tbl.climbing or 5
@@ -174,6 +206,7 @@ function VCNEB:neb_force(image)
    --===================================================================
       --Adding Variable Cell Climing Image Nudged Elastic Band
    --===================================================================
+   if self.neb_type == "VCCINEB" then
      if self.niter > self._climbing and self:climbing(image) then
        local F = self[image].F
        NEB_F = F - 2 * F:project( self:tangent(image) )
@@ -183,6 +216,42 @@ function VCNEB:neb_force(image)
      end
      return NEB_F
    end
+   --===================================================================
+      --Adding Variable Cell Climing Image-Double Nudged Elastic Band
+   --===================================================================
+   if self.neb_type == "VCCIDNEB" then
+     if self.niter > self._climbing and self:climbing(image) then
+       local F = self[image].F
+       if self:tangent(image):norm(0)==0.0 then
+           NEB_F = F
+       else 
+           NEB_F = F - 2 * F:project( self:tangent(image) )
+       end
+     else
+       DNEB_F = self:perpendicular_spring_force(image)-self:perpendicular_spring_force(image):project(self:perpendicular_force(image))*(self:perpendicular_force(image))
+       NEB_F = self:perpendicular_force(image) + self:spring_force(image) + DNEB_F--+ self:perpendicular_spring_force(image)-self:perpendicular_spring_force(image):project(self:perpendicular_force(image))*(self:perpendicular_force(image))  --+DNEB_F 
+       --print (DNEB_F)
+     end
+     return NEB_F 
+   end
+   --===================================================================
+   --Adding Temperature Dependent Climing Image-Nudged Elastic Band
+   --===================================================================
+   if self.neb_type == "TDVCCINEB" then
+     if self.niter > self._climbing and self:climbing(image) then
+          local F = self[image].F
+          if self:tangent(image):norm(0)==0.0 then
+               NEB_F = F
+          else 
+               NEB_F = F - 2 * F:project( self:tangent(image) )
+          end
+     else
+          TDNEB_F = self:perpendicular_force(image)-(self:curvature(image)/self.beta) 
+          NEB_F = TDNEB_F + self:spring_force(image) 
+     end
+     return NEB_F
+   end
+end
 --- Query the current force (same as `NEB:force` but with IO included)
 -- @int image the image
 -- @return force
@@ -304,24 +373,35 @@ function VCNEB:init_files()
 end
 --- Print to screen some information regarding the NEB algorithm
 function VCNEB:info()
+  if self.neb_type=="VCCINEB" then
+  --if neb_type=="VCCINEB" then
    print ("============================================") 
-   print (" The Variable Cell NEB (VC-NEB) method  ")
+   print (" The Variable Cell CI-NEB (VCCINEB) method  ")
    print ("============================================") 
-  
-   print("VCNEB Number of Images :  " .. self.n_images)
-   print("VCNEB Use Climbing After : " .. self._climbing .. " Steps")
+  elseif self.neb_type == "VCCIDNEB" then
+   print ("=============================================") 
+   print (" The Variable Cell CI-DNEB (VCCIDNEB) Method ")
+   print ("=============================================") 
+  elseif self.neb_type == "TDVCCINEB" then
+   print ("=================================================") 
+   print (" The Temperature Dependent CI-DNEB(VCDNEB) Method   ")
+   print ("=================================================")
+   print ("The Temperature is : ".. self.neb_temp .. " K")
+  end
+   print("VCNEB has " .. self.n_images)
+   print("VCNEB uses climbing after " .. self._climbing .. " steps")
    local tmp = array.Array( self.n_images + 1 )
    tmp[1] = self:dR(0, 1):norm(0)
    for i = 2, self.n_images + 1 do
       tmp[i] = tmp[i-1] + self:dR(i-1, i):norm(0)
    end
-   print("VCNEB Reaction Coordinates: ")
+   print("VCNEB reaction coordinates: ")
    print(tostring(tmp))
    local tmp = array.Array( self.n_images )
    for i = 1, self.n_images do
       tmp[i] = self.k[i]
    end
-   print("VCNEB Spring Constant: ")
+   print("VCNEB spring constant: ")
    print(tostring(tmp))
 end
 -- Calculatin Perpendicular Spring force

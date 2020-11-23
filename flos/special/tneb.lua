@@ -11,9 +11,13 @@ local error = ferror.floserr
 local _NEB = require "flos.special.neb"
 
 -- Create the NEB class (inheriting the Optimizer construct)
-local VCNEB = mc.class("VCNEB", _NEB)
---- Instantiating a new VCNEB` object.
-function VCNEB:initialize(images,tbl)
+local TNEB = mc.class("TNEB", _NEB)
+--- Instantiating a new TNEB` object.
+   --==============================================
+   -- Defining TNEB Temperature
+   --==============================================   
+   -- For Adding Temperature Dependet
+function TNEB:initialize(images,tbl)
    -- Convert the remaining arguments to a table
    local tbl = tbl or {}
      -- Copy all images over
@@ -22,7 +26,7 @@ function VCNEB:initialize(images,tbl)
       self[i-1] = images[i]
       self.zeros=images[i].R- images[i].R
       if #images[i].R ~= size_img then
-	 error("VCNEB: images does not have same size of geometries!")
+	 error("TNEB: images does not have same size of geometries!")
       end
    end
    -- store the number of images (without the initial and final)
@@ -32,6 +36,38 @@ function VCNEB:initialize(images,tbl)
    -- the __index function (because it uses it)
    self.initial = images[1]
    self.final = images[#images]
+   --self.neb_type = "TDCINEB" --working
+   --==============================================
+   -- Defining NEB Type
+   --==============================================
+   --local nt= tbl.neb_type
+   --if nt == nil then
+   --   self.neb_type="VCCINEB"
+   --else
+   -- self.neb_type = nt
+   --end
+   --self.neb_type = "VCCINEB"
+   --==============================================
+   -- Defining VCNEB Label
+   --==============================================
+   
+   --==============================================
+   -- Defining VCNEB Temperature
+   --==============================================   
+   -- For Adding Temperature Dependet
+   local nk =tbl.neb_temp
+   if nk == nil then
+     self.neb_temp = 0.0
+   else
+     self.neb_temp= nk
+   end
+   self.boltzman=8.617333262*10^(-5)
+   self.beta=1.0/(self.neb_temp*self.boltzman)
+   --==============================================
+   -- Defining Number of Climing Image
+   --==============================================    
+   --self.old_DM_label=""
+   --self.current_DM_label=""
       -- an integer that describes when the climbing image
    -- may be used, make large enough to never set it
    local cl = tbl.climbing or 5
@@ -65,128 +101,58 @@ function VCNEB:initialize(images,tbl)
    end
    self:init_files()   
 end
+
+   
+   
+   
+   
+--   local nk =tbl.neb_temp
+--   if nk == nil then
+--     self.neb_temp = 0.0
+--   else
+--     self.neb_temp= nk
+--   end
+--   self.boltzman=8.617333262*10^(-5)
+--   self.beta=1.0/(self.neb_temp*self.boltzman)
+   
+   
 --- Calculate the tangent of a given image
 -- @int image the image to calculate the tangent of
 -- @return tangent force
--- The Tangent Edited for VCNEB
--- In case of VCNEB started with the same unit vectors the it should consistent
-function VCNEB:tangent(image)
-   self:_check_image(image)
-   -- Determine energies of relevant images
-   local E_prev = self[image-1].E
-   local E_this = self[image].E
-   local E_next = self[image+1].E
-   -- Determine position differences
-   local dR_prev = self:dR(image-1, image)
-   local dR_next = self:dR(image, image+1)
-   local dR_this = self:dR(image, image)
-   -- Returned value
-   local tangent
-   -- Determine relevant energy scenario
-   --if dR_next:norm(0) == 0.0 or dR_prev:norm(0)==0.0 or dR_this:norm(0)==0.0  then
-   --   tangent = dR_this
-   --   return tangent
-   if E_next > E_this and E_this > E_prev then
-      tangent = dR_next
-      if dR_next:norm(0) == 0.0  then
-        return tangent
-      else
-        return tangent / tangent:norm(0)
-      end
-   elseif E_next < E_this and E_this < E_prev then      
-      tangent = dR_prev
-      if dR_prev:norm(0)==0.0 then
-        return tangent
-      else
-        return tangent / tangent:norm(0)
-      end   
-   else      
-      -- We are at extremum, so mix
-      local dEmax = m.max( m.abs(E_next - E_this), m.abs(E_prev - E_this) )
-      local dEmin = m.min( m.abs(E_next - E_this), m.abs(E_prev - E_this) )      
-      if E_next > E_prev then
-         tangent = dR_next * dEmax + dR_prev * dEmin
-         if dR_next:norm(0) == 0.0 or dR_prev:norm(0)==0.0 then
-             return tangent
-         else
-         return tangent / tangent:norm(0)
-         end
-      else
-	       tangent = dR_next * dEmin + dR_prev * dEmax
-         if dR_next:norm(0) == 0.0 or dR_prev:norm(0)==0.0 then
-             return tangent
-         else
-             return tangent / tangent:norm(0)
-         end      
-      end      
-   end
-   -- At this point we have a tangent,
-   -- now normalize and return it
-   
-      --return tangent / tangent:norm(0)
-   --end
-end
-
---- Calculate the spring force of a given image
--- @int image the image to calculate the spring force of
--- @return spring force
--- function NEB:spring_force(image)
---   self:_check_image(image)
-   -- Determine position norms
---   local dR_prev = self:dR(image-1, image):norm(0)
---   local dR_next = self:dR(image, image+1):norm(0)   
-   -- Set spring force as F = k (R1-R2) * tangent
-   --if dR_prev==0.0 or dR_next==0.0 then
-   --  return self:tangent(image) --self.k[image] * (dR_next - dR_prev) * self:tangent(image)
-   --else
- --   return self.k[image] * (dR_next - dR_prev) * self:tangent(image)  
-   --end
---end
-
-
-
 --- Calculate the perpendicular force of a given image
 -- @int image the image to calculate the perpendicular force of
 -- @return perpendicular force
 -- Edited to adopt the VCNEB
-function VCNEB:perpendicular_force(image)
-   self:_check_image(image)
-   if self:tangent(image):norm(0)==0.0 then
-     return self[image].F
-   else
-   -- Subtract the force projected onto the tangent to get the perpendicular force
-   local P = self[image].F:project(self:tangent(image))
-   return self[image].F - P --self:tangent(image) 
-   end
-end
 --- Calculate the curvature of the force with regards to the tangent
 -- @int image the image to calculate the curvature of
 
-
-
-function VCNEB:neb_force(image)
+function TNEB:neb_force(image)
    self:_check_image(image)
    local NEB_F
-   local DNEB_F
    local TDNEB_F
    -- Only run Climbing image after a certain amount of steps (robustness)
    -- Typically this number is 5.
    --===================================================================
-      --Adding Variable Cell Climing Image Nudged Elastic Band
+   --Adding Temperature Dependent Climing Image-Nudged Elastic Band
    --===================================================================
      if self.niter > self._climbing and self:climbing(image) then
-       local F = self[image].F
-       NEB_F = F - 2 * F:project( self:tangent(image) )
+          local F = self[image].F
+          if self:tangent(image):norm(0)==0.0 then
+               NEB_F = F
+          else 
+               NEB_F = F - 2 * F:project( self:tangent(image) )
+          end
      else
-       DNEB_F = 0.0
-       NEB_F = self:perpendicular_force(image) + self:spring_force(image) + DNEB_F
+          --NEB_NORM = F - self:perpendicular_force(image)
+          TDNEB_F = self:perpendicular_force(image)-(self:curvature(image)/self.beta) * NEB_NORM
+          NEB_F = TDNEB_F + self:spring_force(image) 
      end
      return NEB_F
    end
 --- Query the current force (same as `NEB:force` but with IO included)
 -- @int image the image
 -- @return force
-function VCNEB:force(image, IO)
+function TNEB:force(image, IO)
    self:_check_image(image)   
    if image == 1 then
       -- Increment step-counter
@@ -201,35 +167,35 @@ function VCNEB:force(image, IO)
    if IO then
       local f
       -- Current coordinates (ie .R)
-      f = io.open( ("VCNEB.%d.R"):format(image), "a")
+      f = io.open( ("TNEB.%d.R"):format(image), "a")
       self[image].R:savetxt(f)
       f:close()
       -- Forces before (ie .F)
-      f = io.open( ("VCNEB.%d.F"):format(image), "a")
+      f = io.open( ("TNEB.%d.F"):format(image), "a")
       F:savetxt(f)
       f:close()
       -- Perpendicular force
-      f = io.open( ("VCNEB.%d.F.P"):format(image), "a")
+      f = io.open( ("TNEB.%d.F.P"):format(image), "a")
       perp_F:savetxt(f)
       f:close()      
       -- Spring force
-      f = io.open( ("VCNEB.%d.F.S"):format(image), "a")
+      f = io.open( ("TNEB.%d.F.S"):format(image), "a")
       spring_F:savetxt(f)
       f:close()
       -- NEB Force
-      f = io.open( ("VCNEB.%d.F.NEB"):format(image), "a")
+      f = io.open( ("TNEB.%d.F.NEB"):format(image), "a")
       NEB_F:savetxt(f)
       f:close()
       -- Tangent
-      f = io.open( ("VCNEB.%d.T"):format(image), "a")
+      f = io.open( ("TNEB.%d.T"):format(image), "a")
       tangent:savetxt(f)
       f:close()
       -- dR - previous reaction coordinate
-      f = io.open( ("VCNEB.%d.dR_prev"):format(image), "a")
+      f = io.open( ("TNEB.%d.dR_prev"):format(image), "a")
       self:dR(image-1, image):savetxt(f)
       f:close()
       -- dR - next reaction coordinate
-      f = io.open( ("VCNEB.%d.dR_next"):format(image), "a")
+      f = io.open( ("TNEB.%d.dR_next"):format(image), "a")
       self:dR(image, image+1):savetxt(f)
       f:close()
    end
@@ -237,7 +203,7 @@ function VCNEB:force(image, IO)
    return NEB_F   
 end
 --- Store the current step of the NEB iteration with the appropriate results
-function VCNEB:save(IO)
+function TNEB:save(IO)
    -- If we should not do IO, return immediately
    if not IO then
       return
@@ -273,13 +239,13 @@ function VCNEB:save(IO)
 	 row[6] = self:neb_force(i):norm():max()
       end
    end
-   local f = io.open("VCNEB.results", "a")
+   local f = io.open("TNEB.results", "a")
    dat:savetxt(f)
    f:close()
 end
 
 --- Initialize all files that will be written to
-function VCNEB:init_files()   
+function TNEB:init_files()   
    -- We clean all image data for a new run
    local function new_file(fname, ...)
       local f = io.open(fname, 'w')
@@ -289,43 +255,43 @@ function VCNEB:init_files()
       end
       f:close()
    end
-   new_file("VCNEB.results", "NEB results file",
+   new_file("TNEB.results", "NEB results file",
 	    "Image reaction-coordinate Energy E-diff Curvature F-max(atom)")   
    for img = 1, self.n_images do
-      new_file( ("VCNEB.%d.R"):format(img), "Coordinates")
-      new_file( ("VCNEB.%d.F"):format(img), "Constrained force")
-      new_file( ("VCNEB.%d.F.P"):format(img), "Perpendicular force")
-      new_file( ("VCNEB.%d.F.S"):format(img), "Spring force")
-      new_file( ("VCNEB.%d.F.NEB"):format(img), "Resulting NEB force")
-      new_file( ("VCNEB.%d.T"):format(img), "NEB tangent")
-      new_file( ("VCNEB.%d.dR_prev"):format(img), "Reaction distance (previous)")
-      new_file( ("VCNEB.%d.dR_next"):format(img), "Reaction distance (next)")
+      new_file( ("TNEB.%d.R"):format(img), "Coordinates")
+      new_file( ("TNEB.%d.F"):format(img), "Constrained force")
+      new_file( ("TNEB.%d.F.P"):format(img), "Perpendicular force")
+      new_file( ("TNEB.%d.F.S"):format(img), "Spring force")
+      new_file( ("TNEB.%d.F.NEB"):format(img), "Resulting NEB force")
+      new_file( ("TNEB.%d.T"):format(img), "NEB tangent")
+      new_file( ("TNEB.%d.dR_prev"):format(img), "Reaction distance (previous)")
+      new_file( ("TNEB.%d.dR_next"):format(img), "Reaction distance (next)")
    end
 end
 --- Print to screen some information regarding the NEB algorithm
-function VCNEB:info()
-   print ("============================================") 
-   print (" The Variable Cell NEB (VC-NEB) method  ")
-   print ("============================================") 
-  
-   print("VCNEB Number of Images :  " .. self.n_images)
-   print("VCNEB Use Climbing After : " .. self._climbing .. " Steps")
+function TNEB:info() 
+   print ("=================================================") 
+   print (" The Temperature Dependent CI-DNEB(VCDNEB) Method   ")
+   print ("=================================================")
+   print ("The Temperature is : ".. self.neb_temp .. " K")
+   print("TNEB has " .. self.n_images)
+   print("TNEB uses climbing after " .. self._climbing .. " steps")
    local tmp = array.Array( self.n_images + 1 )
    tmp[1] = self:dR(0, 1):norm(0)
    for i = 2, self.n_images + 1 do
       tmp[i] = tmp[i-1] + self:dR(i-1, i):norm(0)
    end
-   print("VCNEB Reaction Coordinates: ")
+   print("TNEB reaction coordinates: ")
    print(tostring(tmp))
    local tmp = array.Array( self.n_images )
    for i = 1, self.n_images do
       tmp[i] = self.k[i]
    end
-   print("VCNEB Spring Constant: ")
+   print("TNEB spring constant: ")
    print(tostring(tmp))
 end
 -- Calculatin Perpendicular Spring force
-function VCNEB:perpendicular_spring_force(image)
+function TNEB:perpendicular_spring_force(image)
   self:_check_image(image)
   if self:tangent(image):norm(0)==0.0 then
      return  self:spring_force(image)
@@ -334,7 +300,7 @@ function VCNEB:perpendicular_spring_force(image)
      return self:spring_force(image)-PS
   end
 end
-function VCNEB:file_exists(name)--name
+function TNEB:file_exists(name)--name
    --local name
    --DM_name=tostring(name)
    DM_name=name
@@ -355,4 +321,4 @@ function VCNEB:file_exists(name)--name
    --return check
 end
 
-return VCNEB
+return TNEB

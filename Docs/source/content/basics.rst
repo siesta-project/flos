@@ -1,5 +1,13 @@
 Basic of FLOS
 =============
+
+
+.. figure:: ./_images/2.png
+  :width: 400px
+
+  Flos Architecture
+
+
 Basics
 ------
 How it Works?!
@@ -18,13 +26,14 @@ At each **intermediate point** one wishes to communicate with a scripting langua
 SIESTA Intermediate Points
 ..........................
 
-When you run SIESTA with FLOOK enabled you have 6 **intermediate point** to communicate:
+When you run SIESTA with FLOOK enabled you have 7 **intermediate point** to communicate:
   (1) Right after reading initial options 
   (2) Right before SCF step starts, but at each MD step
   (3) At the start of each SCF step
   (4) After each SCF has finished
   (5) When moving the atoms, right after the FORCES step
-  (6) When SIESTA is complete, just before it exists
+  (6) When SIESTA start Analyse (Post-Processing)
+  (7) When SIESTA is complete, just before it exists
 
 We call above **intermediate points** state in lua script you could communicate with SIESTA viastate defination like this: ::
 
@@ -69,35 +78,41 @@ The Main function contains the **intermediate points** states : ::
        .
        end
 
-       if siesta.satte == siesta.INIT_MD then
+       if siesta.state == siesta.INIT_MD then
        .
        .
        .
        end
 
-       if siesta.satte == siesta.SCF_LOOP then
+       if siesta.state == siesta.SCF_LOOP then
        .
        .
        .
        end 
        
-       if siesta.satte == siesta.FORCES then   
+       if siesta.state == siesta.FORCES then   
        .
        .
        .
        end
 
-       if siesta.satte == siesta.MOVE then
+       if siesta.state == siesta.MOVE then
        .
        .
        .
        end
 
-       if siesta.satte == siesta.ANALYSIS then
+       if siesta.state == siesta.ANALYSIS then
        .
        .
        .
        end
+      
+       if siesta.state == siesta.FINALIZE then
+       .
+       .
+       .
+       end     
   end
 
 in each part of ``siesta.state`` we could either send or receive data with siesta dictionary. we will discuss that in () section.
@@ -129,19 +144,6 @@ SIESTA LUA Dictionary
 .....................
 
 In each **intermediate points** states we could send or receive data via special name we call them SIESTA LUA dictionary. Here we categorized them:
-
-.. +------------------------+--------------------+---------------------+-------------------+
-.. | Dictionary Name        | Siesta Equivalent  |         Type        | Default Value     |
-.. +========================+====================+=====================+===================+
-.. | slabel                 | SystemLabel        |      Charecture     |                   |
-.. +------------------------+--------------------+---------------------+-------------------+
-.. | DM_history_depth       | DM.HistoryDepth    |     Integer         |                   |
-.. +------------------------+--------------------+---------------------+-------------------+
-.. | Output Options                                                                        |
-.. +========================+====================+=====================+===================+
-.. | slabel                 | SystemLabel        |      Charecture     |                   |
-.. | dumpcharge             | Write.DenChar      |                     |                   |
-.. +------------------------+--------------------+---------------------+-------------------+
 
   :slabel:
          SystemLabel
@@ -406,7 +408,10 @@ In each **intermediate points** states we could send or receive data via special
 
   :cstress:
           geom.stress_constrained
-siesta.receive({"E.total"})
+
+  
+  Energies
+  
   :DEna:
        E.neutral_atom
 
@@ -484,7 +489,7 @@ Now for example if we want to recieve the information of Total Energy we could c
 
 If we want to send some information to siesta we could communicate like this: ::
   
-  siesta.receive({"MD.MaxDispl"})
+  siesta.send({"MD.MaxDispl"})
 
 
 
@@ -543,9 +548,9 @@ An implementation of the conjugate gradient optimization algorithm. This class i
    (1) Polak-Ribiere
    (2) Fletcher-Reeves
    (3) Hestenes-Stiefel
-   (4)  Dai-Yuan
+   (4) Dai-Yuan
 
- Additionally this CG implementation defaults to a beta-damping factor to achieve a smooth restart method, instead of abrupt CG restarts when `beta < 0`, for instance.
+Additionally this CG implementation defaults to a beta-damping factor to achieve a smooth restart method, instead of abrupt CG restarts when `beta < 0`, for instance.
 
 FIRE
 ....
@@ -594,14 +599,32 @@ NEB class Instantiating a new `NEB` object. For the `NEB` object it is important
 (2)  "A climbing image nudged elastic band method for finding saddle points and minimum energy paths", Henkelman, Uberuaga, & Jonsson, JCP (113), 2000 
 
 .. NOTE::
-
-This particular implementation has been tested and initially developed by Jesper T. Rasmussen, DTU Nanotech, 2016.
+ This particular implementation has been tested and initially developed by Jesper T. Rasmussen, DTU Nanotech, 2016.
 
 When instantiating a new `NEB` calculator one _must_ populate the initial, all intermediate images and a final image in a a table. The easiest way to do this can be seen in the below usage field. To perform the NEB calculation all images (besides the initial and final) are relaxed by an external relaxation method (see `Optimizer` and its child classes). Due to the forces being highly non-linear as the NEB algorithm updates the forces depending on the nearest images, it is adviced to use an MD-like relaxation method such as `FIRE`. If one uses history based relaxation methods (`LBFGS`, `CG`, etc.) one should limit the number of history steps used. Running the NEB class will create a huge list of files with corresponding output. Check the `NEB:save` function for details.
 
-VCNEB
-.....
 
 DNEB
 ....
 
+A  modification  of  the  nudged  elastic  band NEB method  is  implementation  enables  stable optimizations  to  be  run  using  both  the  limited-memory  Broyden–Fletcher–Goldfarb–Shanno~L-BFGS. quasi-Newton and slow-response quenched velocity Verlet minimizers. The DNEB bject implements a generic DNEB algorithm as detailed in: 
+
+- "A doubly nudged elastic band method for finding transition states", Semen A. Trygubenkoa and David J. Wales , J. Chem. Phys., Vol. 120, No. 5, 1 February 2004.
+
+
+VCNEB
+.....
+The VC-NEB method is a more general tool for exploring the activation paths between the two end points of a phase transition process within a larger configuration space. The VC-NEB object implements a generic VC-NEB algorithm as detailed in:
+
+- "Variable cell nudged elastic band method for studying solid–solid structural phase transitions" ,G.-R.Qianetal, Computer Physics Communications 184 (2013) 2111–2118.
+
+TNEB
+....
+
+TNEB is a  method  to  introduce  temperature  corrections  to  a  minimum-energyreaction path. The method is based on the maximization of the flux for the Smoluchowski equationand it is implemented using a nudged-elastic-band algorithm. 
+
+The TNEB object implements a generic TNEB algorithm as detailed in:
+
+- "A temperature-dependent nudged-elastic-band algorithm", Ramon Crehuet and Martin J. Field,The Journal of Chemical Physics 118, 9563 (2003); doi: 10.1063/1.1571817
+
+ 
