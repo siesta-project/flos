@@ -5,16 +5,41 @@ Example on how to use an NEB method.
 -- Load the FLOS module
 local flos = require "flos"
 
--- The prefix of the files that contain the images
-local image_label = "siesta."
+-- Parametrize script variables with external file 'config.lua',
+-- which contains 'name = value' lines, akin to fdf files
+--
+local configEnv = {} -- to keep it separate from the global env
+local f = loadfile("config.lua", "t", configEnv)
+if f then
+   f() -- run the chunk
+   -- now configEnv should contain your data
+end
+
+-- Function to set variable values, possibly taking them
+-- from an environment
+--
+local function get_config(Env, name, default)
+      if Env[name] then
+         return Env[name]
+      else
+         return default
+      end
+end
 
 -- Total number of images (excluding initial[0] and final[n_images+1])
-local n_images = 6
--- Table of image geometries
-local images = {}
+local n_images = get_config( configEnv, "number_of_internal_images_in_path", 6)
+
+-- The spring constant for the NEB string
+local k_spring = get_config( configEnv, "neb_spring_constant", 5.0)
+
+-- The prefix of the files that contain the images
+local image_label = get_config( configEnv, "neb_image_file_prefix", "siesta.")
 
 -- The default output label of the DM files
-local label = "siesta"
+local label = get_config( configEnv, "neb_DM_file_prefix", "siesta")
+
+-- Table of image geometries
+local images = {}
 
 -- Function for reading a geometry
 local read_geom = function(filename)
@@ -73,7 +98,7 @@ if not is_correct_size(images) then
 end
 
 -- Now we have all images...
-local NEB = flos.NEB(images)
+local NEB = flos.NEB(images,{k=k_spring})
 if siesta.IONode then
    NEB:info()
 end
