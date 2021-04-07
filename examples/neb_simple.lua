@@ -23,16 +23,29 @@ local read_geom = function(filename)
    local R = flos.Array.zeros(na, 3)
    file:read()
    local i = 0
-   local function tovector(s)
-      local t = {}
-      s:gsub('%S+', function(n) t[#t+1] = tonumber(n) end)
-      return t
+   local function get_numbers (inputstr, sep)
+        if sep == nil then
+                sep = "%s"
+        end
+        local t={}
+        for str in string.gmatch(inputstr, "([^"..sep.."]+)") do
+            try_number = tonumber(str)
+            -- We skip over non-numbers (e.g. chemical symbols)
+            if try_number then
+                table.insert(t, try_number)
+            end
+        end
+        return t
    end
+
    for i = 1, na do
       local line = file:read()
       if line == nil then break end
       -- Get stuff into the R
-      local v = tovector(line)
+      -- We allow chemical symbols, but
+      -- get the first three numbers
+      local v = get_numbers(line)
+
       R[i][1] = v[1]
       R[i][2] = v[2]
       R[i][3] = v[3]
