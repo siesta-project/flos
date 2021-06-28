@@ -2,7 +2,7 @@ Basic of FLOS
 =============
 
 
-.. figure:: ./_images/2.png
+.. figure:: ./images/2.png
   :width: 400px
 
   Flos Architecture
@@ -270,7 +270,7 @@ In each **intermediate points** states we could send or receive data via special
   :RelaxCellOnly:
                 MD.Relax.CellOnly
 
-  :varcel:MD.MaxDispl
+  :varcel:
          MD.Relax.Cell
 
   :inicoor:

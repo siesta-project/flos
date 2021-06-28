@@ -1,7 +1,7 @@
 Tutorials of FLOS
 =================
 
-.. figure:: ./_images/3.png
+.. figure:: ./images/3.png
   :width: 400px
 
   What Flos Could Do...!

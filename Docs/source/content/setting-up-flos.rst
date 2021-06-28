@@ -3,7 +3,7 @@ Setting Up FLOS for SIESTA
 Installation of FLOS
 --------------------
 
-.. figure:: ./_images/1.png
+.. figure:: ./images/1.png
   :width: 400px
 
   Flook Architecture
