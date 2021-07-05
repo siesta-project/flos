@@ -1,0 +1,1 @@
+.. include:: ./content/installation.rst
